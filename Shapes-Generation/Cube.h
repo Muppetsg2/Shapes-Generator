@@ -1,21 +1,11 @@
 #pragma once
 
-#include <vector>
-#include "MeshStructs.h"
-#include <string>
+#include "Shape.h"
 
 using namespace std;
 
-class Cube
-{
-private:
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-
-	pair<glm::vec3, glm::vec3> calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
-
+class Cube : public Shape {
 public:
 	Cube();
-
-	string getCubeAsString();
+	virtual ~Cube();
 };

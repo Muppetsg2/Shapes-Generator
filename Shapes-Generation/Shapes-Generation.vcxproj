@@ -131,8 +131,8 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Hexagon.cpp" />
     <ClCompile Include="Piramid.cpp" />
-    <ClCompile Include="Pirmaid.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Shapes-Generation.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Tetrahedron.cpp" />
@@ -431,6 +431,7 @@
     <ClInclude Include="MeshStructs.h" />
     <ClInclude Include="Piramid.h" />
     <ClInclude Include="Plane.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Tetrahedron.h" />
   </ItemGroup>

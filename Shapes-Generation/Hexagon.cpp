@@ -1,36 +1,4 @@
 #include "Hexagon.h"
-#include <format>
-
-pair<glm::vec3, glm::vec3> Hexagon::calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3)
-{
-    std::pair<glm::vec3, glm::vec3> TB;
-
-    Vertex v0 = vertices[t1];
-    Vertex v1 = vertices[t2];
-    Vertex v2 = vertices[t3];
-
-    glm::vec3 pos0 = v0.Position;
-    glm::vec3 pos1 = v1.Position;
-    glm::vec3 pos2 = v2.Position;
-
-    glm::vec2 uv0 = v0.TexCoord;
-    glm::vec2 uv1 = v1.TexCoord;
-    glm::vec2 uv2 = v2.TexCoord;
-
-    glm::vec3 delta_pos1 = pos1 - pos0;
-    glm::vec3 delta_pos2 = pos2 - pos0;
-
-    glm::vec2 delta_uv1 = uv1 - uv0;
-    glm::vec2 delta_uv2 = uv2 - uv0;
-
-    float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
-
-    // Save the results
-    TB.first = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
-    TB.second = (delta_pos2 * delta_uv1.x - delta_pos1 * delta_uv2.x) * r;
-
-    return TB;
-}
 
 void Hexagon::generateCircle(unsigned int segments, float y, unsigned int cullFace)
 {
@@ -186,61 +154,4 @@ Hexagon::Hexagon()
     generateCircle(segments, -h / 2.f, 1);
 }
 
-string Hexagon::getHexagonAsString()
-{
-    string text = "std::vector<Vertex> vertices {\n";
-
-    for (int i = 0; i < vertices.size(); ++i) {
-        Vertex v = vertices[i];
-
-        text += vformat(string_view("\t{} {}{:f}f, {:f}f, {:f}f{}, {}{:f}f, {:f}f{}, {}{:f}f, {:f}f, {:f}f{}, {}{:f}f, {:f}f, {:f}f{}, {}{:f}f, {:f}f, {:f}f{} {}"),
-            make_format_args
-            (
-                "{", ".Position = glm::vec3(",
-                v.Position.x, v.Position.y, v.Position.z,
-                ")", ".TexCoords = glm::vec2(",
-                v.TexCoord.x, v.TexCoord.y,
-                ")", ".Normal = glm::vec3(",
-                v.Normal.x, v.Normal.y, v.Normal.z,
-                ")", ".Tangent = glm::vec3(",
-                v.Tangent.x, v.Tangent.y, v.Tangent.z,
-                ")", ".Bitangent = glm::vec3(",
-                v.Bitangent.x, v.Bitangent.y, v.Bitangent.z,
-                ")", "}"
-            )
-        );
-
-        if (i + 1 < vertices.size()) {
-            text += ",\n";
-        }
-        else {
-            text += "\n";
-        }
-    }
-
-    text += "};\n\nstd::vector<unsigned int> indices = {\n";
-
-    for (int i = 0; i < indices.size(); i += 3) {
-        text += vformat
-        (
-            string_view("\t{0}, {1}, {2}"),
-            make_format_args
-            (
-                indices[i],
-                indices[i + 1],
-                indices[i + 2]
-            )
-        );
-
-        if (i + 3 < indices.size()) {
-            text += ",\n";
-        }
-        else {
-            text += "\n";
-        }
-    }
-
-    text += "};";
-
-    return text;
-}
+Hexagon::~Hexagon() {}

@@ -1,18 +1,15 @@
 #pragma once
 
-#include "MeshStructs.h"
-#include <vector>
-#include <string>
+#include "Shape.h"
 
 using namespace std;
 
-class Sphere {
+class Sphere : public Shape {
 private:
 	unsigned int _segmentsHorizontal = 2;
 	unsigned int _segmentsVertical = 3;
 
-	vector<Vertex> vertices;
-	vector<unsigned int> indices;
+	void updateVerticiesAndIndices();
 
 public:
 	Sphere();
@@ -21,10 +18,4 @@ public:
 
 	void setSegmentsHorizontal(unsigned int segmentsHorizontal);
 	void setSegmentsVertical(unsigned int segmentsVertical);
-
-	string getSphereAsString();
-
-private:
-	void updateVerticiesAndIndices();
-	std::pair<glm::vec3, glm::vec3> calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
 };

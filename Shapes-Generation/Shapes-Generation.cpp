@@ -24,12 +24,12 @@ int main()
     fstream file;
     file.open("./wynik.txt", std::ios::out | std::ios::trunc);
 
-    //file << s.getSphereAsString();
-    //file << p.getPlaneAsString();
-    //file << c.getCubeAsString();
-    //file << h.getHexagonAsString();
-    //file << pi.getPiramidAsString();
-    file << t.getTetrahedronAsString();
+    //file << s.toString();
+    file << p.toString();
+    //file << c.toString();
+    //file << h.toString();
+    //file << pi.toString();
+    //file << t.toString();
     //file << vformat("{} {} {}\n", make_format_args("{", 10, "}"));
 
     file.close();
