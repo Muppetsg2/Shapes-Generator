@@ -63,7 +63,7 @@ Vertex Shape::calcTangentBitangent(unsigned int vertexIndex)
     return v;
 }
 
-pair<glm::vec3, glm::vec3> Shape::calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3)
+std::pair<glm::vec3, glm::vec3> Shape::calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3)
 {
     std::pair<glm::vec3, glm::vec3> TB;
 
@@ -100,61 +100,118 @@ Shape::~Shape()
     indices.clear();
 }
 
-string Shape::toString() const
+std::string Shape::toString(ArrayType type) const
 {
-    string text = "std::vector<Vertex> vertices {\n";
+    std::string text;
+    switch (type) {
+        case ArrayType::VECTOR: {
+            text = "std::vector<Vertex> vertices {\n";
 
-    for (int i = 0; i < vertices.size(); ++i) {
-        Vertex v = vertices[i];
+            for (int i = 0; i < vertices.size(); ++i) {
+                Vertex v = vertices[i];
 
-        text += vformat(string_view("\t{} {}{:.1f}f, {:.1f}f, {:.1f}f{}, {}{:.1f}f, {:.1f}f{}, {}{:.1f}f, {:.1f}f, {:.1f}f{}, {}{:.1f}f, {:.1f}f, {:.1f}f{}, {}{:.1f}f, {:.1f}f, {:.1f}f{} {}"),
-            make_format_args
-            (
-                "{", ".Position = glm::vec3(",
-                v.Position.x, v.Position.y, v.Position.z,
-                ")", ".TexCoords = glm::vec2(",
-                v.TexCoord.x, v.TexCoord.y,
-                ")", ".Normal = glm::vec3(",
-                v.Normal.x, v.Normal.y, v.Normal.z,
-                ")", ".Tangent = glm::vec3(",
-                v.Tangent.x, v.Tangent.y, v.Tangent.z,
-                ")", ".Bitangent = glm::vec3(",
-                v.Bitangent.x, v.Bitangent.y, v.Bitangent.z,
-                ")", "}"
-            )
-        );
+                text += std::vformat(std::string_view("\t{} {}{:.6f}f, {:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f, {:.6f}f{} {}"),
+                    std::make_format_args
+                    (
+                        "{", ".Position = glm::vec3(",
+                        v.Position.x, v.Position.y, v.Position.z,
+                        ")", ".TexCoords = glm::vec2(",
+                        v.TexCoord.x, v.TexCoord.y,
+                        ")", ".Normal = glm::vec3(",
+                        v.Normal.x, v.Normal.y, v.Normal.z,
+                        ")", ".Tangent = glm::vec3(",
+                        v.Tangent.x, v.Tangent.y, v.Tangent.z,
+                        ")", ".Bitangent = glm::vec3(",
+                        v.Bitangent.x, v.Bitangent.y, v.Bitangent.z,
+                        ")", "}"
+                    )
+                );
 
-        if (i + 1 < vertices.size()) {
-            text += ",\n";
+                if (i + 1 < vertices.size()) {
+                    text += ",\n";
+                }
+                else {
+                    text += "\n";
+                }
+            }
+
+            text += "};\n\nstd::vector<unsigned int> indices = {\n";
+
+            for (int i = 0; i < indices.size(); i += 3) {
+                text += std::vformat
+                (
+                    std::string_view("\t{0}, {1}, {2}"),
+                    std::make_format_args
+                    (
+                        indices[i],
+                        indices[i + 1],
+                        indices[i + 2]
+                    )
+                );
+
+                if (i + 3 < indices.size()) {
+                    text += ",\n";
+                }
+                else {
+                    text += "\n";
+                }
+            }
+
+            text += "};";
+            break;
         }
-        else {
-            text += "\n";
+        case ArrayType::ARRAY: {
+            text = "float vertices[" + std::to_string(vertices.size() * 14) + "] = {\n";
+            text += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t\t//TANGENT\t\t\t\t\t//BITANGENT\n";
+
+            for (int i = 0; i < vertices.size(); ++i) {
+                Vertex v = vertices[i];
+
+                text += std::vformat(std::string_view("\t{:.6f}f, {:.6f}f, {:.6f}f,\t\t\t\t{:.6f}f, {:.6f}f,\t{:.6f}f, {:.6f}f, {:.6f}f,\t\t\t\t{:.6f}f, {:.6f}f, {:.6f}f,\t\t\t\t{:.6f}f, {:.6f}f, {:.6f}f"),
+                    std::make_format_args
+                    (
+                        v.Position.x, v.Position.y, v.Position.z,
+                        v.TexCoord.x, v.TexCoord.y,
+                        v.Normal.x, v.Normal.y, v.Normal.z,
+                        v.Tangent.x, v.Tangent.y, v.Tangent.z,
+                        v.Bitangent.x, v.Bitangent.y, v.Bitangent.z
+                    )
+                );
+
+                if (i + 1 < vertices.size()) {
+                    text += ",\n";
+                }
+                else {
+                    text += "\n";
+                }
+            }
+
+            text += "};\n\nunsigned int indices[" + std::to_string(indices.size()) + "] = {\n";
+
+            for (int i = 0; i < indices.size(); i += 3) {
+                text += std::vformat
+                (
+                    std::string_view("\t{0}, {1}, {2}"),
+                    std::make_format_args
+                    (
+                        indices[i],
+                        indices[i + 1],
+                        indices[i + 2]
+                    )
+                );
+
+                if (i + 3 < indices.size()) {
+                    text += ",\n";
+                }
+                else {
+                    text += "\n";
+                }
+            }
+
+            text += "};";
+            break;
         }
     }
-
-    text += "};\n\nstd::vector<unsigned int> indices = {\n";
-
-    for (int i = 0; i < indices.size(); i += 3) {
-        text += vformat
-        (
-            string_view("\t{0}, {1}, {2}"),
-            make_format_args
-            (
-                indices[i],
-                indices[i + 1],
-                indices[i + 2]
-            )
-        );
-
-        if (i + 3 < indices.size()) {
-            text += ",\n";
-        }
-        else {
-            text += "\n";
-        }
-    }
-
-    text += "};";
 
     return text;
 }

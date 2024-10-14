@@ -2,8 +2,6 @@
 
 #include "Shape.h"
 
-using namespace std;
-
 class Sphere : public Shape {
 private:
 	unsigned int _segmentsHorizontal = 2;

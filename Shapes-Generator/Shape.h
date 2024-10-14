@@ -3,8 +3,12 @@
 #include <vector>
 #include "Vertex.h"
 #include <string>
+#include <utility>
 
-using namespace std;
+enum ArrayType {
+	VECTOR = 0,
+	ARRAY = 1
+};
 
 class Shape
 {
@@ -13,13 +17,13 @@ protected:
 	std::vector<unsigned int> indices;
 
 	Vertex calcTangentBitangent(unsigned int vertexIndex);
-	pair<glm::vec3, glm::vec3> calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
+	std::pair<glm::vec3, glm::vec3> calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
 
 public:
 	Shape() = default;
 	virtual ~Shape();
 
-	string toString() const;
+	std::string toString(ArrayType type = ArrayType::VECTOR) const;
 
 	size_t getVerticesCount() const;
 

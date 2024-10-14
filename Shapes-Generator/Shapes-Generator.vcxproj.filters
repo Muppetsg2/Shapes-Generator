@@ -33,7 +33,7 @@
     <ClCompile Include="Hexagon.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="Piramid.cpp">
+    <ClCompile Include="Pyramid.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="Shape.cpp">
@@ -53,7 +53,7 @@
     <ClInclude Include="Cube.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="Piramid.h">
+    <ClInclude Include="Pyramid.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="Tetrahedron.h">

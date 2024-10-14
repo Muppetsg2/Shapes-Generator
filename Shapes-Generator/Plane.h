@@ -2,8 +2,6 @@
 
 #include "Shape.h"
 
-using namespace std;
-
 enum PlaneNormalDir {
 	UP = 0,
 	FRONT = 1

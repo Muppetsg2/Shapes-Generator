@@ -105,3 +105,5 @@ Tetrahedron::Tetrahedron()
 
 	trisNum.clear();
 }
+
+Tetrahedron::~Tetrahedron() {}

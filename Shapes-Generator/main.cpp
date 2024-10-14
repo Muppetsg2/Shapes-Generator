@@ -122,6 +122,22 @@ PlaneNormalDir getPlaneDirection() {
     }
 }
 
+ArrayType getArrayType() {
+    int arr_choice;
+    while (true) {
+        std::cout << "Choose an array format for saving:\n";
+        std::cout << "1. Using std::vector\n";
+        std::cout << "2. Using basic c++ array\n";
+        arr_choice = getIntInput("Your choice: ");
+        if (arr_choice >= 1 && arr_choice <= 2) {
+            return static_cast<ArrayType>(arr_choice - 1);
+        }
+        else {
+            std::cout << "Invalid option! Please choose a number between 1 and 2.\n";
+        }
+    }
+}
+
 int main()
 {
     Shape* selectedShape = nullptr;
@@ -157,10 +173,11 @@ int main()
             if (horizontal < 2) std::cout << "Number of horizontal segments was lower than 2, so 2 segments were used during generation.\n";
             if (vertical < 3) std::cout << "Number of vertical segments was lower than 3, so 3 segments were used during generation.\n";
 
-            std::cout << "Start Generating Sphere!\n";
+            std::cout << "\nStart Generating Sphere!\n";
             auto start = std::chrono::system_clock::now();
             selectedShape = new Sphere(horizontal, vertical);
             auto end = std::chrono::system_clock::now();
+            std::cout << "Sphere Generated!\n";
 
             elapsed_seconds = end - start;
             break;
@@ -173,46 +190,51 @@ int main()
             if (rows < 2) std::cout << "Number of rows was lower than 2, so 2 rows were used during generation.\n";
             if (columns < 2) std::cout << "Number of columns was lower than 2, so 2 columns were used during generation.\n";
 
-            std::cout << "Start Generating Plane!\n";
+            std::cout << "\nStart Generating Plane!\n";
             auto start = std::chrono::system_clock::now();
             selectedShape = new Plane(rows, columns, dir);
             auto end = std::chrono::system_clock::now();
+            std::cout << "Plane Generated!\n";
 
             elapsed_seconds = end - start;
             break;
         }
         case 3: {
-            std::cout << "Start Generating Cube!\n";
+            std::cout << "\nStart Generating Cube!\n";
             auto start = std::chrono::system_clock::now();
             selectedShape = new Cube();
             auto end = std::chrono::system_clock::now();
+            std::cout << "Cube Generated!\n";
 
             elapsed_seconds = end - start;
             break;
         }
         case 4: {
-            std::cout << "Start Generating Hexagon!\n";
+            std::cout << "\nStart Generating Hexagon!\n";
             auto start = std::chrono::system_clock::now();
             selectedShape = new Hexagon();
             auto end = std::chrono::system_clock::now();
+            std::cout << "Hexagon Generated!\n";
 
             elapsed_seconds = end - start;
             break;
         }
         case 5: {
-            std::cout << "Start Generating Pyramid!\n";
+            std::cout << "\nStart Generating Pyramid!\n";
             auto start = std::chrono::system_clock::now();
             selectedShape = new Pyramid();
             auto end = std::chrono::system_clock::now();
+            std::cout << "Pyramid Generated!\n";
 
             elapsed_seconds = end - start;
             break;
         }
         case 6: {
-            std::cout << "Start Generating Tetrahedron!\n";
+            std::cout << "\nStart Generating Tetrahedron!\n";
             auto start = std::chrono::system_clock::now();
             selectedShape = new Tetrahedron();
             auto end = std::chrono::system_clock::now();
+            std::cout << "Tetrahedron Generated!\n";
 
             elapsed_seconds = end - start;
             break;
@@ -223,12 +245,14 @@ int main()
         return 0;
     }
 
-    std::cout << "Shape Generated in " << elapsed_seconds.count() << "s!\n";
+    std::cout << "\nShape Generated in " << elapsed_seconds.count() << "s!\n\n";
 
-    fstream file;
+    ArrayType arr = getArrayType();
+
+    std::fstream file;
     file.open("./shape.txt", std::ios::out | std::ios::trunc);
 
-    file << selectedShape->toString();
+    file << selectedShape->toString(arr);
 
     file.close();
 

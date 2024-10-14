@@ -135,7 +135,7 @@
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Hexagon.cpp" />
-    <ClCompile Include="Piramid.cpp" />
+    <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="main.cpp" />
@@ -146,7 +146,7 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Hexagon.h" />
     <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Piramid.h" />
+    <ClInclude Include="Pyramid.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
