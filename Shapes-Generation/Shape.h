@@ -15,9 +15,9 @@ protected:
 	Vertex calcTangentBitangent(unsigned int vertexIndex);
 	pair<glm::vec3, glm::vec3> calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
 
+public:
 	Shape() = default;
 	virtual ~Shape();
-public:
 
 	string toString() const;
 

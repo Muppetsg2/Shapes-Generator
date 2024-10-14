@@ -105,12 +105,7 @@ void Plane::generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir
 
 Plane::Plane(unsigned int rows, unsigned int columns, PlaneNormalDir dir)
 {
-    if (rows < 2 || columns < 2) {
-        generate(2, 2, dir);
-        return;
-    }
-
-    generate(rows, columns, dir);
+    generate(rows >= 2 ? rows : 2, columns >= 2 ? columns : 2, dir);
 }
 
 Plane::~Plane() {}

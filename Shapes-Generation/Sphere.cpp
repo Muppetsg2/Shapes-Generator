@@ -175,8 +175,8 @@ Sphere::Sphere()
 
 Sphere::Sphere(unsigned int h, unsigned int v)
 {
-	_segmentsHorizontal = h;
-	_segmentsVertical = v;
+	_segmentsHorizontal = h >= 2 ? h : 2;
+	_segmentsVertical = v >= 3 ? v : 3;
 
 	this->updateVerticiesAndIndices();
 }
