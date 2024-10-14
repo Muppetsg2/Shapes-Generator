@@ -1,6 +1,6 @@
-#include "Piramid.h"
+#include "Pyramid.h"
 
-Piramid::Piramid()
+Pyramid::Pyramid()
 {
 	float sqrt_2 = sqrtf(2);
 	float h = sqrt_2 / 2.f;
@@ -98,4 +98,4 @@ Piramid::Piramid()
 	trisNum.clear();
 }
 
-Piramid::~Piramid() {}
+Pyramid::~Pyramid() {}

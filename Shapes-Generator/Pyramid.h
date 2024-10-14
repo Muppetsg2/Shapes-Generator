@@ -4,8 +4,8 @@
 
 using namespace std;
 
-class Piramid : public Shape {
+class Pyramid : public Shape {
 public:
-	Piramid();
-	virtual ~Piramid();
+	Pyramid();
+	virtual ~Pyramid();
 };

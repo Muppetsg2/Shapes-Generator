@@ -15,7 +15,7 @@
 #include "Plane.h"
 #include "Cube.h"
 #include "Hexagon.h"
-#include "Piramid.h"
+#include "Pyramid.h"
 #include "Tetrahedron.h"
 
 void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
@@ -200,9 +200,9 @@ int main()
             break;
         }
         case 5: {
-            std::cout << "Start Generating Piramid!\n";
+            std::cout << "Start Generating Pyramid!\n";
             auto start = std::chrono::system_clock::now();
-            selectedShape = new Piramid();
+            selectedShape = new Pyramid();
             auto end = std::chrono::system_clock::now();
 
             elapsed_seconds = end - start;
@@ -226,13 +226,13 @@ int main()
     std::cout << "Shape Generated in " << elapsed_seconds.count() << "s!\n";
 
     fstream file;
-    file.open("./wynik.txt", std::ios::out | std::ios::trunc);
+    file.open("./shape.txt", std::ios::out | std::ios::trunc);
 
     file << selectedShape->toString();
 
     file.close();
 
-    std::string path = std::filesystem::absolute("./wynik.txt").string();
+    std::string path = std::filesystem::absolute("./shape.txt").string();
     replace_all(path, "\\\\", "\\");
 
     std::cout << "Shape saved to file: " << path << "\n";
