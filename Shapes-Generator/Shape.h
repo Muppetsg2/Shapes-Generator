@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "MeshStructs.h"
+#include "Vertex.h"
 #include <string>
 
 using namespace std;
