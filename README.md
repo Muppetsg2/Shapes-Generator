@@ -26,7 +26,7 @@ This project uses the **GLM** (OpenGL Mathematics) library for vector operations
 
 ## How to Build
 
-### Windows with VS 2019 **vcpkg**
+### Windows with **vcpkg**
 
 1. Clone the repository:
    ```bash
@@ -39,19 +39,19 @@ This project uses the **GLM** (OpenGL Mathematics) library for vector operations
    cd vcpkg
    .\bootstrap-vcpkg.bat
    ```
-3. Install GLM and FMT using vcpkg:
-   ```bash
-   .\vcpkg install glm fmt
-   ```
-4. Integrate vcpkg with your MSBuild:
+   > **Note:** If you have VS 2022 just check if you have installed vcpkg in your installation. You can find help on how to find if you have already installed vcpkg [here](https://devblogs.microsoft.com/cppblog/vcpkg-is-now-included-with-visual-studio/).
+3. Integrate vcpkg with your MSBuild:
    ```bash
    .\vcpkg integrate install
    ```
-5. Open the project in Visual Studio. Visual Studio will automatically include the necessary dependencies from vcpkg. Alternatively, if using g++ directly, ensure you specify the correct include paths and link libraries provided by vcpkg.
+4. Open the project in Visual Studio. Visual Studio will automatically include the necessary dependencies from vcpkg.
 
-### Windows with VS 2022 **vcpkg**
-
-1. Just check if you have installed vcpkg in your VS 2022 installation. You can find help on how to find if you have already installed vcpkg [here](https://devblogs.microsoft.com/cppblog/vcpkg-is-now-included-with-visual-studio/).
+#### Alternatively, if using g++ directly
+4. Install GLM and FMT using vcpkg:
+   ```bash
+   .\vcpkg install glm fmt
+   ```
+5. Ensure you specify the correct include paths and link libraries provided by vcpkg
 
 ### Linux/MacOS
 
