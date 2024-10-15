@@ -191,4 +191,4 @@ This project is open-source and available under the MIT License.
 
 > **MIT License Overview:** The MIT License is a permissive free software license that allows users to use, modify, and distribute the software as they wish. Users can incorporate the code into their own projects, both commercial and non-commercial, as long as the original copyright notice and license are included in all copies or substantial portions of the software.
 
-See the LICENSE file for more details.
+See the [LICENSE](./LICENSE) file for more details.
