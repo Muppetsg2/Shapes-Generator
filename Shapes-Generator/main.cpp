@@ -167,10 +167,10 @@ int main()
     std::chrono::duration<double> elapsed_seconds;
     switch (choice) {
         case 1: {
-            int horizontal = getIntInput("Enter sphere number of horizontal segments (>= 2): ");
+            int horizontal = getIntInput("\nEnter sphere number of horizontal segments (>= 2): ");
             int vertical = getIntInput("Enter sphere number of vertical segments (>= 3): ");
 
-            if (horizontal < 2) std::cout << "Number of horizontal segments was lower than 2, so 2 segments were used during generation.\n";
+            if (horizontal < 2) std::cout << "\nNumber of horizontal segments was lower than 2, so 2 segments were used during generation.\n";
             if (vertical < 3) std::cout << "Number of vertical segments was lower than 3, so 3 segments were used during generation.\n";
 
             std::cout << "\nStart Generating Sphere!\n";
@@ -183,11 +183,12 @@ int main()
             break;
         }
         case 2: {
-            int rows = getIntInput("Enter plane number of rows (>= 2): ");
+            int rows = getIntInput("\nEnter plane number of rows (>= 2): ");
             int columns = getIntInput("Enter plane number of columns (>= 2): ");
+            std::cout << '\n';
             PlaneNormalDir dir = getPlaneDirection();
 
-            if (rows < 2) std::cout << "Number of rows was lower than 2, so 2 rows were used during generation.\n";
+            if (rows < 2) std::cout << "\nNumber of rows was lower than 2, so 2 rows were used during generation.\n";
             if (columns < 2) std::cout << "Number of columns was lower than 2, so 2 columns were used during generation.\n";
 
             std::cout << "\nStart Generating Plane!\n";
@@ -259,7 +260,7 @@ int main()
     std::string path = std::filesystem::absolute("./shape.txt").string();
     replace_all(path, "\\\\", "\\");
 
-    std::cout << "Shape saved to file: " << path << "\n";
+    std::cout << "\nShape saved to file: " << path << "\n";
 
     delete selectedShape;
 

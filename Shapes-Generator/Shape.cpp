@@ -1,5 +1,13 @@
 #include "Shape.h"
 #include <format>
+#include <sstream>
+#include <iomanip>
+
+template<typename T>
+const T& unmove(T&& x)
+{
+    return x;
+}
 
 Vertex Shape::calcTangentBitangent(unsigned int vertexIndex)
 {
@@ -94,6 +102,22 @@ std::pair<glm::vec3, glm::vec3> Shape::calcTangentBitangent(unsigned int t1, uns
     return TB;
 }
 
+std::string Shape::formatFloat(float value) const
+{
+    std::stringstream ss;
+
+    ss << std::fixed << std::setprecision(6) << value;
+    std::string str = ss.str();
+
+    if (str.find('.') != std::string::npos) {
+        str = str.substr(0, str.find_last_not_of('0') + 1);
+
+        //if (str.find('.') == str.size() - 1) str = str.substr(0, str.size() - 1);
+    }
+
+    return str;
+}
+
 Shape::~Shape()
 {
     vertices.clear();
@@ -110,19 +134,19 @@ std::string Shape::toString(ArrayType type) const
             for (int i = 0; i < vertices.size(); ++i) {
                 Vertex v = vertices[i];
 
-                text += std::vformat(std::string_view("\t{} {}{:.6f}f, {:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f, {:.6f}f{}, {}{:.6f}f, {:.6f}f, {:.6f}f{} {}"),
+                text += std::vformat(std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
                     std::make_format_args
                     (
                         "{", ".Position = glm::vec3(",
-                        v.Position.x, v.Position.y, v.Position.z,
+                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
                         ")", ".TexCoords = glm::vec2(",
-                        v.TexCoord.x, v.TexCoord.y,
+                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
                         ")", ".Normal = glm::vec3(",
-                        v.Normal.x, v.Normal.y, v.Normal.z,
+                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
                         ")", ".Tangent = glm::vec3(",
-                        v.Tangent.x, v.Tangent.y, v.Tangent.z,
+                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
                         ")", ".Bitangent = glm::vec3(",
-                        v.Bitangent.x, v.Bitangent.y, v.Bitangent.z,
+                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z)),
                         ")", "}"
                     )
                 );
@@ -162,19 +186,19 @@ std::string Shape::toString(ArrayType type) const
         }
         case ArrayType::ARRAY: {
             text = "float vertices[" + std::to_string(vertices.size() * 14) + "] = {\n";
-            text += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t\t//TANGENT\t\t\t\t\t//BITANGENT\n";
+            text += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
 
             for (int i = 0; i < vertices.size(); ++i) {
                 Vertex v = vertices[i];
 
-                text += std::vformat(std::string_view("\t{:.6f}f, {:.6f}f, {:.6f}f,\t\t\t\t{:.6f}f, {:.6f}f,\t{:.6f}f, {:.6f}f, {:.6f}f,\t\t\t\t{:.6f}f, {:.6f}f, {:.6f}f,\t\t\t\t{:.6f}f, {:.6f}f, {:.6f}f"),
+                text += std::vformat(std::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
                     std::make_format_args
                     (
-                        v.Position.x, v.Position.y, v.Position.z,
-                        v.TexCoord.x, v.TexCoord.y,
-                        v.Normal.x, v.Normal.y, v.Normal.z,
-                        v.Tangent.x, v.Tangent.y, v.Tangent.z,
-                        v.Bitangent.x, v.Bitangent.y, v.Bitangent.z
+                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
+                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
+                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
+                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
+                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z))
                     )
                 );
 
