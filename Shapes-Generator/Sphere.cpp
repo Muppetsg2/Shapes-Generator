@@ -159,10 +159,16 @@ void Sphere::updateVerticiesAndIndices()
 
 	for (unsigned int i = 0; i < vertices.size(); ++i) {
 		vertices[i].Tangent /= (float)trisNum[i];
-		vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
+
+		if (glm::length(vertices[i].Tangent) != 0.f) {
+			vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
+		}
 
 		vertices[i].Bitangent /= (float)trisNum[i];
-		vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
+
+		if (glm::length(vertices[i].Bitangent) != 0.f) {
+			vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
+		}
 	}
 
 	trisNum.clear();

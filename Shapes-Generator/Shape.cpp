@@ -59,9 +59,16 @@ Vertex Shape::calcTangentBitangent(unsigned int vertexIndex)
     // Average the tangent and bitangents
     if (trianglesIncluded > 0) {
         tangent /= trianglesIncluded;
+
+        if (glm::length(tangent) != 0.f) {
+            tangent = glm::normalize(tangent);
+        }
+
         bitangent /= trianglesIncluded;
-        tangent = normalize(tangent);
-        bitangent = normalize(bitangent);
+
+        if (glm::length(bitangent) != 0.f) {
+            bitangent = glm::normalize(bitangent);
+        }
     }
 
     // Save the results
@@ -129,7 +136,7 @@ std::string Shape::toString(ArrayType type) const
     std::string text;
     switch (type) {
         case ArrayType::VECTOR: {
-            text = "std::vector<Vertex> vertices {\n";
+            text = "std::vector<Vertex> vertices = {\n";
 
             for (int i = 0; i < vertices.size(); ++i) {
                 Vertex v = vertices[i];
