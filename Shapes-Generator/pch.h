@@ -16,6 +16,10 @@
 #include <utility>
 #include <vector>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 // FROM VCPKG
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>

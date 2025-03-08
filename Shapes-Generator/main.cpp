@@ -205,6 +205,13 @@ FormatType getFormatType() {
 }
 
 int main(int argc, char** argv) {
+#ifdef _WIN32
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+#endif
+
     std::string exeDirPath = std::filesystem::absolute(argv[0]).parent_path().string();
     ValuesRange range = ValuesRange::HALF_TO_HALF;
 
