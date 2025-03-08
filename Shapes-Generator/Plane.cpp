@@ -1,37 +1,42 @@
+// PRECOMPILED HEADER
+#include "pch.h"
 #include "Plane.h"
 
 float Plane::fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd) {
     return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
 }
 
-void Plane::generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir)
+void Plane::generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
 {
-    float diffX = 1.f / (columns - 1);
-    float diffZ = 1.f / (rows - 1);
+    float space = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
+    float minRange = -space * .5f;
+    float maxRange = space * .5f;
+    
+    float diffX = space / (columns - 1);
+    float diffZ = space / (rows - 1);
 
     std::vector<unsigned int> triangleNumForVert;
 
-    for (int row = 0; row < rows; ++row) {
+    for (unsigned int row = 0; row < rows; ++row) {
+        float z = minRange + row * diffZ;
 
-        float z = -.5f + row * diffZ;
-
-        for (int col = 0; col < columns; ++col) {
-            float x = -.5f + col * diffX;
+        for (unsigned int col = 0; col < columns; ++col) {
+            float x = minRange + col * diffX;
 
             switch (dir) {
-                case UP:
+                case PlaneNormalDir::UP:
                 {
-                    vertices.push_back({ { x, 0.f, z }, { fmapf(x, -.5f, .5f, 0.f, 1.f), fmapf(z, -.5f, .5f, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                    vertices.push_back({ { x, 0.f, z }, { fmapf(x, minRange, maxRange, 0.f, 1.f), fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
-                case FRONT:
+                case PlaneNormalDir::FRONT:
                 {
-                    vertices.push_back({ { x, z, 0.f }, { fmapf(x, -.5f, .5f, 0.f, 1.f), fmapf(z, -.5f, .5f, 0.f, 1.f) }, { 0.f, 0.f, 1.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                    vertices.push_back({ { x, z, 0.f }, { fmapf(x, minRange, maxRange, 0.f, 1.f), fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 0.f, 1.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
                 default:
                 {
-                    vertices.push_back({ { x, 0.f, z }, { fmapf(x, -.5f, .5f, 0.f, 1.f), fmapf(z, -.5f, .5f, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                    vertices.push_back({ { x, 0.f, z }, { fmapf(x, minRange, maxRange, 0.f, 1.f), fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
             }
@@ -96,16 +101,34 @@ void Plane::generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir
 
     for (unsigned int i = 0; i < vertices.size(); ++i) {
         vertices[i].Tangent /= (float)triangleNumForVert[i];
-        vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
+
+        if (glm::length(vertices[i].Tangent) != 0.f) {
+            vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
+        }
 
         vertices[i].Bitangent /= (float)triangleNumForVert[i];
-        vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
+
+        if (glm::length(vertices[i].Bitangent) != 0.f) {
+            vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
+        }
     }
 }
 
-Plane::Plane(unsigned int rows, unsigned int columns, PlaneNormalDir dir)
+Plane::Plane(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
 {
-    generate(rows >= 2 ? rows : 2, columns >= 2 ? columns : 2, dir);
+    vertices.clear();
+    indices.clear();
+    generate(std::max(2u, rows), std::max(2u, columns), dir, range);
 }
 
 Plane::~Plane() {}
+
+std::string Plane::getClassName()
+{
+    return "Plane";
+}
+
+std::string Plane::getObjectClassName() const
+{
+    return Plane::getClassName();
+}

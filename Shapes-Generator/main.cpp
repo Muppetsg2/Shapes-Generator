@@ -1,14 +1,5 @@
-﻿// STANDARD LIBS
-#include <iostream>
-#include <fstream>
-#include <chrono>
-#include <filesystem>
-#include <conio.h>
-#include <cstdlib>
-#include <cctype>
-
-#define FMT_HEADER_ONLY
-#include <fmt/core.h>
+﻿// PRECOMPILED HEADER
+#include "pch.h"
 
 // MY FILES
 #include "Sphere.h"
@@ -17,6 +8,8 @@
 #include "Hexagon.h"
 #include "Pyramid.h"
 #include "Tetrahedron.h"
+#include "IcoSphere.h"
+#include "templates.h"
 
 void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
 {
@@ -43,8 +36,8 @@ void replace_all(std::string& s, std::string const& toReplace, std::string const
 
 bool checkForEsc(char ch) {
     if (ch == 27) {  // ASCII code for ESC key
-        std::cout << "\nProgram exited by ESC key.\n";
-        exit(0);  // Exit the program if ESC is pressed
+        fmt::print("[{}] Program exited – ESC key pressed.\n", fmt::styled("EXIT", fmt::fg(fmt::color::dark_red)));
+        exit(EXIT_SUCCESS);  // Exit the program if ESC is pressed
     }
     return false;
 }
@@ -53,7 +46,7 @@ int getIntInput(const std::string& prompt) {
     std::string input = "";
     char ch;
 
-    std::cout << prompt;
+    fmt::print("{}", prompt);
 
     while (true) {
         ch = _getch();  // Get a single character from the user
@@ -64,7 +57,7 @@ int getIntInput(const std::string& prompt) {
         // If Enter is pressed, stop input
         if (ch == '\r') {  // ASCII code for Enter
             if (input.empty()) {
-                std::cout << "\nInvalid input! Please enter a number.\n" << prompt;
+                fmt::print("[{}] Invalid input! Please enter a number.\n{}", fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), prompt);
             }
             else {
                 std::cout << '\n';  // Add a new line after input is confirmed
@@ -90,6 +83,13 @@ int getIntInput(const std::string& prompt) {
 }
 
 void displayStartWindow() {
+
+    size_t lineLength = std::string("   ____  _                         ____                           _               ").size();
+    std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION_STR);
+
+    size_t spaceCount = (lineLength - versionTxt.size()) / 2ull;
+    size_t remainder = (lineLength - versionTxt.size()) % 2ull;
+
     fmt::print("┌──────────────────────────────────────────────────────────────────────────────────┐\n");
     fmt::print("│                                                                                  │\n");
     fmt::print("│   ____  _                         ____                           _               │\n");
@@ -99,170 +99,201 @@ void displayStartWindow() {
     fmt::print("│  |____/|_| |_|\\__,_| .__/ \\___|  \\____|\\___|_| |_|\\___|_|  \\__,_|\\__\\___/|_|     │\n");
     fmt::print("│                    |_|                                                           │\n");
     fmt::print("│                                                                                  │\n");
-    fmt::print("│                             Choose a shape to create                             │\n");
+    fmt::print("│{:<{}}{}{:>{}}│\n", "", spaceCount, versionTxt, "", spaceCount + remainder);
     fmt::print("│                                                                                  │\n");
     fmt::print("│                           Press ESC to exit the program                          │\n");
     fmt::print("│                                                                                  │\n");
     fmt::print("└──────────────────────────────────────────────────────────────────────────────────┘\n");
 }
 
+void printInvalidOption(int firstOptionNum, int lastOptionNum) {
+    fmt::print("[{}] Invalid option! Enter a number between {} and {} and try again.\n",
+        fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), firstOptionNum, lastOptionNum);
+}
+
+std::string getInputPrompt(int firstOptionNum, int lastOptionNum) {
+    return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
+}
+
 PlaneNormalDir getPlaneDirection() {
     int dir_choice;
-    while (true) {
-        std::cout << "Choose a direction:\n";
-        std::cout << "1. UP\n";
-        std::cout << "2. FRONT\n";
-        dir_choice = getIntInput("Your choice: ");
-        if (dir_choice >= 1 && dir_choice <= 2) {
-            return static_cast<PlaneNormalDir>(dir_choice - 1);
+    do {
+        fmt::print("\n> Select the plane orientation:\n1) UP\n2) FRONT\n");
+        dir_choice = getIntInput(getInputPrompt(1, 2));
+        if (dir_choice < 1 || dir_choice > 2) {
+            printInvalidOption(1, 2);
         }
-        else {
-            std::cout << "Invalid direction! Please choose a number between 1 and 2.\n";
-        }
-    }
+    } while (dir_choice < 1 || dir_choice > 2);
+
+    return static_cast<PlaneNormalDir>(dir_choice - 1);
 }
 
-ArrayType getArrayType() {
+IcoSphereShading getShadingType() {
+    int dir_choice;
+    do {
+        fmt::print("\n> Select the icoSphere shading type:\n1) FLAT\n2) PHONG\n");
+        dir_choice = getIntInput(getInputPrompt(1, 2));
+        if (dir_choice < 1 || dir_choice > 2) {
+            printInvalidOption(1, 2);
+        }
+    } while (dir_choice < 1 || dir_choice > 2);
+
+    return static_cast<IcoSphereShading>(dir_choice - 1);
+}
+
+ValuesRange getValuesRange() {
+    int dir_choice;
+    do {
+        fmt::print("\n> Select the value range for object vertices:\n1) [-0.5, 0.5]\n2) [-1.0, 1.0]\n");
+        dir_choice = getIntInput(getInputPrompt(1, 2));
+        if (dir_choice < 1 || dir_choice > 2) {
+            printInvalidOption(1, 2);
+        }
+    } while (dir_choice < 1 || dir_choice > 2);
+
+    return static_cast<ValuesRange>(dir_choice - 1);
+}
+
+FormatType getFormatType() {
+    static const std::vector<std::string> options = {
+        "std::vector - Vertices & Indices",
+        "C++ array - Vertices & Indices",
+        "std::vector - Only Vertices",
+        "C++ array - Only Vertices",
+        "Save as OBJ file"
+    };
+
     int arr_choice;
-    while (true) {
-        std::cout << "Choose an array format for saving:\n";
-        std::cout << "1. Using std::vector\n";
-        std::cout << "2. Using basic c++ array\n";
-        arr_choice = getIntInput("Your choice: ");
-        if (arr_choice >= 1 && arr_choice <= 2) {
-            return static_cast<ArrayType>(arr_choice - 1);
+    do {
+        fmt::print("\n──────────────────────────────────────────────────\n");
+        fmt::print("[{}] Select the save format:\n", fmt::styled("FILE", fmt::fg(fmt::color::alice_blue)));
+        for (size_t i = 0; i < options.size(); ++i) {
+            fmt::print(" {}) {}\n", i + 1, options[i]);
         }
-        else {
-            std::cout << "Invalid option! Please choose a number between 1 and 2.\n";
+        fmt::print("──────────────────────────────────────────────────\n");
+
+        arr_choice = getIntInput(getInputPrompt(1, (int)options.size()));
+        if (arr_choice < 1 || arr_choice > static_cast<int>(options.size())) {
+            printInvalidOption(1, (int)options.size());
         }
-    }
+    } while (arr_choice < 1 || arr_choice > static_cast<int>(options.size()));
+
+    return static_cast<FormatType>(arr_choice - 1);
 }
 
-int main()
-{
+int main(int argc, char** argv) {
+    std::string exeDirPath = std::filesystem::absolute(argv[0]).parent_path().string();
     Shape* selectedShape = nullptr;
+    ValuesRange range = ValuesRange::HALF_TO_HALF;
 
     displayStartWindow();
 
-    int choice = 0;
-    // Loop to check for a valid shape choice
-    while (true) {
-        std::cout << "\nChoose a shape:\n";
-        std::cout << "1. Sphere\n";
-        std::cout << "2. Plane\n";
-        std::cout << "3. Cube\n";
-        std::cout << "4. Hexagon\n";
-        std::cout << "5. Pyramid\n";
-        std::cout << "6. Tetrahedron\n";
+    int choice;
+    do {
+        fmt::print("\n> Select a shape to create:\n");
+        std::cout << "1) Sphere\n2) Plane\n3) Cube\n4) Hexagon\n5) Pyramid\n6) Tetrahedron\n7) IcoSphere\n";
+        choice = getIntInput(getInputPrompt(1, 7));
+        if (choice < 1 || choice > 7) {
+            printInvalidOption(1, 7);
+        }
+    } while(choice < 1 || choice > 7);
 
-        choice = getIntInput("Your choice: ");
-        if (choice >= 1 && choice <= 6) {
-            break;  // Valid choice, exit loop
-        }
-        else {
-            std::cout << "Invalid choice! Please choose a number between 1 and 6.\n";
-        }
-    }
+    range = getValuesRange();
 
     std::chrono::duration<double> elapsed_seconds;
     switch (choice) {
         case 1: {
-            int horizontal = getIntInput("\nEnter sphere number of horizontal segments (>= 2): ");
-            int vertical = getIntInput("Enter sphere number of vertical segments (>= 3): ");
+            fmt::print("\n> Enter sphere parameters:\n");
+            int horizontal = getIntInput("   - Number of horizontal segments (min: 2): ");
+            if (horizontal < 2) {
+                fmt::print("[{}] Adjusted to minimum of 2 horizontal segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                horizontal = 2;
+            }
 
-            if (horizontal < 2) std::cout << "\nNumber of horizontal segments was lower than 2, so 2 segments were used during generation.\n";
-            if (vertical < 3) std::cout << "Number of vertical segments was lower than 3, so 3 segments were used during generation.\n";
-
-            std::cout << "\nStart Generating Sphere!\n";
-            auto start = std::chrono::system_clock::now();
-            selectedShape = new Sphere(horizontal, vertical);
-            auto end = std::chrono::system_clock::now();
-            std::cout << "Sphere Generated!\n";
-
-            elapsed_seconds = end - start;
+            int vertical = getIntInput("   - Number of vertical segments (min: 3): ");
+            if (vertical < 3) {
+                fmt::print("[{}] Adjusted to minimum of 3 vertical segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                vertical = 3;
+            }
+            elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, range);
             break;
         }
         case 2: {
-            int rows = getIntInput("\nEnter plane number of rows (>= 2): ");
-            int columns = getIntInput("Enter plane number of columns (>= 2): ");
-            std::cout << '\n';
+            fmt::print("\n> Enter plane dimensions:\n");
+            int rows = getIntInput("   - Number of rows (min: 2): ");
+            if (rows < 2) {
+                fmt::print("[{}] Adjusted to minimum of 2 rows.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                rows = 2;
+            }
+
+            int columns = getIntInput("   - Number of columns (min: 2): ");
+            if (columns < 2) {
+                fmt::print("[{}] Adjusted to minimum of 2 columns.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                columns = 2;
+            }
             PlaneNormalDir dir = getPlaneDirection();
-
-            if (rows < 2) std::cout << "\nNumber of rows was lower than 2, so 2 rows were used during generation.\n";
-            if (columns < 2) std::cout << "Number of columns was lower than 2, so 2 columns were used during generation.\n";
-
-            std::cout << "\nStart Generating Plane!\n";
-            auto start = std::chrono::system_clock::now();
-            selectedShape = new Plane(rows, columns, dir);
-            auto end = std::chrono::system_clock::now();
-            std::cout << "Plane Generated!\n";
-
-            elapsed_seconds = end - start;
+            elapsed_seconds = generateShape<Plane>(selectedShape, rows, columns, dir, range);
             break;
         }
-        case 3: {
-            std::cout << "\nStart Generating Cube!\n";
-            auto start = std::chrono::system_clock::now();
-            selectedShape = new Cube();
-            auto end = std::chrono::system_clock::now();
-            std::cout << "Cube Generated!\n";
+        case 3: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
+        case 4: elapsed_seconds = generateShape<Hexagon>(selectedShape, range); break;
+        case 5: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
+        case 6: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
+        case 7: {
+            fmt::print("\n> Enter icoSphere parameters:\n");
+            int subs = getIntInput("   - Number of subdivisions (0 - 8): ");
+            if (subs < 0) {
+                fmt::print("[{}] Adjusted to minimum of 0 subdivisions.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                subs = 0;
+            }
+            else if (subs > 8) {
+                fmt::print("[{}] Adjusted to maximum of 8 subdivisions.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                subs = 8;
+            }
 
-            elapsed_seconds = end - start;
-            break;
-        }
-        case 4: {
-            std::cout << "\nStart Generating Hexagon!\n";
-            auto start = std::chrono::system_clock::now();
-            selectedShape = new Hexagon();
-            auto end = std::chrono::system_clock::now();
-            std::cout << "Hexagon Generated!\n";
+            IcoSphereShading shade = getShadingType();
 
-            elapsed_seconds = end - start;
-            break;
-        }
-        case 5: {
-            std::cout << "\nStart Generating Pyramid!\n";
-            auto start = std::chrono::system_clock::now();
-            selectedShape = new Pyramid();
-            auto end = std::chrono::system_clock::now();
-            std::cout << "Pyramid Generated!\n";
-
-            elapsed_seconds = end - start;
-            break;
-        }
-        case 6: {
-            std::cout << "\nStart Generating Tetrahedron!\n";
-            auto start = std::chrono::system_clock::now();
-            selectedShape = new Tetrahedron();
-            auto end = std::chrono::system_clock::now();
-            std::cout << "Tetrahedron Generated!\n";
-
-            elapsed_seconds = end - start;
+            elapsed_seconds = generateShape<IcoSphere>(selectedShape, subs, shade, range);
             break;
         }
     }
 
-    if (selectedShape == nullptr) {
-        return 0;
+    if (!selectedShape) {
+        fmt::print("\n[{}] Error: Failed to generate the shape!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
+        return EXIT_FAILURE;
     }
 
-    std::cout << "\nShape Generated in " << elapsed_seconds.count() << "s!\n\n";
+    fmt::print("\n[{}] Shape successfully generated in {}s!\n", fmt::styled("INFO", fmt::fg(fmt::color::white)), elapsed_seconds.count());
 
-    ArrayType arr = getArrayType();
+    FormatType format = getFormatType();
+    std::string filePath = exeDirPath + ((format != FormatType::OBJ) ? "\\shape.txt" : "\\shape.obj");
 
-    std::fstream file;
-    file.open("./shape.txt", std::ios::out | std::ios::trunc);
+    fmt::print("\n[{}] Start Saving {} to file...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), selectedShape->getObjectClassName());
+    auto start = std::chrono::system_clock::now();
 
-    file << selectedShape->toString(arr);
+    std::ofstream file(filePath, std::ios::out | std::ios::trunc | std::ios::binary);
 
-    file.close();
+    if (file) {
+        std::string text = selectedShape->toString(format);
+        file.write(text.data(), text.size());
+        file.close();
 
-    std::string path = std::filesystem::absolute("./shape.txt").string();
-    replace_all(path, "\\\\", "\\");
+        auto end = std::chrono::system_clock::now();
 
-    std::cout << "\nShape saved to file: " << path << "\n";
+        elapsed_seconds = (end - start);
 
+        std::string path = std::filesystem::absolute(filePath).string();
+        replace_all(path, "\\\\", "\\");
+
+        fmt::print("[{}] Shape saved successfully in {}s!\n[{}] File path: {}\n",
+            fmt::styled("SAVED", fmt::fg(fmt::color::green)),
+            elapsed_seconds.count(),
+            fmt::styled("PATH", fmt::fg(fmt::color::white)), path);
+    }
+    else {
+        fmt::print("[{}] Error: Could not save the file!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
+    }
+    
     delete selectedShape;
-
-    return 0;
+    return EXIT_SUCCESS;
 }

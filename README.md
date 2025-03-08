@@ -1,194 +1,198 @@
-# Shapes-Generator
+<div align='center'>
+   <img src="git_images/icon.png" alt="Logo" width="150" align="center"/>
+   
+  <div id="toc">
+    <ul style="list-style: none;">
+      <summary>
+        <h1>Shapes Generator 1.1.0</h1>
+      </summary>
+    </ul>
+  </div>
+</div>
 
-## Overview
-This project is a console-based Shape Generator program written in C++. It allows the user to create and save a variety of 3D shapes like spheres, planes, cubes, hexagons, pyramids, and tetrahedrons. The program takes user input for specific shape parameters, dynamically generates the shape, and outputs the shape data to a text file.
+## 📌 Description
+This project is a console-based **Shape Generator** written in **C++**. It allows users to create and save various **3D shapes** such as:
 
-This project uses the **GLM** (OpenGL Mathematics) library for vector operations, and **FMT** for formatted output.
+🔴 Sphere | ▭ Cube | 🔷 Hexagon | 🔺 Pyramid | ◇ Tetrahedron | ➖ Plane | 🔵 IcoSphere
 
-## Features
-- **Interactive User Input**: 
-    - The program accepts user input through the console to configure shapes.
-    - The user can choose from six different shapes to generate:
-        1. Sphere
-        2. Plane
-        3. Cube
-        4. Hexagon
-        5. Pyramid
-        6. Tetrahedron
-- **ESC Key Support**: Pressing the ESC key exits the program at any time.
-- **File Output**: Once a shape is generated, it is saved in a text file (`shape.txt`) for later use.
-- **Error Handling**: Provides feedback for invalid input and ensures sensible defaults for shape parameters.
+The program dynamically generates the shape based on user input and exports the shape data to a file.
 
-## Dependencies
+🛠 **Technologies used:**
+- **GLM** (OpenGL Mathematics) for vector operations
+- **FMT** for formatted output
+
+## 📋 Table of Contents
+
+- [✨ Features](#-features)
+- [📦 Dependencies](#-dependencies)
+- [⚙️ How to Build](#-how-to-build)
+   - [🖥️ Windows with vcpkg](#-windows-with-vcpkg)
+   - [🐧 Linux](#-linux)
+   - [🍏 MacOS](#-macos)
+- [▶️ Usage](#-usage)
+- [📜 Example Output](#-example-output)
+- [🛠 Troubleshooting](#-troubleshooting)
+- [👨‍💻 Authors](#-authors)
+- [📜 License](#-license)
+
+## ✨ Features
+
+✅ **Interactive User Input**
+   - Configure shapes through console input.
+   - Choose from **seven** different shapes:
+     1. 🔴 Sphere
+     2. ➖ Plane
+     3. ▭ Cube
+     4. 🔷 Hexagon
+     5. 🔺 Pyramid
+     6. ◇ Tetrahedron
+     7. 🔵 IcoSphere
+
+✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
+✅ **File Output**: Generated shapes are saved in `shape.txt` for later use.
+✅ **Error Handling**: Provides feedback for invalid inputs and applies sensible defaults.
+
+## 📦 Dependencies
 - **C++20** or later
-- **GLM** Library (OpenGL Mathematics) - for vector operations
-- **FMT** Library (for formatted console output)
+- **GLM** Library (OpenGL Mathematics)
+- **FMT** Library (Formatted console output)
 
-## How to Build
+## ⚙️ How to Build
 
-### Windows with **vcpkg**
+### 🖥️ Windows with **vcpkg**
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Muppetsg2/Shapes-Generator.git
    cd Shapes-Generator
    ```
-2. Install vcpkg (if you haven't already):
+2. **Install vcpkg** (if not installed):
    ```bash
    git clone https://github.com/microsoft/vcpkg
    cd vcpkg
    .\bootstrap-vcpkg.bat
    ```
-   > **Note:** If you have VS 2022 just check if you have installed vcpkg in your installation. You can find help on how to find if you have already installed vcpkg [here](https://devblogs.microsoft.com/cppblog/vcpkg-is-now-included-with-visual-studio/).
-3. Integrate vcpkg with your MSBuild:
+   > 💡 **Tip:** If using **Visual Studio 2022**, check if `vcpkg` is already installed. [More info here](https://devblogs.microsoft.com/cppblog/vcpkg-is-now-included-with-visual-studio/).
+3. **Integrate vcpkg with MSBuild:**
    ```bash
    .\vcpkg integrate install
    ```
-4. Open the project in Visual Studio. Visual Studio will automatically include the necessary dependencies from vcpkg.
+4. **Open the project in Visual Studio** – dependencies are automatically included.
 
-#### Alternatively, if using g++ directly
-4. Install GLM and FMT using vcpkg:
+#### ⚡ Alternatively, using `g++` directly:
+
+4. **Install dependencies using `vcpkg`:**
    ```bash
    .\vcpkg install glm fmt
    ```
-5. Ensure you specify the correct include paths and link libraries provided by vcpkg
+5. **Ensure correct include paths and link libraries** from `vcpkg`.
 
-### Linux/MacOS
+### 🐧 Linux
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Muppetsg2/Shapes-Generator.git
    cd Shapes-Generator
    ```
-2. Install the required dependencies (**GLM** and **FMT**):
+2. **Install dependencies:**
    ```bash
    sudo apt-get install libglm-dev libfmt-dev
    ```
-   > **Note**: The libfmt-dev package may not be available in all repositories or might have a different name. If you encounter issues, check your official repository or consider using vcpkg for dependency management.
-3. Compile the project using g++:
+   > 🔹 `libfmt-dev` may not be available in all repositories. If not available check this solution [Solution](https://askubuntu.com/questions/1205765/c-fmt-library-installation-is-not-working)
+3. **Compile the precompiled header (PCH)**
    ```bash
-   g++ -std=c++20 main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp -o Shapes-Generator -lfmt
+   g++ -std=c++20 -x c++-header pch.h -o pch.h.gch
    ```
-4. Run the program:
+4. **Compile source files into object files**
+   ```bash
+   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -o main.o
+   ```
+5. **Link object files to create the final executable**
+   ```bsh
+   g++ -std=c++20 main.o -o Shapes-Generator -lfmt -lglm
+   ```
+6. **Run the program:**
    ```bash
    ./Shapes-Generator
    ```
-   
-## Usage
-1. Launch the program. You'll see the start window with ASCII art and a prompt to choose a shape.
-2. Select a shape by entering a number between 1 and 6.
-3. If the shape requires parameters (e.g., a sphere or plane), enter the requested values.
-4. Once the shape is generated, it will be saved to `shape.txt` in the program's directory, and you'll see how long the shape took to generate.
-5. The file path of the saved shape will be displayed on the console.
-6. **Exiting the Program:** You can exit the program at any time by pressing the **ESC** key.
 
-## Example Output
+### 🍏 MacOS
 
-When generating a sphere:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Muppetsg2/Shapes-Generator.git
+   cd Shapes-Generator
+   ```
+2. **Install dependencies using Homebrew:**
+   ```bash
+   brew install glm fmt
+   ```
+3. **Compile the precompiled header (PCH)**
+   ```bash
+   g++ -std=c++20 -x c++-header pch.h -o pch.h.gch -I/opt/homebrew/include
+   ```
+4. **Compile source files into object files**
+   ```bash
+   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -I/opt/homebrew/include -o main.o
+   ```
+5. **Link object files to create the final executable**
+   ```bsh
+   g++ -std=c++20 main.o -o Shapes-Generator -L/opt/homebrew/lib -lfmt -lglm
+   ```
+4. **Run the program:**
+   ```bash
+   ./Shapes-Generator
+   ```
 
+## ▶️ Usage
+1. **Launch the program** - ASCII art and a menu will appear.
+2. **Select a shape** by entering a number (1-7).
+3. **Enter the required shape parameters**, if applicable.
+4. **The shape is generated**.
+5. **Select the file format** for saving.
+6. **The file path** will be displayed in the console.
+7. **Exit anytime** by pressing the **ESC** key.
+
+## 📜 Example Output
+
+When generating a **Sphere**, the output will look like this:
 ```mathematica
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                  │
-│   ____  _                         ____                           _               │
-│  / ___|| |__   __ _ _ __   ___   / ___| ___ _ __   ___ _ __ __ _| |_ ___  _ __   │
-│  \___ \| '_ \ / _` | '_ \ / _ \ | |  _ / _ \ '_ \ / _ \ '__/ _` | __/ _ \| '__|  │
-│   ___) | | | | (_| | |_) |  __/ | |_| |  __/ | | |  __/ | | (_| | || (_) | |     │
-│  |____/|_| |_|\__,_| .__/ \___|  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|     │
-│                    |_|                                                           │
-│                                                                                  │
-│                             Choose a shape to create                             │
-│                                                                                  │
-│                           Press ESC to exit the program                          │
-│                                                                                  │
-└──────────────────────────────────────────────────────────────────────────────────┘
+[OK] Start Generating Sphere...
+[OK] Sphere Generated Successfully!
 
-Choose a shape:
-1. Sphere
-2. Plane
-3. Cube
-4. Hexagon
-5. Pyramid
-6. Tetrahedron
-Your choice: 1
+[INFO] Shape successfully generated in 4.51e-05s!
 
-Enter sphere number of horizontal segments (>= 2): 3
-Enter sphere number of vertical segments (>= 3): 4
+[FILE] Select the save format:
+ 1) std::vector - Vertices & Indices
+ 2) C++ array - Vertices & Indices
+ 3) std::vector - Only Vertices
+ 4) C++ array - Only Vertices
+ 5) Save as OBJ file
 
-Start Generating Sphere!
-Sphere Generated!
+Enter your choice (1 - 5): 1
 
-Shape Generated in 0.0001685s!
-
-Choose an array format for saving:
-1. Using std::vector
-2. Using basic c++ array
-Your choice: 1
-
-Shape saved to file: C:\path\to\folder\shape.txt
-```
-## File Output Example (`shape.txt`)
-
-The generated shape is saved to a file (`shape.txt`). For example, generating a sphere will produce the following kind of output:
-
-```cpp
-std::vector<Vertex> vertices {
-	{ .Position = glm::vec3(0.f, 1.f, 0.f), .TexCoords = glm::vec2(0.5f, 0.f), .Normal = glm::vec3(0.f, 1.f, 0.f), .Tangent = glm::vec3(-1.f, 0.f, 0.f), .Bitangent = glm::vec3(0.f, -0.5f, -0.866025f) },
-	{ .Position = glm::vec3(0.f, 0.5f, 0.866025f), .TexCoords = glm::vec2(0.f, 0.333333f), .Normal = glm::vec3(0.f, 0.5f, 0.866025f), .Tangent = glm::vec3(0.707107f, 0.f, -0.707107f), .Bitangent = glm::vec3(0.707107f, -0.612372f, -0.353553f) },
-	{ .Position = glm::vec3(0.866025f, 0.5f, -0.f), .TexCoords = glm::vec2(0.25f, 0.333333f), .Normal = glm::vec3(0.866025f, 0.5f, -0.f), .Tangent = glm::vec3(0.196116f, 0.f, -0.980581f), .Bitangent = glm::vec3(0.369274f, -0.852803f, -0.369274f) },
-	{ .Position = glm::vec3(-0.f, 0.5f, -0.866025f), .TexCoords = glm::vec2(0.5f, 0.333333f), .Normal = glm::vec3(-0.f, 0.5f, -0.866025f), .Tangent = glm::vec3(-0.980581f, 0.f, -0.196116f), .Bitangent = glm::vec3(-0.f, -0.917663f, -0.39736f) },
-	{ .Position = glm::vec3(-0.866025f, 0.5f, 0.f), .TexCoords = glm::vec2(0.75f, 0.333333f), .Normal = glm::vec3(-0.866025f, 0.5f, 0.f), .Tangent = glm::vec3(-0.196116f, 0.f, 0.980581f), .Bitangent = glm::vec3(-0.369274f, -0.852803f, -0.369274f) },
-	{ .Position = glm::vec3(0.f, 0.5f, 0.866025f), .TexCoords = glm::vec2(1.f, 0.333333f), .Normal = glm::vec3(0.f, 0.5f, 0.866025f), .Tangent = glm::vec3(0.707107f, 0.f, 0.707107f), .Bitangent = glm::vec3(-0.547723f, -0.790569f, -0.273861f) },
-	{ .Position = glm::vec3(0.f, -0.5f, 0.866025f), .TexCoords = glm::vec2(0.f, 0.666667f), .Normal = glm::vec3(0.f, -0.5f, 0.866025f), .Tangent = glm::vec3(0.707107f, 0.f, -0.707107f), .Bitangent = glm::vec3(-0.547723f, -0.790569f, 0.273861f) },
-	{ .Position = glm::vec3(0.866025f, -0.5f, -0.f), .TexCoords = glm::vec2(0.25f, 0.666667f), .Normal = glm::vec3(0.866025f, -0.5f, -0.f), .Tangent = glm::vec3(-0.196116f, 0.f, -0.980581f), .Bitangent = glm::vec3(-0.369274f, -0.852803f, 0.369274f) },
-	{ .Position = glm::vec3(-0.f, -0.5f, -0.866025f), .TexCoords = glm::vec2(0.5f, 0.666667f), .Normal = glm::vec3(-0.f, -0.5f, -0.866025f), .Tangent = glm::vec3(-0.980581f, 0.f, 0.196116f), .Bitangent = glm::vec3(0.f, -0.917663f, 0.39736f) },
-	{ .Position = glm::vec3(-0.866025f, -0.5f, 0.f), .TexCoords = glm::vec2(0.75f, 0.666667f), .Normal = glm::vec3(-0.866025f, -0.5f, 0.f), .Tangent = glm::vec3(0.196116f, 0.f, 0.980581f), .Bitangent = glm::vec3(0.369274f, -0.852803f, 0.369274f) },
-	{ .Position = glm::vec3(0.f, -0.5f, 0.866025f), .TexCoords = glm::vec2(1.f, 0.666667f), .Normal = glm::vec3(0.f, -0.5f, 0.866025f), .Tangent = glm::vec3(0.707107f, 0.f, 0.707107f), .Bitangent = glm::vec3(0.707107f, -0.612372f, 0.353553f) },
-	{ .Position = glm::vec3(0.f, -1.f, 0.f), .TexCoords = glm::vec2(0.5f, 1.f), .Normal = glm::vec3(0.f, -1.f, 0.f), .Tangent = glm::vec3(-0.447214f, 0.f, -0.894427f), .Bitangent = glm::vec3(0.f, -0.5f, 0.866025f) }
-};
-
-std::vector<unsigned int> indices = {
-	2, 0, 1,
-	7, 6, 11,
-	3, 0, 2,
-	8, 7, 11,
-	4, 0, 3,
-	9, 8, 11,
-	5, 0, 4,
-	10, 9, 11,
-	2, 1, 6,
-	7, 2, 6,
-	3, 2, 7,
-	8, 3, 7,
-	4, 3, 8,
-	9, 4, 8,
-	5, 4, 9,
-	10, 5, 9
-};
+[OK] Start Saving Sphere to file...
+[SAVED] Shape saved successfully in 0.0013585s!
+[PATH] File path: C:\path\to\folder\shape.txt
 ```
 
-Where the Vertex structure is defined as:
-```cpp
-struct Vertex
-{
-	glm::vec3 Position;
-	glm::vec2 TexCoord;
-	glm::vec3 Normal;
-	glm::vec3 Tangent;
-	glm::vec3 Bitangent;
-};
-```
+## 🛠 Troubleshooting
 
-## Troubleshooting
+❌ **Issues? Try this:**
+- Ensure **all dependencies** are installed.
+- Check **console messages** for errors.
+- Verify you're using **C++20** or later.
 
-If you encounter issues:
-  - Ensure that you have installed all dependencies correctly.
-  - Check your console for any error messages related to input.
-  - Make sure that you are using a compatible version of C++ (C++20 or later).
+## 👨‍💻 Authors
+📌 **Marceli Antosik (Muppetsg2)**
 
-## License
+## 📜 License
 
-This project is open-source and available under the MIT License.
+This project is **open-source** under the **MIT License**.
 
-> **MIT License Overview:** The MIT License is a permissive free software license that allows users to use, modify, and distribute the software as they wish. Users can incorporate the code into their own projects, both commercial and non-commercial, as long as the original copyright notice and license are included in all copies or substantial portions of the software.
+📖 **MIT License Overview:**
+- ✅ Free to use, modify, and distribute.
+- ✅ Can be used in **commercial** and **non-commercial** projects.
+- ❗ Must include original license and copyright.
 
-See the [LICENSE](./LICENSE) file for more details.
+See the [LICENSE](./LICENSE) file for details.

@@ -1,7 +1,6 @@
+// PRECOMPILED HEADER
+#include "pch.h"
 #include "Shape.h"
-#include <format>
-#include <sstream>
-#include <iomanip>
 
 template<typename T>
 const T& unmove(T&& x)
@@ -109,14 +108,14 @@ std::pair<glm::vec3, glm::vec3> Shape::calcTangentBitangent(unsigned int t1, uns
     return TB;
 }
 
-std::string Shape::formatFloat(float value) const
+std::string Shape::formatFloat(float value, bool delRedundantZeros) const
 {
     std::stringstream ss;
 
     ss << std::fixed << std::setprecision(6) << value;
     std::string str = ss.str();
 
-    if (str.find('.') != std::string::npos) {
+    if (delRedundantZeros && str.find('.') != std::string::npos) {
         str = str.substr(0, str.find_last_not_of('0') + 1);
 
         //if (str.find('.') == str.size() - 1) str = str.substr(0, str.size() - 1);
@@ -125,20 +124,102 @@ std::string Shape::formatFloat(float value) const
     return str;
 }
 
+std::string Shape::toOBJ() const
+{
+    std::unordered_map<glm::vec3, unsigned int, Vec3Hash, Vec3Equal> vertexMap;
+    std::unordered_map<glm::vec2, unsigned int, Vec2Hash, Vec2Equal> texCoordMap;
+    std::unordered_map<glm::vec3, unsigned int, Vec3Hash, Vec3Equal> normalMap;
+
+    std::vector<glm::vec3> v;
+    std::vector<glm::vec2> vt;
+    std::vector<glm::vec3> vn;
+    std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> vertIndices;
+
+    v.reserve(vertices.size());
+    vt.reserve(vertices.size());
+    vn.reserve(vertices.size());
+    vertIndices.reserve(indices.size());
+
+    for (unsigned int i : indices) {
+        Vertex vert = vertices[i];
+        std::tuple<unsigned int, unsigned int, unsigned int> ind = {};
+
+        auto [itV, insertedV] = vertexMap.try_emplace(vert.Position, (unsigned int)v.size() + 1u);
+        if (insertedV) v.push_back(vert.Position);
+        std::get<0>(ind) = itV->second;
+
+        auto [itT, insertedT] = texCoordMap.try_emplace(vert.TexCoord, (unsigned int)vt.size() + 1u);
+        if (insertedT) vt.push_back(vert.TexCoord);
+        std::get<1>(ind) = itT->second;
+
+        auto [itN, insertedN] = normalMap.try_emplace(vert.Normal, (unsigned int)vn.size() + 1u);
+        if (insertedN) vn.push_back(vert.Normal);
+        std::get<2>(ind) = itN->second;
+
+        vertIndices.push_back(ind);
+    }
+
+    std::string text = "# Shapes Generator " + SHAPES_GENERATOR_VERSION_STR + "\n# https://github.com/Muppetsg2/Shapes-Generator\no " + getObjectClassName() + "\n";
+    for (const glm::vec3& pos : v) {
+        text += std::vformat(std::string_view("v {} {} {}\n"),
+            std::make_format_args
+            (
+                unmove(formatFloat(pos.x, false)),
+                unmove(formatFloat(pos.y, false)),
+                unmove(formatFloat(pos.z, false))
+            )
+        );
+    }
+
+    for (const glm::vec3& norm : vn) {
+        text += std::vformat(std::string_view("vn {} {} {}\n"),
+            std::make_format_args
+            (
+                unmove(formatFloat(norm.x, false)),
+                unmove(formatFloat(norm.y, false)),
+                unmove(formatFloat(norm.z, false))
+            )
+        );
+    }
+
+    for (const glm::vec2& tex : vt) {
+        text += std::vformat(std::string_view("vt {} {}\n"),
+            std::make_format_args
+            (
+                unmove(formatFloat(tex.x, false)),
+                unmove(formatFloat(tex.y, false))
+            )
+        );
+    }
+
+    for (size_t i = 0; i < vertIndices.size(); i += 3ull) {
+        text += std::vformat(std::string_view("f {}/{}/{} {}/{}/{} {}/{}/{}\n"),
+            std::make_format_args
+            (
+                std::get<0>(vertIndices[i]), std::get<1>(vertIndices[i]), std::get<2>(vertIndices[i]),
+                std::get<0>(vertIndices[i + 1]), std::get<1>(vertIndices[i + 1]), std::get<2>(vertIndices[i + 1]),
+                std::get<0>(vertIndices[i + 2]), std::get<1>(vertIndices[i + 2]), std::get<2>(vertIndices[i + 2])
+            )
+        );
+    }
+
+    return text;
+}
+
 Shape::~Shape()
 {
     vertices.clear();
     indices.clear();
 }
 
-std::string Shape::toString(ArrayType type) const
+std::string Shape::toString(FormatType type) const
 {
     std::string text;
     switch (type) {
-        case ArrayType::VECTOR: {
-            text = "std::vector<Vertex> vertices = {\n";
+        case FormatType::VECTOR_INDICES: {
+            text += "std::vector<Vertex> vertices = {\n";
 
-            for (int i = 0; i < vertices.size(); ++i) {
+            for (size_t i = 0; i < vertices.size(); ++i) {
                 Vertex v = vertices[i];
 
                 text += std::vformat(std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
@@ -158,44 +239,42 @@ std::string Shape::toString(ArrayType type) const
                     )
                 );
 
-                if (i + 1 < vertices.size()) {
-                    text += ",\n";
+                if (i + 1ull < vertices.size()) {
+                    text += ",";
                 }
-                else {
-                    text += "\n";
-                }
+
+                text += "\n";
             }
 
             text += "};\n\nstd::vector<unsigned int> indices = {\n";
 
-            for (int i = 0; i < indices.size(); i += 3) {
+            for (size_t i = 0; i < indices.size(); i += 3ull) {
                 text += std::vformat
                 (
                     std::string_view("\t{0}, {1}, {2}"),
                     std::make_format_args
                     (
                         indices[i],
-                        indices[i + 1],
-                        indices[i + 2]
+                        indices[i + 1ull],
+                        indices[i + 2ull]
                     )
                 );
 
-                if (i + 3 < indices.size()) {
-                    text += ",\n";
+                if (i + 3ull < indices.size()) {
+                    text += ",";
                 }
-                else {
-                    text += "\n";
-                }
+
+                text += "\n";
             }
 
             text += "};";
             break;
         }
-        case ArrayType::ARRAY: {
+        case FormatType::ARRAY_INDICES: {
             text = "float vertices[" + std::to_string(vertices.size() * 14) + "] = {\n";
             text += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
 
-            for (int i = 0; i < vertices.size(); ++i) {
+            for (size_t i = 0; i < vertices.size(); ++i) {
                 Vertex v = vertices[i];
 
                 text += std::vformat(std::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
@@ -209,42 +288,115 @@ std::string Shape::toString(ArrayType type) const
                     )
                 );
 
-                if (i + 1 < vertices.size()) {
-                    text += ",\n";
+                if (i + 1ull < vertices.size()) {
+                    text += ",";
                 }
-                else {
-                    text += "\n";
-                }
+
+                text += "\n";
             }
 
             text += "};\n\nunsigned int indices[" + std::to_string(indices.size()) + "] = {\n";
 
-            for (int i = 0; i < indices.size(); i += 3) {
+            for (size_t i = 0; i < indices.size(); i += 3ull) {
                 text += std::vformat
                 (
                     std::string_view("\t{0}, {1}, {2}"),
                     std::make_format_args
                     (
                         indices[i],
-                        indices[i + 1],
-                        indices[i + 2]
+                        indices[i + 1ull],
+                        indices[i + 2ull]
                     )
                 );
 
-                if (i + 3 < indices.size()) {
-                    text += ",\n";
+                if (i + 3ull < indices.size()) {
+                    text += ",";
                 }
-                else {
-                    text += "\n";
-                }
+
+                text += "\n";
             }
 
             text += "};";
             break;
         }
+        case FormatType::VECTOR_VERTICES: {
+            text = "std::vector<Vertex> vertices = {\n";
+
+            for (size_t i = 0; i < indices.size(); ++i) {
+                Vertex v = vertices[indices[i]];
+
+                text += std::vformat(std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
+                    std::make_format_args
+                    (
+                        "{", ".Position = glm::vec3(",
+                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
+                        ")", ".TexCoords = glm::vec2(",
+                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
+                        ")", ".Normal = glm::vec3(",
+                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
+                        ")", ".Tangent = glm::vec3(",
+                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
+                        ")", ".Bitangent = glm::vec3(",
+                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z)),
+                        ")", "}"
+                    )
+                );
+
+                if (i + 1ull < indices.size()) {
+                    text += ",";
+                }
+
+                text += "\n";
+            }
+
+            text += "};";
+            break;
+        }
+        case FormatType::ARRAY_VERTICES: {
+            text = "float vertices[" + std::to_string(indices.size() * 14) + "] = {\n";
+            text += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
+
+            for (size_t i = 0; i < indices.size(); ++i) {
+                Vertex v = vertices[indices[i]];
+
+                text += std::vformat(std::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
+                    std::make_format_args
+                    (
+                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
+                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
+                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
+                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
+                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z))
+                    )
+                );
+
+                if (i + 1ull < indices.size()) {
+                    text += ",";
+                }
+
+                text += "\n";
+            }
+
+            text += "};";
+            break;
+        }
+        case FormatType::OBJ: {
+            text = toOBJ();
+            break;
+        }
     }
 
     return text;
+}
+
+std::string Shape::getClassName()
+{
+    return "Shape";
+}
+
+std::string Shape::getObjectClassName() const
+{
+    return Shape::getClassName();
 }
 
 size_t Shape::getVerticesCount() const

@@ -1,19 +1,14 @@
 #pragma once
-
 #include "Shape.h"
 
 class Sphere : public Shape {
 private:
-	unsigned int _segmentsHorizontal = 2;
-	unsigned int _segmentsVertical = 3;
-
-	void updateVerticiesAndIndices();
+	void generate(unsigned int h, unsigned int v, ValuesRange range);
 
 public:
-	Sphere();
-	Sphere(unsigned int h, unsigned int v);
+	Sphere(unsigned int h = 2u, unsigned int v = 3u, ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Sphere();
 
-	void setSegmentsHorizontal(unsigned int segmentsHorizontal);
-	void setSegmentsVertical(unsigned int segmentsVertical);
+	static std::string getClassName();
+	std::string getObjectClassName() const override;
 };

@@ -1,40 +1,40 @@
+// PRECOMPILED HEADER
+#include "pch.h"
 #include "Sphere.h"
 
-void Sphere::updateVerticiesAndIndices()
+void Sphere::generate(unsigned int h, unsigned int v, ValuesRange range)
 {
-	vertices.clear();
-	indices.clear();
+	float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
+	float angleYDiff = 180.f / (float)h;
+	float angleXZDiff = 360.f / (float)v;
 
-	float angleYDiff = 180.f / (float)_segmentsHorizontal;
-	float angleXZDiff = 360.f / (float)_segmentsVertical;
-
-	float texHDiff = 1.f / (float)_segmentsHorizontal;
-	float texVDiff = 1.f / (float)_segmentsVertical;
+	float texHDiff = 1.f / (float)h;
+	float texVDiff = 1.f / (float)v;
 
 	std::vector<unsigned int> trisNum = std::vector<unsigned int>();
 
 	// VERTICIES AND NUMBER OF TRIANGLES
 	// TOP VERTEX
-	vertices.push_back({ { 0.f, 1.f, 0.f }, { .5f, 0.f }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
-	trisNum.push_back(_segmentsVertical);
+	vertices.push_back({ { 0.f, 1.f * mult, 0.f }, { .5f, 0.f }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+	trisNum.push_back(v);
 	// TOP HALF AND BOTTOM HALF
 	float angleY = angleYDiff;
-	for (unsigned int i = 0; i < _segmentsHorizontal - 1; ++i) {
+	for (unsigned int i = 0; i < h - 1; ++i) {
 		float radiansY = glm::radians(angleY);
-		float r = sinf(radiansY);
-		float y = cosf(radiansY);
+		float r = sinf(radiansY) * mult;
+		float y = cosf(radiansY) * mult;
 
-		unsigned int startTexV = i * _segmentsVertical + 1;
+		unsigned int startTexV = i * v + 1;
 		unsigned int t = 1;
 
-		if (_segmentsHorizontal == 2) {
+		if (h == 2) {
 			t = 4;
 		}
-		else if (_segmentsHorizontal == 3) {
+		else if (h == 3) {
 			t = 5;
 		}
-		else if (_segmentsHorizontal >= 4) {
-			if (i == 0 || i + 2 == _segmentsHorizontal) {
+		else if (h >= 4) {
+			if (i == 0 || i + 2 == h) {
 				t = 5;
 			}
 			else {
@@ -44,7 +44,7 @@ void Sphere::updateVerticiesAndIndices()
 
 		// DRAW CIRCLE
 		float angleXZ = 0.f;
-		for (unsigned int j = 0; j < _segmentsVertical; ++j) {
+		for (unsigned int j = 0; j < v; ++j) {
 			float radiansXZ = glm::radians(angleXZ);
 			float z = r * cosf(radiansXZ);
 			float x = r * sinf(radiansXZ);
@@ -53,7 +53,7 @@ void Sphere::updateVerticiesAndIndices()
 			vertices.push_back({ vert, { j * texVDiff, texHDiff * (i + 1) }, glm::normalize(vert), glm::vec3(0.f), glm::vec3(0.f) });
 			trisNum.push_back(t);
 
-			if (j == _segmentsVertical - 1)
+			if (j == v - 1)
 			{
 				glm::vec3 vertLast = { r * sinf(glm::radians(0.f)), y, r * cosf(glm::radians(0.f)) };
 				// Add first in the end again for texCoords
@@ -66,15 +66,15 @@ void Sphere::updateVerticiesAndIndices()
 		angleY += angleYDiff;
 	}
 	// BOTTOM VERTEX
-	vertices.push_back({ { 0.f, -1.f, 0.f }, { .5f, 1.f }, { 0.f, -1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
-	trisNum.push_back(_segmentsVertical);
+	vertices.push_back({ { 0.f, -1.f * mult, 0.f }, { .5f, 1.f }, { 0.f, -1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+	trisNum.push_back(v);
 
 	// INDICIES, TANGENTS AND BITANGENTS
 	std::pair<glm::vec3, glm::vec3> TB;
 
 	size_t verticesNum = vertices.size();
 	// TOP CIRCLE + BOTTOM CIRCLE
-	for (unsigned int i = 0; i < _segmentsVertical; ++i) {
+	for (unsigned int i = 0; i < v; ++i) {
 		// TOP CIRCLE
 		unsigned int rightVertex = (i + 1) + 1;
 		unsigned int topVertex = 0;
@@ -96,9 +96,9 @@ void Sphere::updateVerticiesAndIndices()
 		vertices[leftVertex].Bitangent += TB.second;
 
 		// BOTTOM CIRCLE
-		rightVertex = verticesNum - 2 - _segmentsVertical - 1 + (i + 1) + 1;
-		leftVertex = verticesNum - 2 - _segmentsVertical - 1 + i + 1;
-		topVertex = verticesNum - 1;
+		rightVertex = (unsigned int)verticesNum - 2 - v - 1 + (i + 1) + 1;
+		leftVertex = (unsigned int)verticesNum - 2 - v - 1 + i + 1;
+		topVertex = (unsigned int)verticesNum - 1;
 
 		indices.push_back(rightVertex);
 		indices.push_back(leftVertex);
@@ -117,13 +117,13 @@ void Sphere::updateVerticiesAndIndices()
 	}
 
 	// CENTER CIRCLES
-	for (unsigned int c = 0; c < _segmentsHorizontal - 2; ++c) {
-		unsigned int startV = c * (_segmentsVertical + 1) + 1;
-		for (unsigned int i = 0; i < _segmentsVertical; ++i) {
+	for (unsigned int c = 0; c < h - 2; ++c) {
+		unsigned int startV = c * (v + 1) + 1;
+		for (unsigned int i = 0; i < v; ++i) {
 			unsigned int topLeft = i + startV;
 			unsigned int topRight = (i + 1) + startV;
-			unsigned int bottomLeft = i + _segmentsVertical + 1 + startV;
-			unsigned int bottomRight = (i + 1) + _segmentsVertical + 1 + startV;
+			unsigned int bottomLeft = i + v + 1 + startV;
+			unsigned int bottomRight = (i + 1) + v + 1 + startV;
 
 			indices.push_back(topRight);
 			indices.push_back(topLeft);
@@ -174,33 +174,21 @@ void Sphere::updateVerticiesAndIndices()
 	trisNum.clear();
 }
 
-Sphere::Sphere()
+Sphere::Sphere(unsigned int h, unsigned int v, ValuesRange range)
 {
-	this->updateVerticiesAndIndices();
-}
-
-Sphere::Sphere(unsigned int h, unsigned int v)
-{
-	_segmentsHorizontal = h >= 2 ? h : 2;
-	_segmentsVertical = v >= 3 ? v : 3;
-
-	this->updateVerticiesAndIndices();
+	vertices.clear();
+	indices.clear();
+	generate(std::max(2u, h), std::max(3u, v), range);
 }
 
 Sphere::~Sphere() {}
 
-void Sphere::setSegmentsHorizontal(unsigned int segmentsHorizontal)
+std::string Sphere::getClassName()
 {
-	if (segmentsHorizontal >= 2 && _segmentsHorizontal != segmentsHorizontal) {
-		_segmentsHorizontal = segmentsHorizontal;
-		updateVerticiesAndIndices();
-	}
+	return "Sphere";
 }
 
-void Sphere::setSegmentsVertical(unsigned int segmentsVertical)
+std::string Sphere::getObjectClassName() const
 {
-	if (segmentsVertical >= 3 && _segmentsVertical != segmentsVertical) {
-		_segmentsVertical = segmentsVertical;
-		updateVerticiesAndIndices();
-	}
+	return Sphere::getClassName();
 }

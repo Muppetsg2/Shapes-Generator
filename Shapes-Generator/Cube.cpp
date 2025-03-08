@@ -1,6 +1,8 @@
+// PRECOMPILED HEADER
+#include "pch.h"
 #include "Cube.h"
 
-Cube::Cube()
+Cube::Cube(ValuesRange range)
 {
     //https://catonif.github.io/cube/
 
@@ -77,15 +79,18 @@ Cube::Cube()
     20, 20 + 2, 20 + 1
     */
 
+    vertices.clear();
+    indices.clear();
     std::vector<unsigned int> trisNum;
 
     for (int p = 0; p < 3; ++p) {
         for (int i = 0; i < 8; ++i) {
 
+            float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
             glm::vec3 pos = {
-                ((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2) * .5f,
-                ((int)((i + 4) / 4) % 2 - (int)(i / 4)) * .5f,
-                ((((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)) * .5f
+                ((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2) * mult,
+                ((int)((i + 4) / 4) % 2 - (int)(i / 4)) * mult,
+                ((((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)) * mult
             };
 
             glm::vec2 tex = glm::vec2(0.f);
@@ -331,11 +336,27 @@ Cube::Cube()
 
     for (unsigned int i = 0; i < vertices.size(); ++i) {
         vertices[i].Tangent /= (float)trisNum[i];
-        vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
+
+        if (glm::length(vertices[i].Tangent) != 0.f) {
+            vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
+        }
 
         vertices[i].Bitangent /= (float)trisNum[i];
-        vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
+
+        if (glm::length(vertices[i].Bitangent) != 0.f) {
+            vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
+        }
     }
 }
 
 Cube::~Cube() {}
+
+std::string Cube::getClassName()
+{
+    return "Cube";
+}
+
+std::string Cube::getObjectClassName() const
+{
+    return Cube::getClassName();
+}
