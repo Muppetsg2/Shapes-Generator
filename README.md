@@ -98,7 +98,7 @@ The program dynamically generates the shape based on user input and exports the 
    ```bash
    sudo apt-get install libglm-dev libfmt-dev
    ```
-   > 🔹 `libfmt-dev` may not be available in all repositories. If not available check this solution [Solution](https://askubuntu.com/questions/1205765/c-fmt-library-installation-is-not-working)
+   > 🔹 `libfmt-dev` may not be available in all repositories. If not available check this solution. [Solution](https://askubuntu.com/questions/1205765/c-fmt-library-installation-is-not-working).
 3. **Compile the precompiled header (PCH)**
    ```bash
    g++ -std=c++20 -x c++-header pch.h -o pch.h.gch
