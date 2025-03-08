@@ -11,6 +11,8 @@
 #include "IcoSphere.h"
 #include "templates.h"
 
+Shape* selectedShape = nullptr;
+
 void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
 {
     std::string buf;
@@ -36,7 +38,8 @@ void replace_all(std::string& s, std::string const& toReplace, std::string const
 
 bool checkForEsc(char ch) {
     if (ch == 27) {  // ASCII code for ESC key
-        fmt::print("[{}] Program exited – ESC key pressed.\n", fmt::styled("EXIT", fmt::fg(fmt::color::dark_red)));
+        fmt::print("\n[{}] Program exited – ESC key pressed.\n", fmt::styled("EXIT", fmt::fg(fmt::color::dark_red)));
+        if (selectedShape) delete selectedShape;
         exit(EXIT_SUCCESS);  // Exit the program if ESC is pressed
     }
     return false;
@@ -80,6 +83,26 @@ int getIntInput(const std::string& prompt) {
     // Convert the collected string to an integer
     int value = std::stoi(input);
     return value;
+}
+
+void waitForEnter(const std::string& prompt) {
+    char ch;
+
+    fmt::print("{}", prompt);
+
+    while (true) {
+        ch = _getch();  // Get a single character from the user
+
+        // Check if ESC key is pressed
+        checkForEsc(ch);
+
+        // If Enter is pressed, stop input
+        if (ch == '\r') {  // ASCII code for Enter
+            std::cout << '\n';  // Add a new line after input is confirmed
+            break;  // Valid input, exit the loop
+        }
+        // Ignore non-digit characters (other than enter)
+    }
 }
 
 void displayStartWindow() {
@@ -183,7 +206,6 @@ FormatType getFormatType() {
 
 int main(int argc, char** argv) {
     std::string exeDirPath = std::filesystem::absolute(argv[0]).parent_path().string();
-    Shape* selectedShape = nullptr;
     ValuesRange range = ValuesRange::HALF_TO_HALF;
 
     displayStartWindow();
@@ -294,6 +316,7 @@ int main(int argc, char** argv) {
         fmt::print("[{}] Error: Could not save the file!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
     }
     
+    waitForEnter("\nPress Enter to exit...");
     delete selectedShape;
     return EXIT_SUCCESS;
 }
