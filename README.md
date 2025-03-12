@@ -49,7 +49,9 @@ The program dynamically generates the shape based on user input and exports the 
      7. 🔵 IcoSphere
 
 ✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
+<br/>
 ✅ **File Output**: Generated shapes are saved in `shape.txt` for later use.
+<br/>
 ✅ **Error Handling**: Provides feedback for invalid inputs and applies sensible defaults.
 
 ## 📦 Dependencies
