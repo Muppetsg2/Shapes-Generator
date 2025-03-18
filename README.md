@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.1.0</h1>
+        <h1>Shapes Generator 1.1.1</h1>
       </summary>
     </ul>
   </div>
@@ -13,7 +13,7 @@
 ## 📌 Description
 This project is a console-based **Shape Generator** written in **C++**. It allows users to create and save various **3D shapes** such as:
 
-🔴 Sphere | ▭ Cube | 🔷 Hexagon | 🔺 Pyramid | ◇ Tetrahedron | ➖ Plane | 🔵 IcoSphere
+🔴 Sphere | ▭ Cube | 🟢 Cylinder | 🔷 Hexagon | 🔺 Pyramid | ◇ Tetrahedron | ➖ Plane | 🔵 IcoSphere
 
 The program dynamically generates the shape based on user input and exports the shape data to a file.
 
@@ -43,10 +43,11 @@ The program dynamically generates the shape based on user input and exports the 
      1. 🔴 Sphere
      2. ➖ Plane
      3. ▭ Cube
-     4. 🔷 Hexagon
-     5. 🔺 Pyramid
-     6. ◇ Tetrahedron
-     7. 🔵 IcoSphere
+     4. 🟢 Cylinder
+     5. 🔷 Hexagon
+     6. 🔺 Pyramid
+     7. ◇ Tetrahedron
+     8. 🔵 IcoSphere
 
 ✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
 <br/>
@@ -66,7 +67,6 @@ The program dynamically generates the shape based on user input and exports the 
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Muppetsg2/Shapes-Generator.git
-   cd Shapes-Generator
    ```
 2. **Install vcpkg** (if not installed):
    ```bash
@@ -107,7 +107,7 @@ The program dynamically generates the shape based on user input and exports the 
    ```
 4. **Compile source files into object files**
    ```bash
-   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -o main.o
+   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -o main.o
    ```
 5. **Link object files to create the final executable**
    ```bsh
@@ -135,7 +135,7 @@ The program dynamically generates the shape based on user input and exports the 
    ```
 4. **Compile source files into object files**
    ```bash
-   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -I/opt/homebrew/include -o main.o
+   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -I/opt/homebrew/include -o main.o
    ```
 5. **Link object files to create the final executable**
    ```bsh

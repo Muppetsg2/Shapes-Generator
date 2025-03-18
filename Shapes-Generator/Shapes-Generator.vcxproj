@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Hexagon.cpp" />
     <ClCompile Include="IcoSphere.cpp" />
     <ClCompile Include="Pyramid.cpp" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Hexagon.h" />
     <ClInclude Include="IcoSphere.h" />
     <ClInclude Include="pch.h" />

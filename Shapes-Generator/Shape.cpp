@@ -192,6 +192,8 @@ std::string Shape::toOBJ() const
         );
     }
 
+    text += "s 0\n";
+
     for (size_t i = 0; i < vertIndices.size(); i += 3ull) {
         text += std::vformat(std::string_view("f {}/{}/{} {}/{}/{} {}/{}/{}\n"),
             std::make_format_args

@@ -5,6 +5,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Cube.h"
+#include "Cylinder.h"
 #include "Hexagon.h"
 #include "Pyramid.h"
 #include "Tetrahedron.h"
@@ -154,7 +155,7 @@ PlaneNormalDir getPlaneDirection() {
 IcoSphereShading getShadingType() {
     int dir_choice;
     do {
-        fmt::print("\n> Select the icoSphere shading type:\n1) FLAT\n2) PHONG\n");
+        fmt::print("\n> Select the icoSphere shading type:\n1) FLAT\n2) SMOOTH\n");
         dir_choice = getIntInput(getInputPrompt(1, 2));
         if (dir_choice < 1 || dir_choice > 2) {
             printInvalidOption(1, 2);
@@ -220,12 +221,12 @@ int main(int argc, char** argv) {
     int choice;
     do {
         fmt::print("\n> Select a shape to create:\n");
-        std::cout << "1) Sphere\n2) Plane\n3) Cube\n4) Hexagon\n5) Pyramid\n6) Tetrahedron\n7) IcoSphere\n";
-        choice = getIntInput(getInputPrompt(1, 7));
-        if (choice < 1 || choice > 7) {
-            printInvalidOption(1, 7);
+        std::cout << "1) Sphere\n2) Plane\n3) Cube\n4) Cylinder\n5) Hexagon\n6) Pyramid\n7) Tetrahedron\n8) IcoSphere\n";
+        choice = getIntInput(getInputPrompt(1, 8));
+        if (choice < 1 || choice > 8) {
+            printInvalidOption(1, 8);
         }
-    } while(choice < 1 || choice > 7);
+    } while(choice < 1 || choice > 8);
 
     range = getValuesRange();
 
@@ -265,10 +266,21 @@ int main(int argc, char** argv) {
             break;
         }
         case 3: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
-        case 4: elapsed_seconds = generateShape<Hexagon>(selectedShape, range); break;
-        case 5: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
-        case 6: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
-        case 7: {
+        case 4: {
+            fmt::print("\n> Enter cylinder parameters:\n");
+            int segments = getIntInput("   - Number of segments (min: 3): ");
+            if (segments < 3) {
+                fmt::print("[{}] Adjusted to minimum of 3 segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                segments = 3;
+            }
+
+            elapsed_seconds = generateShape<Cylinder>(selectedShape, segments, range);
+            break;
+        }
+        case 5: elapsed_seconds = generateShape<Hexagon>(selectedShape, range); break;
+        case 6: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
+        case 7: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
+        case 8: {
             fmt::print("\n> Enter icoSphere parameters:\n");
             int subs = getIntInput("   - Number of subdivisions (0 - 8): ");
             if (subs < 0) {

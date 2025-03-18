@@ -3,7 +3,7 @@
 
 enum class IcoSphereShading {
     FLAT = 0,
-    PHONG = 1
+    SMOOTH = 1
 };
 
 class IcoSphere : public Shape {
