@@ -6,7 +6,7 @@ Hexagon::Hexagon(ValuesRange range)
 {
     vertices.clear();
     indices.clear();
-    generate(6u, range);
+    generate(6u, range, true);
 }
 
 Hexagon::~Hexagon() {}

@@ -16,3 +16,18 @@ std::chrono::duration<double> generateShape(Shape*& out, const Args&... args) {
 
     return end - start;
 }
+
+template<class T>
+T getShadingType(const std::string& shapeName, std::function<int(int, int)> intInputFunc, std::function<void(int, int)> errorMsgFunc) {
+    int dir_choice;
+    do {
+        fmt::print("\n> Select the {} shading type:\n1) FLAT\n2) SMOOTH\n", shapeName);
+        //dir_choice = getIntInput(getInputPrompt(1, 2));
+        dir_choice = intInputFunc(1, 2);
+        if (dir_choice < 1 || dir_choice > 2) {
+            errorMsgFunc(1, 2);
+        }
+    } while (dir_choice < 1 || dir_choice > 2);
+
+    return static_cast<T>(dir_choice - 1);
+}

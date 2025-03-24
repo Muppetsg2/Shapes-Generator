@@ -1,6 +1,11 @@
 #pragma once
 #include "Shape.h"
 
+enum class CylinderShading {
+	FLAT = 0,
+	SMOOTH = 1
+};
+
 class Cylinder : public Shape {
 private:
 	enum class CylinderCullFace {
@@ -9,10 +14,12 @@ private:
 	};
 
 	void generateCircle(unsigned int segments, float y, CylinderCullFace cullFace, ValuesRange range);
+
 protected:
-	void generate(unsigned int segments, ValuesRange range);
+	void generate(unsigned int segments, ValuesRange range, bool useFlatShading);
+
 public:
-	Cylinder(unsigned int segments = 3u, ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Cylinder(unsigned int segments = 3u, CylinderShading shading = CylinderShading::FLAT, ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Cylinder();
 
 	static std::string getClassName();

@@ -8,6 +8,10 @@ const T& unmove(T&& x)
     return x;
 }
 
+float Shape::fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd) {
+    return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
+}
+
 Vertex Shape::calcTangentBitangent(unsigned int vertexIndex)
 {
     Vertex v = vertices[vertexIndex];

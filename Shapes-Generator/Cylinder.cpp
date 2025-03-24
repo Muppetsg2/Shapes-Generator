@@ -70,7 +70,7 @@ void Cylinder::generateCircle(unsigned int segments, float y, CylinderCullFace c
     trisNum.clear();
 }
 
-void Cylinder::generate(unsigned int segments, ValuesRange range)
+void Cylinder::generate(unsigned int segments, ValuesRange range, bool useFlatShading)
 {
     float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
     float h = 2.f * mult;
@@ -87,20 +87,34 @@ void Cylinder::generate(unsigned int segments, ValuesRange range)
     for (int i = 0; i < 2; ++i) {
         float y = h * 0.5f - h * i;
         float angleXZ = 0.f;
-        for (unsigned int j = 0; j < segments; ++j) {
+        unsigned int segms = segments + (useFlatShading ? 0 : 1);
+        for (unsigned int j = 0; j < segms; ++j) {
 
-            float x_n = (sinf(glm::radians(angleXZ)) + sinf(glm::radians(angleXZ + angleXZDiff))) * 0.5f;
-            float z_n = (cosf(glm::radians(angleXZ)) + cosf(glm::radians(angleXZ + angleXZDiff))) * 0.5f;
+            float radiansXZ = glm::radians(angleXZ);
 
-            for (int f = 0; f < 2; ++f) {
-                float angle = angleXZ + angleXZDiff * f;
-                float radiansXZ = glm::radians(angle);
-                float z = cosf(radiansXZ) * mult;
-                float x = sinf(radiansXZ) * mult;
-                vertices.push_back({ { x, y, z }, { (float)f, (float)i}, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
+            if (useFlatShading) {
+                float x_n = (sinf(radiansXZ) + sinf(radiansXZ + glm::radians(angleXZDiff))) * 0.5f;
+                float z_n = (cosf(radiansXZ) + cosf(radiansXZ + glm::radians(angleXZDiff))) * 0.5f;
 
-                trisNum.push_back(1 + (i + f) % 2);
+                for (int f = 0; f < 2; ++f) {
+                    float radiansXZF = radiansXZ + glm::radians(angleXZDiff * f);
+                    float z = cosf(radiansXZF) * mult;
+                    float x = sinf(radiansXZF) * mult;
+                    vertices.push_back({ { x, y, z }, { (float)f, (float)i }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
+
+                    trisNum.push_back(1 + (i + f) % 2);
+                }
             }
+            else {
+                float x_n = sinf(radiansXZ);
+                float z_n = cosf(radiansXZ);
+
+                vertices.push_back({ { x_n * mult, y, z_n * mult }, { (float)angleXZ / 360.f, (float)i}, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
+
+                unsigned int count = 1 + (j == 0 ? i : ((j == segments) ? (i + 1) % 2 : 2));
+                trisNum.push_back(count);
+            }
+
             angleXZ += angleXZDiff;
         }
     }
@@ -108,9 +122,11 @@ void Cylinder::generate(unsigned int segments, ValuesRange range)
     // INDICES
     for (unsigned int i = 0; i < segments; ++i) {
 
-        size_t left = start + (size_t)i * 2;
-        size_t dt = start + (size_t)i * 2 + (size_t)segments * 2;
-        size_t right = start + (size_t)i * 2 + 1;
+        size_t m = (useFlatShading ? 2 : 1);
+
+        size_t left = start + (size_t)i * m;
+        size_t dt = start + ((size_t)i + (size_t)segments) * m + m % 2;
+        size_t right = start + (size_t)i * m + 1;
 
         indices.push_back((unsigned int)left);
         indices.push_back((unsigned int)dt);
@@ -127,9 +143,9 @@ void Cylinder::generate(unsigned int segments, ValuesRange range)
         vertices[right].Tangent += TB.first;
         vertices[right].Bitangent += TB.second;
 
-        dt = start + (size_t)i * 2 + 1;
-        left = start + (size_t)i * 2 + (size_t)segments * 2;
-        right = start + (size_t)i * 2 + (size_t)segments * 2 + 1;
+        dt = start + (size_t)i * m + 1;
+        left = start + ((size_t)i + (size_t)segments) * m + m % 2;
+        right = start + ((size_t)i + (size_t)segments) * m + m % 2 + 1;
 
         indices.push_back((unsigned int)dt);
         indices.push_back((unsigned int)left);
@@ -166,11 +182,11 @@ void Cylinder::generate(unsigned int segments, ValuesRange range)
     generateCircle(segments, -h * 0.5f, CylinderCullFace::BACK, range);
 }
 
-Cylinder::Cylinder(unsigned int segments, ValuesRange range)
+Cylinder::Cylinder(unsigned int segments, CylinderShading shading, ValuesRange range)
 {
     vertices.clear();
     indices.clear();
-    generate(std::max(3u, segments), range);
+    generate(std::max(3u, segments), range, shading == CylinderShading::FLAT);
 }
 
 Cylinder::~Cylinder() {}

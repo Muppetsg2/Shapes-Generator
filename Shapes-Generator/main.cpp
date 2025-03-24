@@ -3,13 +3,15 @@
 
 // MY FILES
 #include "Sphere.h"
+#include "IcoSphere.h"
 #include "Plane.h"
 #include "Cube.h"
 #include "Cylinder.h"
 #include "Hexagon.h"
-#include "Pyramid.h"
+#include "Cone.h"
 #include "Tetrahedron.h"
-#include "IcoSphere.h"
+#include "Pyramid.h"
+#include "Torus.h"
 #include "templates.h"
 
 Shape* selectedShape = nullptr;
@@ -37,7 +39,7 @@ void replace_all(std::string& s, std::string const& toReplace, std::string const
     s.swap(buf);
 }
 
-bool checkForEsc(char ch) {
+static bool checkForEsc(char ch) {
     if (ch == 27) {  // ASCII code for ESC key
         fmt::print("\n[{}] Program exited – ESC key pressed.\n", fmt::styled("EXIT", fmt::fg(fmt::color::dark_red)));
         if (selectedShape) delete selectedShape;
@@ -46,7 +48,7 @@ bool checkForEsc(char ch) {
     return false;
 }
 
-int getIntInput(const std::string& prompt) {
+static int getIntInput(const std::string& prompt) {
     std::string input = "";
     char ch;
 
@@ -60,8 +62,9 @@ int getIntInput(const std::string& prompt) {
 
         // If Enter is pressed, stop input
         if (ch == '\r') {  // ASCII code for Enter
-            if (input.empty()) {
-                fmt::print("[{}] Invalid input! Please enter a number.\n{}", fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), prompt);
+            if (input.empty() || input == "-") {
+                fmt::print("\n[{}] Invalid input! Please enter a number.\n{}", fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), prompt);
+                input.clear();
             }
             else {
                 std::cout << '\n';  // Add a new line after input is confirmed
@@ -72,6 +75,11 @@ int getIntInput(const std::string& prompt) {
         else if (ch == '\b' && !input.empty()) {
             std::cout << "\b \b";  // Erase the last character on the console
             input.pop_back();      // Remove last character from string
+        }
+        // Handling the '-' character at the beginning of a number
+        else if (ch == '-' && input.empty()) {
+            input += ch;
+            std::cout << ch;
         }
         // Check if the character is a digit
         else if (isdigit(ch)) {
@@ -86,7 +94,63 @@ int getIntInput(const std::string& prompt) {
     return value;
 }
 
-void waitForEnter(const std::string& prompt) {
+static float getFloatInput(const std::string& prompt) {
+    std::string input = "";
+    char ch;
+    bool hasDot = false;  // Flag to check if user has already entered a dot
+
+    fmt::print("{}", prompt);
+
+    while (true) {
+        ch = _getch();  // Get a single character from the user
+
+        // Check if ESC key is pressed
+        checkForEsc(ch);
+
+        // If Enter is pressed, stop input
+        if (ch == '\r') {
+            if (input.empty() || input == "-") {
+                fmt::print("\n[{}] Invalid input! Please enter a number.\n{}", fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), prompt);
+                input.clear();
+            }
+            else {
+                std::cout << '\n';  // Add a new line after input is confirmed
+                break;
+            }
+        }
+        // If Backspace is pressed, remove the last character
+        else if (ch == '\b' && !input.empty()) {
+            if (input.back() == '.') {
+                hasDot = false;  // Removing the dot resets the flag
+            }
+            std::cout << "\b \b";
+            input.pop_back();
+        }
+        // Handling the '-' character at the beginning of a number
+        else if (ch == '-' && input.empty()) {
+            input += ch;
+            std::cout << ch;
+        }
+        // Check if the character is a digit
+        else if (isdigit(ch)) {
+            input += ch;
+            std::cout << ch;
+        }
+        // Decimal point handling (one time)
+        else if (ch == '.' && !hasDot && !input.empty() && input != "-") {
+            input += ch;
+            hasDot = true;
+            std::cout << ch;
+        }
+        // Ignore non-digit characters (other than backspace or enter)
+    }
+
+    // Convert the collected string to an float
+    float value = std::stof(input);
+    return value;
+}
+
+static void waitForEnter(const std::string& prompt) {
     char ch;
 
     fmt::print("{}", prompt);
@@ -104,6 +168,15 @@ void waitForEnter(const std::string& prompt) {
         }
         // Ignore non-digit characters (other than enter)
     }
+}
+
+static void printInvalidOption(int firstOptionNum, int lastOptionNum) {
+    fmt::print("[{}] Invalid option! Enter a number between {} and {} and try again.\n",
+        fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), firstOptionNum, lastOptionNum);
+}
+
+static std::string getInputPrompt(int firstOptionNum, int lastOptionNum) {
+    return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
 }
 
 void displayStartWindow() {
@@ -130,15 +203,6 @@ void displayStartWindow() {
     fmt::print("└──────────────────────────────────────────────────────────────────────────────────┘\n");
 }
 
-void printInvalidOption(int firstOptionNum, int lastOptionNum) {
-    fmt::print("[{}] Invalid option! Enter a number between {} and {} and try again.\n",
-        fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), firstOptionNum, lastOptionNum);
-}
-
-std::string getInputPrompt(int firstOptionNum, int lastOptionNum) {
-    return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
-}
-
 PlaneNormalDir getPlaneDirection() {
     int dir_choice;
     do {
@@ -150,19 +214,6 @@ PlaneNormalDir getPlaneDirection() {
     } while (dir_choice < 1 || dir_choice > 2);
 
     return static_cast<PlaneNormalDir>(dir_choice - 1);
-}
-
-IcoSphereShading getShadingType() {
-    int dir_choice;
-    do {
-        fmt::print("\n> Select the icoSphere shading type:\n1) FLAT\n2) SMOOTH\n");
-        dir_choice = getIntInput(getInputPrompt(1, 2));
-        if (dir_choice < 1 || dir_choice > 2) {
-            printInvalidOption(1, 2);
-        }
-    } while (dir_choice < 1 || dir_choice > 2);
-
-    return static_cast<IcoSphereShading>(dir_choice - 1);
 }
 
 ValuesRange getValuesRange() {
@@ -213,6 +264,10 @@ int main(int argc, char** argv) {
     SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 #endif
 
+    auto intChooseInputLambda = [](int min, int max) -> int {
+        return getIntInput(getInputPrompt(min, max));
+    };
+
     std::string exeDirPath = std::filesystem::absolute(argv[0]).parent_path().string();
     ValuesRange range = ValuesRange::HALF_TO_HALF;
 
@@ -221,12 +276,12 @@ int main(int argc, char** argv) {
     int choice;
     do {
         fmt::print("\n> Select a shape to create:\n");
-        std::cout << "1) Sphere\n2) Plane\n3) Cube\n4) Cylinder\n5) Hexagon\n6) Pyramid\n7) Tetrahedron\n8) IcoSphere\n";
-        choice = getIntInput(getInputPrompt(1, 8));
-        if (choice < 1 || choice > 8) {
-            printInvalidOption(1, 8);
+        std::cout << "1) Sphere\n2) IcoSphere\n3) Plane\n4) Cube\n5) Cylinder\n6) Hexagon\n7) Cone\n8) Tetrahedron\n9) Pyramid\n10) Torus\n";
+        choice = intChooseInputLambda(1, 10);
+        if (choice < 1 || choice > 10) {
+            printInvalidOption(1, 10);
         }
-    } while(choice < 1 || choice > 8);
+    } while(choice < 1 || choice > 10);
 
     range = getValuesRange();
 
@@ -249,6 +304,23 @@ int main(int argc, char** argv) {
             break;
         }
         case 2: {
+            fmt::print("\n> Enter icoSphere parameters:\n");
+            int subs = getIntInput("   - Number of subdivisions (0 - 8): ");
+            if (subs < 0) {
+                fmt::print("[{}] Adjusted to minimum of 0 subdivisions.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                subs = 0;
+            }
+            else if (subs > 8) {
+                fmt::print("[{}] Adjusted to maximum of 8 subdivisions.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                subs = 8;
+            }
+
+            IcoSphereShading shade = getShadingType<IcoSphereShading>("icoSphere", intChooseInputLambda, printInvalidOption);
+
+            elapsed_seconds = generateShape<IcoSphere>(selectedShape, subs, shade, range);
+            break;
+        }
+        case 3: {
             fmt::print("\n> Enter plane dimensions:\n");
             int rows = getIntInput("   - Number of rows (min: 2): ");
             if (rows < 2) {
@@ -265,8 +337,8 @@ int main(int argc, char** argv) {
             elapsed_seconds = generateShape<Plane>(selectedShape, rows, columns, dir, range);
             break;
         }
-        case 3: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
-        case 4: {
+        case 4: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
+        case 5: {
             fmt::print("\n> Enter cylinder parameters:\n");
             int segments = getIntInput("   - Number of segments (min: 3): ");
             if (segments < 3) {
@@ -274,27 +346,66 @@ int main(int argc, char** argv) {
                 segments = 3;
             }
 
-            elapsed_seconds = generateShape<Cylinder>(selectedShape, segments, range);
+            CylinderShading shade = getShadingType<CylinderShading>("cylinder", intChooseInputLambda, printInvalidOption);
+
+            elapsed_seconds = generateShape<Cylinder>(selectedShape, segments, shade, range);
             break;
         }
-        case 5: elapsed_seconds = generateShape<Hexagon>(selectedShape, range); break;
-        case 6: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
-        case 7: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
-        case 8: {
-            fmt::print("\n> Enter icoSphere parameters:\n");
-            int subs = getIntInput("   - Number of subdivisions (0 - 8): ");
-            if (subs < 0) {
-                fmt::print("[{}] Adjusted to minimum of 0 subdivisions.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
-                subs = 0;
-            }
-            else if (subs > 8) {
-                fmt::print("[{}] Adjusted to maximum of 8 subdivisions.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
-                subs = 8;
+        case 6: elapsed_seconds = generateShape<Hexagon>(selectedShape, range); break;
+        case 7: {
+            fmt::print("\n> Enter cone parameters:\n");
+            int segments = getIntInput("   - Number of segments (min: 3): ");
+            if (segments < 3) {
+                fmt::print("[{}] Adjusted to minimum of 3 segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                segments = 3;
             }
 
-            IcoSphereShading shade = getShadingType();
+            float height = getFloatInput("   - Height (greater than: 0.0): ");
+            if (height <= 0.0f) {
+                fmt::print("[{}] Adjusted height to 1.0.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                height = 1.0f;
+            }
 
-            elapsed_seconds = generateShape<IcoSphere>(selectedShape, subs, shade, range);
+            float radius = getFloatInput("   - Radius (greater than: 0.0): ");
+            if (radius <= 0.0f) {
+                fmt::print("[{}] Adjusted radius to 1.0.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                radius = 1.0f;
+            }
+
+            ConeShading shade = getShadingType<ConeShading>("cone", intChooseInputLambda, printInvalidOption);
+
+            elapsed_seconds = generateShape<Cone>(selectedShape, segments, height, radius, shade, range);
+            break;
+        }
+        case 8: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
+        case 9: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
+        case 10: {
+            fmt::print("\n> Enter torus parameters:\n");
+            int segments = getIntInput("   - Number of segments for the main axis of the circle (min: 3): ");
+            if (segments < 3) {
+                fmt::print("[{}] Adjusted to minimum of 3 segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                segments = 3;
+            }
+
+            int cs_segments = getIntInput("   - Number of segments for the inner circle of revolution (min: 3): ");
+            if (cs_segments < 3) {
+                fmt::print("[{}] Adjusted to minimum of 3 segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                cs_segments = 3;
+            }
+
+            float radius = getFloatInput("   - Radius of the main circle (greater than: 0.0): ");
+            if (radius <= 0.0f) {
+                fmt::print("[{}] Adjusted radius to 1.0.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                radius = 1.0f;
+            }
+
+            float cs_radius = getFloatInput("   - Radius of the circle of revolution (greater than: 0.0): ");
+            if (cs_radius <= 0.0f) {
+                fmt::print("[{}] Adjusted radius to 1.0.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                cs_radius = 1.0f;
+            }
+
+            elapsed_seconds = generateShape<Torus>(selectedShape, segments, cs_segments, radius, cs_radius, range);
             break;
         }
     }

@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.1.1</h1>
+        <h1>Shapes Generator 1.2.0</h1>
       </summary>
     </ul>
   </div>
@@ -13,7 +13,7 @@
 ## 📌 Description
 This project is a console-based **Shape Generator** written in **C++**. It allows users to create and save various **3D shapes** such as:
 
-🔴 Sphere | ▭ Cube | 🟢 Cylinder | 🔷 Hexagon | 🔺 Pyramid | ◇ Tetrahedron | ➖ Plane | 🔵 IcoSphere
+🔴 Sphere | 🔷 IcoSphere | ▭ Plane | 🧊 Cube | 🛢 Cylinder | ⬢ Hexagon | 🍦 Cone | 🔼 Tetrahedron | 🔺 Pyramid | 🍩 Torus
 
 The program dynamically generates the shape based on user input and exports the shape data to a file.
 
@@ -39,19 +39,21 @@ The program dynamically generates the shape based on user input and exports the 
 
 ✅ **Interactive User Input**
    - Configure shapes through console input.
-   - Choose from **seven** different shapes:
-     1. 🔴 Sphere
-     2. ➖ Plane
-     3. ▭ Cube
-     4. 🟢 Cylinder
-     5. 🔷 Hexagon
-     6. 🔺 Pyramid
-     7. ◇ Tetrahedron
-     8. 🔵 IcoSphere
+   - Choose from **ten** different shapes:
+     1.  🔴 Sphere
+     2.  🔷 IcoSphere
+     3.  ▭ Plane
+     4.  🧊 Cube
+     5.  🛢 Cylinder
+     6.  ⬢ Hexagon
+     7.  🍦 Cone
+     8.  🔼 Tetrahedron
+     9.  🔺 Pyramid
+     10. 🍩 Torus
 
 ✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
 <br/>
-✅ **File Output**: Generated shapes are saved in `shape.txt` for later use.
+✅ **File Output**: Generated shapes are saved in `shape.txt` or `shape.obj` for later use.
 <br/>
 ✅ **Error Handling**: Provides feedback for invalid inputs and applies sensible defaults.
 
@@ -107,7 +109,7 @@ The program dynamically generates the shape based on user input and exports the 
    ```
 4. **Compile source files into object files**
    ```bash
-   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -o main.o
+   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp IcoSphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Cone.cpp Tetrahedron.cpp Pyramid.cpp Torus.cpp -I. -o main.o
    ```
 5. **Link object files to create the final executable**
    ```bsh
@@ -135,7 +137,7 @@ The program dynamically generates the shape based on user input and exports the 
    ```
 4. **Compile source files into object files**
    ```bash
-   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Pyramid.cpp Tetrahedron.cpp IcoSphere.cpp -I. -I/opt/homebrew/include -o main.o
+   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp IcoSphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Cone.cpp Tetrahedron.cpp Pyramid.cpp Torus.cpp -I. -I/opt/homebrew/include -o main.o
    ```
 5. **Link object files to create the final executable**
    ```bsh
@@ -148,7 +150,7 @@ The program dynamically generates the shape based on user input and exports the 
 
 ## ▶️ Usage
 1. **Launch the program** - ASCII art and a menu will appear.
-2. **Select a shape** by entering a number (1-7).
+2. **Select a shape** by entering a number (1-10).
 3. **Enter the required shape parameters**, if applicable.
 4. **The shape is generated**.
 5. **Select the file format** for saving.

@@ -20,6 +20,8 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
+	float fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd);
+
 	Vertex calcTangentBitangent(unsigned int vertexIndex);
 	std::pair<glm::vec3, glm::vec3> calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
 

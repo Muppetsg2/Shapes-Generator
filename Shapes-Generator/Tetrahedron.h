@@ -1,8 +1,7 @@
 #pragma once
 #include "Shape.h"
 
-class Tetrahedron : public Shape
-{
+class Tetrahedron : public Shape {
 public:
 	Tetrahedron(ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Tetrahedron();

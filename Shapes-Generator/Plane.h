@@ -8,8 +8,6 @@ enum class PlaneNormalDir {
 
 class Plane : public Shape {
 private:
-	float fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd);
-
 	void generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range);
 
 public:

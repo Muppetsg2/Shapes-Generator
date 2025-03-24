@@ -2,10 +2,6 @@
 #include "pch.h"
 #include "Plane.h"
 
-float Plane::fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd) {
-    return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
-}
-
 void Plane::generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
 {
     float space = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
