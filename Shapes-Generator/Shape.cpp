@@ -223,7 +223,10 @@ std::string Shape::toString(FormatType type) const
     std::string text;
     switch (type) {
         case FormatType::VECTOR_INDICES: {
-            text += "std::vector<Vertex> vertices = {\n";
+            text =  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
+                    "struct vec2\n{\n\tfloat x, y;\n};\n\n"
+                    "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n"
+                    "std::vector<Vertex> vertices = {\n";
 
             for (size_t i = 0; i < vertices.size(); ++i) {
                 Vertex v = vertices[i];
@@ -326,7 +329,10 @@ std::string Shape::toString(FormatType type) const
             break;
         }
         case FormatType::VECTOR_VERTICES: {
-            text = "std::vector<Vertex> vertices = {\n";
+            text =  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
+                    "struct vec2\n{\n\tfloat x, y;\n};\n\n"
+                    "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n"
+                    "std::vector<Vertex> vertices = {\n";
 
             for (size_t i = 0; i < indices.size(); ++i) {
                 Vertex v = vertices[indices[i]];
