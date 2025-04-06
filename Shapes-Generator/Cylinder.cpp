@@ -70,25 +70,28 @@ void Cylinder::generateCircle(unsigned int segments, float y, CylinderCullFace c
     trisNum.clear();
 }
 
-void Cylinder::generate(unsigned int segments, ValuesRange range, bool useFlatShading)
+void Cylinder::generate(unsigned int horizontalSegments, unsigned int verticalSegments, ValuesRange range, bool useFlatShading)
 {
     float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
     float h = 2.f * mult;
 
-    generateCircle(segments, h * 0.5f, CylinderCullFace::FRONT, range);
+    generateCircle(verticalSegments, h * 0.5f, CylinderCullFace::FRONT, range);
 
     std::vector<unsigned int> trisNum;
 
-    float angleXZDiff = 360.f / (float)segments;
+    float angleXZDiff = 360.f / (float)verticalSegments;
+    float hDiff = h / (float)horizontalSegments;
 
     size_t start = vertices.size();
 
     // VERTICES UP AND DOWN
-    for (int i = 0; i < 2; ++i) {
-        float y = h * 0.5f - h * i;
+    unsigned int horiSegms = (useFlatShading ? horizontalSegments * 2 : horizontalSegments + 1);
+    for (unsigned int i = 0; i < horiSegms; ++i) {
+        float yDiff = hDiff * ((float)i - (useFlatShading ? i / 2 : 0));
+        float y = h * 0.5f - yDiff;
         float angleXZ = 0.f;
-        unsigned int segms = segments + (useFlatShading ? 0 : 1);
-        for (unsigned int j = 0; j < segms; ++j) {
+        unsigned int vertSegms = verticalSegments + (useFlatShading ? 0 : 1);
+        for (unsigned int j = 0; j < vertSegms; ++j) {
 
             float radiansXZ = glm::radians(angleXZ);
 
@@ -96,11 +99,12 @@ void Cylinder::generate(unsigned int segments, ValuesRange range, bool useFlatSh
                 float x_n = (sinf(radiansXZ) + sinf(radiansXZ + glm::radians(angleXZDiff))) * 0.5f;
                 float z_n = (cosf(radiansXZ) + cosf(radiansXZ + glm::radians(angleXZDiff))) * 0.5f;
 
-                for (int f = 0; f < 2; ++f) {
+                for (unsigned int f = 0; f < 2; ++f) {
                     float radiansXZF = radiansXZ + glm::radians(angleXZDiff * f);
                     float z = cosf(radiansXZF) * mult;
                     float x = sinf(radiansXZF) * mult;
-                    vertices.push_back({ { x, y, z }, { (float)f, (float)i }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
+
+                    vertices.push_back({ { x, y, z }, { (float)f, yDiff / h }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
 
                     trisNum.push_back(1 + (i + f) % 2);
                 }
@@ -109,9 +113,9 @@ void Cylinder::generate(unsigned int segments, ValuesRange range, bool useFlatSh
                 float x_n = sinf(radiansXZ);
                 float z_n = cosf(radiansXZ);
 
-                vertices.push_back({ { x_n * mult, y, z_n * mult }, { (float)angleXZ / 360.f, (float)i}, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
+                vertices.push_back({ { x_n * mult, y, z_n * mult }, { (float)angleXZ / 360.f, yDiff / h }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
 
-                unsigned int count = 1 + (j == 0 ? i : ((j == segments) ? (i + 1) % 2 : 2));
+                unsigned int count = (j == 0 || j == verticalSegments ? (i == 0 || i == horizontalSegments ? 1 : 3) : (i == 0 || i == horizontalSegments ? 3 : 6)) + ((i == 0 && j == verticalSegments) || (i == horizontalSegments && j == 0) ? 1 : 0);
                 trisNum.push_back(count);
             }
 
@@ -120,47 +124,51 @@ void Cylinder::generate(unsigned int segments, ValuesRange range, bool useFlatSh
     }
 
     // INDICES
-    for (unsigned int i = 0; i < segments; ++i) {
+    for (unsigned int i = 0; i < horizontalSegments; ++i) {
+        for (unsigned int j = 0; j < verticalSegments; ++j) {
+            size_t f = (useFlatShading ? 1 : 0);
+            size_t m = f + 1;
 
-        size_t m = (useFlatShading ? 2 : 1);
+            size_t flatDiffrence = m * (verticalSegments - 1) * (size_t)i * f;
 
-        size_t left = start + (size_t)i * m;
-        size_t dt = start + ((size_t)i + (size_t)segments) * m + m % 2;
-        size_t right = start + (size_t)i * m + 1;
+            size_t left = start + ((size_t)j + (size_t)i * ((size_t)verticalSegments + 1)) * m + flatDiffrence;
+            size_t dt = start + ((size_t)j + (size_t)(i + 1) * (size_t)verticalSegments + (size_t)i) * m + m % 2 + flatDiffrence;
+            size_t right = start + ((size_t)j + (size_t)i * ((size_t)verticalSegments + 1)) * m + 1 + flatDiffrence;
 
-        indices.push_back((unsigned int)left);
-        indices.push_back((unsigned int)dt);
-        indices.push_back((unsigned int)right);
+            indices.push_back((unsigned int)left);
+            indices.push_back((unsigned int)dt);
+            indices.push_back((unsigned int)right);
 
-        std::pair<glm::vec3, glm::vec3> TB = calcTangentBitangent((unsigned int)left, (unsigned int)dt, (unsigned int)right);
+            std::pair<glm::vec3, glm::vec3> TB = calcTangentBitangent((unsigned int)left, (unsigned int)dt, (unsigned int)right);
 
-        vertices[left].Tangent += TB.first;
-        vertices[left].Bitangent += TB.second;
+            vertices[left].Tangent += TB.first;
+            vertices[left].Bitangent += TB.second;
 
-        vertices[dt].Tangent += TB.first;
-        vertices[dt].Bitangent += TB.second;
+            vertices[dt].Tangent += TB.first;
+            vertices[dt].Bitangent += TB.second;
 
-        vertices[right].Tangent += TB.first;
-        vertices[right].Bitangent += TB.second;
+            vertices[right].Tangent += TB.first;
+            vertices[right].Bitangent += TB.second;
 
-        dt = start + (size_t)i * m + 1;
-        left = start + ((size_t)i + (size_t)segments) * m + m % 2;
-        right = start + ((size_t)i + (size_t)segments) * m + m % 2 + 1;
+            std::swap(dt, right);
+            left = right;
+            right += 1;
 
-        indices.push_back((unsigned int)dt);
-        indices.push_back((unsigned int)left);
-        indices.push_back((unsigned int)right);
+            indices.push_back((unsigned int)dt);
+            indices.push_back((unsigned int)left);
+            indices.push_back((unsigned int)right);
 
-        TB = calcTangentBitangent((unsigned int)dt, (unsigned int)left, (unsigned int)right);
+            TB = calcTangentBitangent((unsigned int)dt, (unsigned int)left, (unsigned int)right);
 
-        vertices[dt].Tangent += TB.first;
-        vertices[dt].Bitangent += TB.second;
+            vertices[dt].Tangent += TB.first;
+            vertices[dt].Bitangent += TB.second;
 
-        vertices[left].Tangent += TB.first;
-        vertices[left].Bitangent += TB.second;
+            vertices[left].Tangent += TB.first;
+            vertices[left].Bitangent += TB.second;
 
-        vertices[right].Tangent += TB.first;
-        vertices[right].Bitangent += TB.second;
+            vertices[right].Tangent += TB.first;
+            vertices[right].Bitangent += TB.second;
+        }
     }
 
     for (size_t i = start; i < vertices.size(); ++i) {
@@ -179,14 +187,14 @@ void Cylinder::generate(unsigned int segments, ValuesRange range, bool useFlatSh
 
     trisNum.clear();
 
-    generateCircle(segments, -h * 0.5f, CylinderCullFace::BACK, range);
+    generateCircle(verticalSegments, -h * 0.5f, CylinderCullFace::BACK, range);
 }
 
-Cylinder::Cylinder(unsigned int segments, CylinderShading shading, ValuesRange range)
+Cylinder::Cylinder(unsigned int horizontalSegments, unsigned int verticalSegments, CylinderShading shading, ValuesRange range)
 {
     vertices.clear();
     indices.clear();
-    generate(std::max(3u, segments), range, shading == CylinderShading::FLAT);
+    generate(std::max(1u, horizontalSegments), std::max(3u, verticalSegments), range, shading == CylinderShading::FLAT);
 }
 
 Cylinder::~Cylinder() {}

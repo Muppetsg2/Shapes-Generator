@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.2.0</h1>
+        <h1>Shapes Generator 1.2.1</h1>
       </summary>
     </ul>
   </div>

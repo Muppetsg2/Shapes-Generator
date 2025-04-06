@@ -2,11 +2,11 @@
 #include "pch.h"
 #include "Hexagon.h"
 
-Hexagon::Hexagon(ValuesRange range)
+Hexagon::Hexagon(unsigned int segments, ValuesRange range)
 {
     vertices.clear();
     indices.clear();
-    generate(6u, range, true);
+    generate(segments, 6u, range, true);
 }
 
 Hexagon::~Hexagon() {}

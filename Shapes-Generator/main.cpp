@@ -179,28 +179,40 @@ static std::string getInputPrompt(int firstOptionNum, int lastOptionNum) {
     return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
 }
 
+void printBannerLineColored(std::string text, fmt::color color) {
+    fmt::print("│");
+    fmt::print("{}", fmt::styled(text, fmt::fg(color)));
+    fmt::print("│\n");
+}
+
 void displayStartWindow() {
 
-    size_t lineLength = std::string("   ____  _                         ____                           _               ").size();
+    size_t lineLength = std::string("   ____  _                              ____                           _               ").size();
     std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION_STR);
+    std::string escTxt = std::string("Press ESC to exit the program");
 
-    size_t spaceCount = (lineLength - versionTxt.size()) / 2ull;
-    size_t remainder = (lineLength - versionTxt.size()) % 2ull;
+    size_t verSpaceCount = (lineLength - versionTxt.size()) / 2ull;
+    size_t verRemainder = (lineLength - versionTxt.size()) % 2ull;
 
-    fmt::print("┌──────────────────────────────────────────────────────────────────────────────────┐\n");
-    fmt::print("│                                                                                  │\n");
-    fmt::print("│   ____  _                         ____                           _               │\n");
-    fmt::print("│  / ___|| |__   __ _ _ __   ___   / ___| ___ _ __   ___ _ __ __ _| |_ ___  _ __   │\n");
-    fmt::print("│  \\___ \\| '_ \\ / _` | '_ \\ / _ \\ | |  _ / _ \\ '_ \\ / _ \\ '__/ _` | __/ _ \\| '__|  │\n");
-    fmt::print("│   ___) | | | | (_| | |_) |  __/ | |_| |  __/ | | |  __/ | | (_| | || (_) | |     │\n");
-    fmt::print("│  |____/|_| |_|\\__,_| .__/ \\___|  \\____|\\___|_| |_|\\___|_|  \\__,_|\\__\\___/|_|     │\n");
-    fmt::print("│                    |_|                                                           │\n");
-    fmt::print("│                                                                                  │\n");
-    fmt::print("│{:<{}}{}{:>{}}│\n", "", spaceCount, versionTxt, "", spaceCount + remainder);
-    fmt::print("│                                                                                  │\n");
-    fmt::print("│                           Press ESC to exit the program                          │\n");
-    fmt::print("│                                                                                  │\n");
-    fmt::print("└──────────────────────────────────────────────────────────────────────────────────┘\n");
+    size_t escSpaceCount = (lineLength - escTxt.size()) / 2ull;
+    size_t escRemainder = (lineLength - escTxt.size()) % 2ull;
+
+    fmt::color color = fmt::color::cyan;
+
+    fmt::print("┌───────────────────────────────────────────────────────────────────────────────────────┐\n");
+    fmt::print("│                                                                                       │\n");
+    printBannerLineColored("   ____  _                              ____                           _               ", color);
+    printBannerLineColored("  / ___|| |__   __ _ _ __   ___  ___   / ___| ___ _ __   ___ _ __ __ _| |_ ___  _ __   ", color);
+    printBannerLineColored("  \\___ \\| '_ \\ / _` | '_ \\ / _ \\/ __| | |  _ / _ \\ '_ \\ / _ \\ '__/ _` | __/ _ \\| '__|  ", color);
+    printBannerLineColored("   ___) | | | | (_| | |_) |  __/\\__ \\ | |_| |  __/ | | |  __/ | | (_| | || (_) | |     ", color);
+    printBannerLineColored("  |____/|_| |_|\\__,_| .__/ \\___||___/  \\____|\\___|_| |_|\\___|_|  \\__,_|\\__\\___/|_|     ", color);
+    printBannerLineColored("                    |_|                                                                ", color);
+    fmt::print("│                                                                                       │\n");
+    fmt::print("│{:<{}}{}{:>{}}│\n", "", verSpaceCount, versionTxt, "", verSpaceCount + verRemainder);
+    fmt::print("│                                                                                       │\n");
+    fmt::print("│{:<{}}{}{:>{}}│\n", "", escSpaceCount, escTxt, "", escSpaceCount + escRemainder);
+    fmt::print("│                                                                                       │\n");
+    fmt::print("└───────────────────────────────────────────────────────────────────────────────────────┘\n");
 }
 
 PlaneNormalDir getPlaneDirection() {
@@ -340,18 +352,33 @@ int main(int argc, char** argv) {
         case 4: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
         case 5: {
             fmt::print("\n> Enter cylinder parameters:\n");
-            int segments = getIntInput("   - Number of segments (min: 3): ");
-            if (segments < 3) {
-                fmt::print("[{}] Adjusted to minimum of 3 segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
-                segments = 3;
+            int verticalSegments = getIntInput("   - Number of vertical segments (min: 3): ");
+            if (verticalSegments < 3) {
+                fmt::print("[{}] Adjusted to minimum of 3 vertical segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                verticalSegments = 3;
+            }
+            int horizontalSegments = getIntInput("   - Number of horizontal segments (min: 1): ");
+            if (horizontalSegments < 1) {
+                fmt::print("[{}] Adjusted to minimum of 1 horizontal segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                horizontalSegments = 1;
             }
 
             CylinderShading shade = getShadingType<CylinderShading>("cylinder", intChooseInputLambda, printInvalidOption);
 
-            elapsed_seconds = generateShape<Cylinder>(selectedShape, segments, shade, range);
+            elapsed_seconds = generateShape<Cylinder>(selectedShape, horizontalSegments, verticalSegments, shade, range);
             break;
         }
-        case 6: elapsed_seconds = generateShape<Hexagon>(selectedShape, range); break;
+        case 6: {
+            fmt::print("\n> Enter hexagon parameters:\n");
+            int horizontalSegments = getIntInput("   - Number of horizontal segments (min: 1): ");
+            if (horizontalSegments < 1) {
+                fmt::print("[{}] Adjusted to minimum of 1 horizontal segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
+                horizontalSegments = 1;
+            }
+
+            elapsed_seconds = generateShape<Hexagon>(selectedShape, horizontalSegments, range);
+            break;
+        }
         case 7: {
             fmt::print("\n> Enter cone parameters:\n");
             int segments = getIntInput("   - Number of segments (min: 3): ");
