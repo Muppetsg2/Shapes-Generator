@@ -3,7 +3,7 @@
 
 class Torus : public Shape {
 private:
-	void generate(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range);
+	void _generate(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range);
 
 public:
 	// segments -> co-planar circular axis resolution

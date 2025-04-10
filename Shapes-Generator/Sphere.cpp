@@ -2,62 +2,60 @@
 #include "pch.h"
 #include "Sphere.h"
 
-void Sphere::generate(unsigned int h, unsigned int v, ValuesRange range)
+void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range)
 {
 	float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
-	float angleYDiff = 180.f / (float)h;
-	float angleXZDiff = 360.f / (float)v;
+	float angleYDiff = (float)M_PI / (float)h;
+	float angleXZDiff = 2.f * (float)M_PI / (float)v;
 
 	float texHDiff = 1.f / (float)h;
 	float texVDiff = 1.f / (float)v;
 
-	std::vector<unsigned int> trisNum = std::vector<unsigned int>();
+	std::vector<unsigned int> trisNum;
 
 	// VERTICIES AND NUMBER OF TRIANGLES
 	// TOP VERTEX
-	vertices.push_back({ { 0.f, 1.f * mult, 0.f }, { .5f, 0.f }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+	_vertices.push_back({ { 0.f, 1.f * mult, 0.f }, { .5f, 0.f }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
 	trisNum.push_back(v);
+
 	// TOP HALF AND BOTTOM HALF
 	float angleY = angleYDiff;
-	for (unsigned int i = 0; i < h - 1; ++i) {
-		float radiansY = glm::radians(angleY);
-		float r = sinf(radiansY) * mult;
-		float y = cosf(radiansY) * mult;
+	for (unsigned int i = 0u; i < h - 1u; ++i) {
+		float r = sinf(angleY) * mult;
+		float y = cosf(angleY) * mult;
 
-		unsigned int startTexV = i * v + 1;
-		unsigned int t = 1;
+		unsigned int startTexV = i * v + 1u;
+		unsigned int t = 1u;
 
-		if (h == 2) {
-			t = 4;
+		if (h == 2u) {
+			t = 4u;
 		}
-		else if (h == 3) {
-			t = 5;
+		else if (h == 3u) {
+			t = 5u;
 		}
-		else if (h >= 4) {
-			if (i == 0 || i + 2 == h) {
-				t = 5;
+		else if (h >= 4u) {
+			if (i == 0u || i + 2u == h) {
+				t = 5u;
 			}
 			else {
-				t = 6;
+				t = 6u;
 			}
 		}
 
 		// DRAW CIRCLE
 		float angleXZ = 0.f;
-		for (unsigned int j = 0; j < v; ++j) {
-			float radiansXZ = glm::radians(angleXZ);
-			float z = r * cosf(radiansXZ);
-			float x = r * sinf(radiansXZ);
+		for (unsigned int j = 0u; j < v; ++j) {
+			float z = r * cosf(angleXZ);
+			float x = r * sinf(angleXZ);
 
 			glm::vec3 vert = { x, y, z };
-			vertices.push_back({ vert, { j * texVDiff, texHDiff * (i + 1) }, glm::normalize(vert), glm::vec3(0.f), glm::vec3(0.f) });
+			_vertices.push_back({ vert, { (float)j * texVDiff, texHDiff * (float)(i + 1u) }, glm::normalize(vert), glm::vec3(0.f), glm::vec3(0.f) });
 			trisNum.push_back(t);
 
-			if (j == v - 1)
-			{
-				glm::vec3 vertLast = { r * sinf(glm::radians(0.f)), y, r * cosf(glm::radians(0.f)) };
+			if (j == v - 1u) {
+				glm::vec3 vertLast = { 0.f, y, r };
 				// Add first in the end again for texCoords
-				vertices.push_back({ vertLast, { 1.f , texHDiff * (i + 1) }, glm::normalize(vertLast), glm::vec3(0.f), glm::vec3(0.f) });
+				_vertices.push_back({ vertLast, { 1.f , texHDiff * (float)(i + 1u) }, glm::normalize(vertLast), glm::vec3(0.f), glm::vec3(0.f) });
 				trisNum.push_back(t);
 			}
 
@@ -65,120 +63,109 @@ void Sphere::generate(unsigned int h, unsigned int v, ValuesRange range)
 		}
 		angleY += angleYDiff;
 	}
+
 	// BOTTOM VERTEX
-	vertices.push_back({ { 0.f, -1.f * mult, 0.f }, { .5f, 1.f }, { 0.f, -1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+	_vertices.push_back({ { 0.f, -1.f * mult, 0.f }, { .5f, 1.f }, { 0.f, -1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
 	trisNum.push_back(v);
 
 	// INDICIES, TANGENTS AND BITANGENTS
 	std::pair<glm::vec3, glm::vec3> TB;
 
-	size_t verticesNum = vertices.size();
 	// TOP CIRCLE + BOTTOM CIRCLE
-	for (unsigned int i = 0; i < v; ++i) {
+	const size_t verticesNum = _vertices.size();
+	for (unsigned int i = 0u; i < v; ++i) {
 		// TOP CIRCLE
-		unsigned int rightVertex = (i + 1) + 1;
-		unsigned int topVertex = 0;
-		unsigned int leftVertex = i + 1;
+		unsigned int rightVertex = (i + 1u) + 1u;
+		unsigned int topVertex = 0u;
+		unsigned int leftVertex = i + 1u;
 
-		indices.push_back(rightVertex);
-		indices.push_back(topVertex);
-		indices.push_back(leftVertex);
+		_indices.push_back(rightVertex);
+		_indices.push_back(topVertex);
+		_indices.push_back(leftVertex);
 
-		TB = calcTangentBitangent(rightVertex, topVertex, leftVertex);
+		TB = _calcTangentBitangent(rightVertex, topVertex, leftVertex);
 
-		vertices[rightVertex].Tangent += TB.first;
-		vertices[rightVertex].Bitangent += TB.second;
+		_vertices[rightVertex].Tangent += TB.first;
+		_vertices[rightVertex].Bitangent += TB.second;
 
-		vertices[topVertex].Tangent += TB.first;
-		vertices[topVertex].Bitangent += TB.second;
+		_vertices[topVertex].Tangent += TB.first;
+		_vertices[topVertex].Bitangent += TB.second;
 
-		vertices[leftVertex].Tangent += TB.first;
-		vertices[leftVertex].Bitangent += TB.second;
+		_vertices[leftVertex].Tangent += TB.first;
+		_vertices[leftVertex].Bitangent += TB.second;
 
 		// BOTTOM CIRCLE
-		rightVertex = (unsigned int)verticesNum - 2 - v - 1 + (i + 1) + 1;
-		leftVertex = (unsigned int)verticesNum - 2 - v - 1 + i + 1;
-		topVertex = (unsigned int)verticesNum - 1;
+		rightVertex = (unsigned int)verticesNum - 2u - v - 1u + (i + 1u) + 1u;
+		leftVertex = (unsigned int)verticesNum - 2u - v - 1u + i + 1u;
+		topVertex = (unsigned int)verticesNum - 1u;
 
-		indices.push_back(rightVertex);
-		indices.push_back(leftVertex);
-		indices.push_back(topVertex);
+		_indices.push_back(rightVertex);
+		_indices.push_back(leftVertex);
+		_indices.push_back(topVertex);
 
-		TB = calcTangentBitangent(rightVertex, leftVertex, topVertex);
+		TB = _calcTangentBitangent(rightVertex, leftVertex, topVertex);
 
-		vertices[rightVertex].Tangent += TB.first;
-		vertices[rightVertex].Bitangent += TB.second;
+		_vertices[rightVertex].Tangent += TB.first;
+		_vertices[rightVertex].Bitangent += TB.second;
 
-		vertices[leftVertex].Tangent += TB.first;
-		vertices[leftVertex].Bitangent += TB.second;
+		_vertices[leftVertex].Tangent += TB.first;
+		_vertices[leftVertex].Bitangent += TB.second;
 
-		vertices[topVertex].Tangent += TB.first;
-		vertices[topVertex].Bitangent += TB.second;
+		_vertices[topVertex].Tangent += TB.first;
+		_vertices[topVertex].Bitangent += TB.second;
 	}
 
 	// CENTER CIRCLES
-	for (unsigned int c = 0; c < h - 2; ++c) {
-		unsigned int startV = c * (v + 1) + 1;
-		for (unsigned int i = 0; i < v; ++i) {
+	for (unsigned int c = 0u; c < h - 2u; ++c) {
+		unsigned int startV = c * (v + 1u) + 1u;
+		for (unsigned int i = 0u; i < v; ++i) {
 			unsigned int topLeft = i + startV;
-			unsigned int topRight = (i + 1) + startV;
-			unsigned int bottomLeft = i + v + 1 + startV;
-			unsigned int bottomRight = (i + 1) + v + 1 + startV;
+			unsigned int topRight = (i + 1u) + startV;
+			unsigned int bottomLeft = i + v + 1u + startV;
+			unsigned int bottomRight = (i + 1u) + v + 1u + startV;
 
-			indices.push_back(topRight);
-			indices.push_back(topLeft);
-			indices.push_back(bottomLeft);
+			_indices.push_back(topRight);
+			_indices.push_back(topLeft);
+			_indices.push_back(bottomLeft);
 
-			TB = calcTangentBitangent(topRight, topLeft, bottomLeft);
+			TB = _calcTangentBitangent(topRight, topLeft, bottomLeft);
 
-			vertices[topRight].Tangent += TB.first;
-			vertices[topRight].Bitangent += TB.second;
+			_vertices[topRight].Tangent += TB.first;
+			_vertices[topRight].Bitangent += TB.second;
 
-			vertices[topLeft].Tangent += TB.first;
-			vertices[topLeft].Bitangent += TB.second;
+			_vertices[topLeft].Tangent += TB.first;
+			_vertices[topLeft].Bitangent += TB.second;
 
-			vertices[bottomLeft].Tangent += TB.first;
-			vertices[bottomLeft].Bitangent += TB.second;
+			_vertices[bottomLeft].Tangent += TB.first;
+			_vertices[bottomLeft].Bitangent += TB.second;
 
-			indices.push_back(bottomRight);
-			indices.push_back(topRight);
-			indices.push_back(bottomLeft);
+			_indices.push_back(bottomRight);
+			_indices.push_back(topRight);
+			_indices.push_back(bottomLeft);
 
-			TB = calcTangentBitangent(bottomRight, topRight, bottomLeft);
+			TB = _calcTangentBitangent(bottomRight, topRight, bottomLeft);
 
-			vertices[bottomRight].Tangent += TB.first;
-			vertices[bottomRight].Bitangent += TB.second;
+			_vertices[bottomRight].Tangent += TB.first;
+			_vertices[bottomRight].Bitangent += TB.second;
 
-			vertices[topRight].Tangent += TB.first;
-			vertices[topRight].Bitangent += TB.second;
+			_vertices[topRight].Tangent += TB.first;
+			_vertices[topRight].Bitangent += TB.second;
 
-			vertices[bottomLeft].Tangent += TB.first;
-			vertices[bottomLeft].Bitangent += TB.second;
+			_vertices[bottomLeft].Tangent += TB.first;
+			_vertices[bottomLeft].Bitangent += TB.second;
 		}
 	}
 
-	for (unsigned int i = 0; i < vertices.size(); ++i) {
-		vertices[i].Tangent /= (float)trisNum[i];
-
-		if (glm::length(vertices[i].Tangent) != 0.f) {
-			vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
-		}
-
-		vertices[i].Bitangent /= (float)trisNum[i];
-
-		if (glm::length(vertices[i].Bitangent) != 0.f) {
-			vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
-		}
-	}
+	_normalizeTangents(trisNum, 0ull, verticesNum);
 
 	trisNum.clear();
 }
 
 Sphere::Sphere(unsigned int h, unsigned int v, ValuesRange range)
 {
-	vertices.clear();
-	indices.clear();
-	generate(std::max(2u, h), std::max(3u, v), range);
+	_vertices.clear();
+	_indices.clear();
+	_generate(std::max(2u, h), std::max(3u, v), range);
 }
 
 Sphere::~Sphere() {}

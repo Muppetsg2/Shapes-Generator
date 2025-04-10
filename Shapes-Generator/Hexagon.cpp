@@ -6,7 +6,7 @@ Hexagon::Hexagon(unsigned int segments, ValuesRange range)
 {
     _vertices.clear();
     _indices.clear();
-    generate(segments, 6u, range, true);
+    _generate(segments, 6u, range, true);
 }
 
 Hexagon::~Hexagon() {}

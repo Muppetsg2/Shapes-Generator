@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.2.1</h1>
+        <h1>Shapes Generator 1.2.2</h1>
       </summary>
     </ul>
   </div>
@@ -16,6 +16,7 @@ This project is a console-based **Shape Generator** written in **C++**. It allow
 🔴 Sphere | 🔷 IcoSphere | ▭ Plane | 🧊 Cube | 🛢 Cylinder | ⬢ Hexagon | 🍦 Cone | 🔼 Tetrahedron | 🔺 Pyramid | 🍩 Torus
 
 The program dynamically generates the shape based on user input and exports the shape data to a file.
+> 🧭 Note: All shapes use the counterclockwise order for listing vertices — this helps keep things consistent and makes rendering easier in most 3D engines.
 
 🛠 **Technologies used:**
 - **GLM** (OpenGL Mathematics) for vector operations
@@ -53,7 +54,7 @@ The program dynamically generates the shape based on user input and exports the 
 
 ✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
 <br/>
-✅ **File Output**: Generated shapes are saved in `shape.txt` or `shape.obj` for later use.
+✅ **File Output**: Generated shapes are saved in `shape.txt` or `shape.obj` for later use. 
 <br/>
 ✅ **Error Handling**: Provides feedback for invalid inputs and applies sensible defaults.
 
@@ -166,18 +167,25 @@ When generating a **Sphere**, the output will look like this:
 
 [INFO] Shape successfully generated in 4.51e-05s!
 
+──────────────────────────────────────────────────
 [FILE] Select the save format:
- 1) std::vector - Vertices & Indices
- 2) C++ array - Vertices & Indices
- 3) std::vector - Only Vertices
- 4) C++ array - Only Vertices
- 5) Save as OBJ file
-
-Enter your choice (1 - 5): 1
+ 1) std::vector  - Vertices & Indices (struct)
+ 2) C++ array    - Vertices & Indices (struct)
+ 3) std::vector  - Only Vertices (struct)
+ 4) C++ array    - Only Vertices (struct)
+ 5) std::vector  - Vertices & Indices (float)
+ 6) C++ array    - Vertices & Indices (float)
+ 7) std::vector  - Only Vertices (float)
+ 8) C++ array    - Only Vertices (float)
+ 9) Save as OBJ file
+ ──────────────────────────────────────────────────
+Enter your choice (1 - 9): 1
 
 [OK] Start Saving Sphere to file...
 [SAVED] Shape saved successfully in 0.0013585s!
 [PATH] File path: C:\path\to\folder\shape.txt
+
+Press Enter to exit...
 ```
 
 ## 🛠 Troubleshooting

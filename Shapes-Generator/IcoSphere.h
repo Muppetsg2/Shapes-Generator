@@ -8,17 +8,17 @@ enum class IcoSphereShading {
 
 class IcoSphere : public Shape {
 private:
-    void generateIcoSahedron(float mult, bool useFlatShading, bool hasSubdivisions);
-    void generate(unsigned int subdivisions, ValuesRange range, bool useFlatShading);
+    void _generateIcoSahedron(float mult, bool useFlatShading, bool hasSubdivisions);
+    void _generate(unsigned int subdivisions, ValuesRange range, bool useFlatShading);
 
-    unsigned int getMiddlePoint(unsigned int p1, unsigned int p2, float mult);
-    unsigned int getMiddlePointFlatShading(unsigned int p1, unsigned int p2, float mult);
+    unsigned int _getMiddlePoint(unsigned int p1, unsigned int p2, float mult);
+    unsigned int _getMiddlePointFlatShading(unsigned int p1, unsigned int p2, float mult);
     
-    glm::vec2 getTexCoord(glm::vec3 normal);
+    glm::vec2 _getTexCoord(glm::vec3 normal);
 
-    void defineTangentBitangentFlatShading(std::pair<glm::vec3, glm::vec3> TB, size_t index);
+    void _defineTangentBitangentFlatShading(std::pair<glm::vec3, glm::vec3> TB, size_t index);
 
-    std::unordered_map<uint64_t, unsigned int> middlePointCache;
+    std::unordered_map<uint64_t, unsigned int> _middlePointCache;
 
 public:
     IcoSphere(unsigned int subdivisions = 0u, IcoSphereShading shading = IcoSphereShading::FLAT, ValuesRange range = ValuesRange::HALF_TO_HALF);

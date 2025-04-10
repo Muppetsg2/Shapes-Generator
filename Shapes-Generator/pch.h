@@ -3,6 +3,7 @@
 // STANDARD LIBS
 #include <cctype>
 #include <chrono>
+#include <cmath>
 #include <conio.h>
 #include <cstdlib>
 #include <filesystem>
@@ -11,6 +12,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -31,6 +33,11 @@
 
 // DEFINES
 #define EPSILON 1e-6f
+#define M_SQRT3 1.73205080756887729353	  // sqrt(3)
+#define M_SQRT5 2.23606797749978969641    // sqrt(5)
+#define M_SQRT1_3 0.57735026918962576451  // 1/sqrt(3)
+#define M_SQRT1_5 0.44721359549995793928  // 1/sqrt(5)
+#include <corecrt_math_defines.h>
 
 // VERSION
 #include "version.h"

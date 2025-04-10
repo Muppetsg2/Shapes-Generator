@@ -3,12 +3,13 @@
 #include "Shape.h"
 
 template<typename T>
-const T& unmove(T&& x)
+const T& unmove(T&& x) 
 {
     return x;
 }
 
-float Shape::_fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd) {
+float Shape::_fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd)
+{
     return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
 }
 
@@ -18,14 +19,14 @@ Vertex Shape::_calcTangentBitangent(unsigned int vertexIndex)
 
     glm::vec3 tangent = glm::vec3(0.f);
     glm::vec3 bitangent = glm::vec3(0.f);
-    unsigned int trianglesIncluded = 0;
+    unsigned int trianglesIncluded = 0u;
 
     // Find the triangles that use v
     //  * Loop over every triangle (i + 3)
-    for (unsigned int i = 0; i < _indices.size(); i += 3) {
+    for (size_t i = 0ull; i < _indices.size(); i += 3ull) {
         unsigned int index0 = _indices[i];
-        unsigned int index1 = _indices[i + 1];
-        unsigned int index2 = _indices[i + 2];
+        unsigned int index1 = _indices[i + 1ull];
+        unsigned int index2 = _indices[i + 2ull];
 
         // Only perform the calculation if one of the indices
         // matches our vertexIndex
@@ -54,22 +55,21 @@ Vertex Shape::_calcTangentBitangent(unsigned int vertexIndex)
 
             bitangent += (delta_pos2 * delta_uv1.x - delta_pos1 * delta_uv2.x) * r;
 
-            trianglesIncluded += 1;
+            trianglesIncluded += 1u;
         }
-
     }
 
     // Average the tangent and bitangents
-    if (trianglesIncluded > 0) {
+    if (trianglesIncluded > 0u) {
         tangent /= trianglesIncluded;
 
-        if (glm::length(tangent) != 0.f) {
+        if (fabsf(glm::length(tangent)) >= EPSILON) {
             tangent = glm::normalize(tangent);
         }
 
         bitangent /= trianglesIncluded;
 
-        if (glm::length(bitangent) != 0.f) {
+        if (fabsf(glm::length(bitangent)) >= EPSILON) {
             bitangent = glm::normalize(bitangent);
         }
     }
@@ -117,13 +117,13 @@ void Shape::_normalizeTangents(const std::vector<unsigned int>& trisNum, size_t 
     for (size_t i = start; i < end; ++i) {
         _vertices[i].Tangent /= (float)trisNum[i - start];
 
-        if (glm::length(_vertices[i].Tangent) >= EPSILON) {
+        if (fabsf(glm::length(_vertices[i].Tangent)) >= EPSILON) {
             _vertices[i].Tangent = glm::normalize(_vertices[i].Tangent);
         }
 
         _vertices[i].Bitangent /= (float)trisNum[i - start];
 
-        if (glm::length(_vertices[i].Bitangent) >= EPSILON) {
+        if (fabsf(glm::length(_vertices[i].Bitangent)) >= EPSILON) {
             _vertices[i].Bitangent = glm::normalize(_vertices[i].Bitangent);
         }
     }
@@ -378,10 +378,10 @@ std::string Shape::getObjectClassName() const
 
 size_t Shape::getVerticesCount() const
 {
-    return vertices.size();
+    return _vertices.size();
 }
 
 size_t Shape::getIndicesCount() const
 {
-    return indices.size();
+    return _indices.size();
 }

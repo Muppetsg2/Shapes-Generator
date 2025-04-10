@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "Cube.h"
 
-void Cube::generate(ValuesRange range)
+void Cube::_generate(ValuesRange range)
 {
     //https://catonif.github.io/cube/
     /*
@@ -95,54 +95,54 @@ void Cube::generate(ValuesRange range)
             unsigned int tris = 1;
 
             switch (p) {
-            case 0: {
-                tex = {
-                    (float)(i % 2),
-                    (float)((int)(i / 4))
-                };
+                case 0 : {
+                    tex = {
+                        (float)(i % 2),
+                        (float)((int)(i / 4))
+                    };
 
-                norm = {
-                    0.f,
-                    0.f,
-                    (float)(((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)
-                };
+                    norm = {
+                        0.f,
+                        0.f,
+                        (float)(((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)
+                    };
 
-                tris = ((i + 1 * ((int)((i + 4) / 4) % 2)) % 2) + 1;
-                break;
-            }
-            case 1: {
-                tex = {
-                    (float)((i + 1) % 2),
-                    (float)((int)(i / 4))
-                };
+                    tris = ((i + 1 * ((int)((i + 4) / 4) % 2)) % 2) + 1;
+                    break;
+                }
+                case 1 : {
+                    tex = {
+                        (float)((i + 1) % 2),
+                        (float)((int)(i / 4))
+                    };
 
-                norm = {
-                    (float)((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2),
-                    0.f,
-                    0.f
-                };
+                    norm = {
+                        (float)((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2),
+                        0.f,
+                        0.f
+                    };
 
-                tris = ((i + 1 * (int)(i / 4)) % 2) + 1;
-                break;
-            }
-            case 2: {
-                tex = {
-                    (float)((int)((i + 1) / 2) % 2),
-                    (float)((int)((i + 2 * ((int)((i + 4) / 4) % 2)) / 2) % 2)
-                };
+                    tris = ((i + 1 * (int)(i / 4)) % 2) + 1;
+                    break;
+                }
+                case 2 : {
+                    tex = {
+                        (float)((int)((i + 1) / 2) % 2),
+                        (float)((int)((i + 2 * ((int)((i + 4) / 4) % 2)) / 2) % 2)
+                    };
 
-                norm = {
-                    0.f,
-                    (float)((int)((i + 4) / 4) % 2 - (int)(i / 4)),
-                    0.f
-                };
+                    norm = {
+                        0.f,
+                        (float)((int)((i + 4) / 4) % 2 - (int)(i / 4)),
+                        0.f
+                    };
 
-                tris = ((i + 1 * (int)(i / 4)) % 2) + 1;
-                break;
-            }
-            default: {
-                break;
-            }
+                    tris = ((i + 1 * (int)(i / 4)) % 2) + 1;
+                    break;
+                }
+                default : {
+                    break;
+                }
             }
 
             _vertices.push_back({ pos, tex, norm, glm::vec3(0.f), glm::vec3(0.f) });
@@ -150,15 +150,13 @@ void Cube::generate(ValuesRange range)
         }
     }
 
+    std::pair<glm::vec3, glm::vec3> TB;
     for (unsigned int p = 0u; p < 3u; ++p) {
         unsigned int t1 = p + 8u * p + (unsigned int)(p / 2u);
         unsigned int t2 = p + 2u + 8u * p;
 
-        std::pair<glm::vec3, glm::vec3> TB;
-
         unsigned int f, s, t; // First, Second, Third
         if (p == 0u) {
-
             for (unsigned int i = 0u; i < 2u; ++i) {
                 unsigned int v = i == 0u ? t1 : t2;
 
@@ -375,7 +373,7 @@ Cube::Cube(ValuesRange range)
 {
     _vertices.clear();
     _indices.clear();
-    generate(range);
+    _generate(range);
 }
 
 Cube::~Cube() {}

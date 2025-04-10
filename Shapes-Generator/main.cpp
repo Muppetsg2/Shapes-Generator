@@ -28,8 +28,7 @@ void replace_all(std::string& s, std::string const& toReplace, std::string const
     while (true) {
         prevPos = pos;
         pos = s.find(toReplace, pos);
-        if (pos == std::string::npos)
-            break;
+        if (pos == std::string::npos) break;
         buf.append(s, prevPos, pos - prevPos);
         buf += replaceWith;
         pos += toReplace.size();
@@ -39,7 +38,8 @@ void replace_all(std::string& s, std::string const& toReplace, std::string const
     s.swap(buf);
 }
 
-static bool checkForEsc(char ch) {
+static bool checkForEsc(char ch)
+{
     if (ch == 27) {  // ASCII code for ESC key
         fmt::print("\n[{}] Program exited – ESC key pressed.\n", fmt::styled("EXIT", fmt::fg(fmt::color::dark_red)));
         if (selectedShape) delete selectedShape;
@@ -48,7 +48,8 @@ static bool checkForEsc(char ch) {
     return false;
 }
 
-static int getIntInput(const std::string& prompt) {
+static int getIntInput(const std::string& prompt)
+{
     std::string input = "";
     char ch;
 
@@ -94,7 +95,8 @@ static int getIntInput(const std::string& prompt) {
     return value;
 }
 
-static float getFloatInput(const std::string& prompt) {
+static float getFloatInput(const std::string& prompt)
+{
     std::string input = "";
     char ch;
     bool hasDot = false;  // Flag to check if user has already entered a dot
@@ -150,7 +152,8 @@ static float getFloatInput(const std::string& prompt) {
     return value;
 }
 
-static void waitForEnter(const std::string& prompt) {
+static void waitForEnter(const std::string& prompt)
+{
     char ch;
 
     fmt::print("{}", prompt);
@@ -170,23 +173,26 @@ static void waitForEnter(const std::string& prompt) {
     }
 }
 
-static void printInvalidOption(int firstOptionNum, int lastOptionNum) {
+static void printInvalidOption(int firstOptionNum, int lastOptionNum)
+{
     fmt::print("[{}] Invalid option! Enter a number between {} and {} and try again.\n",
         fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), firstOptionNum, lastOptionNum);
 }
 
-static std::string getInputPrompt(int firstOptionNum, int lastOptionNum) {
+static std::string getInputPrompt(int firstOptionNum, int lastOptionNum)
+{
     return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
 }
 
-void printBannerLineColored(std::string text, fmt::color color) {
+void printBannerLineColored(std::string text, fmt::color color)
+{
     fmt::print("│");
     fmt::print("{}", fmt::styled(text, fmt::fg(color)));
     fmt::print("│\n");
 }
 
-void displayStartWindow() {
-
+void displayStartWindow()
+{
     size_t lineLength = std::string("   ____  _                              ____                           _               ").size();
     std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION_STR);
     std::string escTxt = std::string("Press ESC to exit the program");
@@ -215,7 +221,8 @@ void displayStartWindow() {
     fmt::print("└───────────────────────────────────────────────────────────────────────────────────────┘\n");
 }
 
-PlaneNormalDir getPlaneDirection() {
+PlaneNormalDir getPlaneDirection()
+{
     int dir_choice;
     do {
         fmt::print("\n> Select the plane orientation:\n1) UP\n2) FRONT\n");
@@ -228,7 +235,8 @@ PlaneNormalDir getPlaneDirection() {
     return static_cast<PlaneNormalDir>(dir_choice - 1);
 }
 
-ValuesRange getValuesRange() {
+ValuesRange getValuesRange()
+{
     int dir_choice;
     do {
         fmt::print("\n> Select the value range for object vertices:\n1) [-0.5, 0.5]\n2) [-1.0, 1.0]\n");
@@ -241,34 +249,42 @@ ValuesRange getValuesRange() {
     return static_cast<ValuesRange>(dir_choice - 1);
 }
 
-FormatType getFormatType() {
-    static const std::vector<std::string> options = {
-        "std::vector - Vertices & Indices",
-        "C++ array - Vertices & Indices",
-        "std::vector - Only Vertices",
-        "C++ array - Only Vertices",
+FormatType getFormatType()
+{
+    static const std::vector<std::string> options {
+        "std::vector  - Vertices & Indices (struct)",
+        "C++ array    - Vertices & Indices (struct)",
+        "std::vector  - Only Vertices (struct)",
+        "C++ array    - Only Vertices (struct)",
+        "std::vector  - Vertices & Indices (float)",
+        "C++ array    - Vertices & Indices (float)",
+        "std::vector  - Only Vertices (float)",
+        "C++ array    - Only Vertices (float)",
         "Save as OBJ file"
     };
+
+    static const size_t optSize = options.size();
 
     int arr_choice;
     do {
         fmt::print("\n──────────────────────────────────────────────────\n");
         fmt::print("[{}] Select the save format:\n", fmt::styled("FILE", fmt::fg(fmt::color::alice_blue)));
-        for (size_t i = 0; i < options.size(); ++i) {
-            fmt::print(" {}) {}\n", i + 1, options[i]);
+        for (size_t i = 0ull; i < optSize; ++i) {
+            fmt::print(" {}) {}\n", i + 1ull, options[i]);
         }
         fmt::print("──────────────────────────────────────────────────\n");
 
-        arr_choice = getIntInput(getInputPrompt(1, (int)options.size()));
-        if (arr_choice < 1 || arr_choice > static_cast<int>(options.size())) {
-            printInvalidOption(1, (int)options.size());
+        arr_choice = getIntInput(getInputPrompt(1, static_cast<int>(optSize)));
+        if (arr_choice < 1 || arr_choice > static_cast<int>(optSize)) {
+            printInvalidOption(1, static_cast<int>(optSize));
         }
-    } while (arr_choice < 1 || arr_choice > static_cast<int>(options.size()));
+    } while (arr_choice < 1 || arr_choice > static_cast<int>(optSize));
 
     return static_cast<FormatType>(arr_choice - 1);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
@@ -299,7 +315,7 @@ int main(int argc, char** argv) {
 
     std::chrono::duration<double> elapsed_seconds;
     switch (choice) {
-        case 1: {
+        case 1 : {
             fmt::print("\n> Enter sphere parameters:\n");
             int horizontal = getIntInput("   - Number of horizontal segments (min: 2): ");
             if (horizontal < 2) {
@@ -315,7 +331,7 @@ int main(int argc, char** argv) {
             elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, range);
             break;
         }
-        case 2: {
+        case 2 : {
             fmt::print("\n> Enter icoSphere parameters:\n");
             int subs = getIntInput("   - Number of subdivisions (0 - 8): ");
             if (subs < 0) {
@@ -332,7 +348,7 @@ int main(int argc, char** argv) {
             elapsed_seconds = generateShape<IcoSphere>(selectedShape, subs, shade, range);
             break;
         }
-        case 3: {
+        case 3 : {
             fmt::print("\n> Enter plane dimensions:\n");
             int rows = getIntInput("   - Number of rows (min: 2): ");
             if (rows < 2) {
@@ -349,8 +365,8 @@ int main(int argc, char** argv) {
             elapsed_seconds = generateShape<Plane>(selectedShape, rows, columns, dir, range);
             break;
         }
-        case 4: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
-        case 5: {
+        case 4 : elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
+        case 5 : {
             fmt::print("\n> Enter cylinder parameters:\n");
             int verticalSegments = getIntInput("   - Number of vertical segments (min: 3): ");
             if (verticalSegments < 3) {
@@ -368,7 +384,7 @@ int main(int argc, char** argv) {
             elapsed_seconds = generateShape<Cylinder>(selectedShape, horizontalSegments, verticalSegments, shade, range);
             break;
         }
-        case 6: {
+        case 6 : {
             fmt::print("\n> Enter hexagon parameters:\n");
             int horizontalSegments = getIntInput("   - Number of horizontal segments (min: 1): ");
             if (horizontalSegments < 1) {
@@ -379,7 +395,7 @@ int main(int argc, char** argv) {
             elapsed_seconds = generateShape<Hexagon>(selectedShape, horizontalSegments, range);
             break;
         }
-        case 7: {
+        case 7 : {
             fmt::print("\n> Enter cone parameters:\n");
             int segments = getIntInput("   - Number of segments (min: 3): ");
             if (segments < 3) {
@@ -404,9 +420,9 @@ int main(int argc, char** argv) {
             elapsed_seconds = generateShape<Cone>(selectedShape, segments, height, radius, shade, range);
             break;
         }
-        case 8: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
-        case 9: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
-        case 10: {
+        case 8 : elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
+        case 9 : elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
+        case 10 : {
             fmt::print("\n> Enter torus parameters:\n");
             int segments = getIntInput("   - Number of segments for the main axis of the circle (min: 3): ");
             if (segments < 3) {

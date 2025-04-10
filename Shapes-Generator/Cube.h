@@ -3,7 +3,7 @@
 
 class Cube : public Shape {
 private:
-	void generate(ValuesRange range);
+	void _generate(ValuesRange range);
 
 public:
 	Cube(ValuesRange range = ValuesRange::HALF_TO_HALF);
