@@ -2,10 +2,9 @@
 #include "pch.h"
 #include "Cube.h"
 
-Cube::Cube(ValuesRange range)
+void Cube::generate(ValuesRange range)
 {
     //https://catonif.github.io/cube/
-
     /*
 
         4       3
@@ -79,8 +78,6 @@ Cube::Cube(ValuesRange range)
     20, 20 + 2, 20 + 1
     */
 
-    vertices.clear();
-    indices.clear();
     std::vector<unsigned int> trisNum;
 
     for (int p = 0; p < 3; ++p) {
@@ -88,9 +85,9 @@ Cube::Cube(ValuesRange range)
 
             float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
             glm::vec3 pos = {
-                ((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2) * mult,
-                ((int)((i + 4) / 4) % 2 - (int)(i / 4)) * mult,
-                ((((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)) * mult
+                (float)((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2) * mult,
+                (float)((int)((i + 4) / 4) % 2 - (int)(i / 4)) * mult,
+                (float)((((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)) * mult
             };
 
             glm::vec2 tex = glm::vec2(0.f);
@@ -148,205 +145,237 @@ Cube::Cube(ValuesRange range)
             }
             }
 
-            vertices.push_back({ pos, tex, norm, glm::vec3(0.f), glm::vec3(0.f) });
+            _vertices.push_back({ pos, tex, norm, glm::vec3(0.f), glm::vec3(0.f) });
             trisNum.push_back(tris);
         }
     }
 
-    for (int p = 0; p < 3; ++p) {
-        int t1 = p + 8 * p + (int)(p / 2);
-        int t2 = p + 2 + 8 * p;
+    for (unsigned int p = 0u; p < 3u; ++p) {
+        unsigned int t1 = p + 8u * p + (unsigned int)(p / 2u);
+        unsigned int t2 = p + 2u + 8u * p;
 
         std::pair<glm::vec3, glm::vec3> TB;
 
-        if (p == 0) {
+        unsigned int f, s, t; // First, Second, Third
+        if (p == 0u) {
 
-            for (int i = 0; i < 2; ++i) {
-
-                int v = i == 0 ? t1 : t2;
+            for (unsigned int i = 0u; i < 2u; ++i) {
+                unsigned int v = i == 0u ? t1 : t2;
 
                 // First Triangle
-                indices.push_back(v);
-                indices.push_back(v + 4);
-                indices.push_back(v + 5);
+                f = v;
+                s = v + 4u;
+                t = v + 5u;
 
-                TB = calcTangentBitangent(v, v + 4, v + 5);
+                _indices.push_back(f);
+                _indices.push_back(s);
+                _indices.push_back(t);
 
-                vertices[v].Tangent += TB.first;
-                vertices[v].Bitangent += TB.second;
+                TB = _calcTangentBitangent(f, s, t);
 
-                vertices[v + 4].Tangent += TB.first;
-                vertices[v + 4].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-                vertices[v + 5].Tangent += TB.first;
-                vertices[v + 5].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
+
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
 
                 // Second Triangle
-                indices.push_back(v);
-                indices.push_back(v + 5);
-                indices.push_back(v + 1);
+                s = v + 5u;
+                t = v + 1u;
 
-                TB = calcTangentBitangent(v, v + 5, v + 1);
+                _indices.push_back(f);
+                _indices.push_back(s);
+                _indices.push_back(t);
 
-                vertices[v].Tangent += TB.first;
-                vertices[v].Bitangent += TB.second;
+                TB = _calcTangentBitangent(f, s, t);
 
-                vertices[v + 5].Tangent += TB.first;
-                vertices[v + 5].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-                vertices[v + 1].Tangent += TB.first;
-                vertices[v + 1].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
+
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
             }
         }
-        else if (p == 1) {
+        else if (p == 1u) {
             // RIGHT
             // First Triangle
-            indices.push_back(t1);
-            indices.push_back(t1 + 4);
-            indices.push_back(t1 + 5);
+            f = t1;
+            s = t1 + 4u;
+            t = t1 + 5u;
 
-            TB = calcTangentBitangent(t1, t1 + 4, t1 + 5);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t1].Tangent += TB.first;
-            vertices[t1].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t1 + 4].Tangent += TB.first;
-            vertices[t1 + 4].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t1 + 5].Tangent += TB.first;
-            vertices[t1 + 5].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
 
             // Second Triangle
-            indices.push_back(t1);
-            indices.push_back(t1 + 5);
-            indices.push_back(t1 + 1);
+            s = t1 + 5u;
+            t = t1 + 1u;
 
-            TB = calcTangentBitangent(t1, t1 + 5, t1 + 1);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t1].Tangent += TB.first;
-            vertices[t1].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t1 + 5].Tangent += TB.first;
-            vertices[t1 + 5].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t1 + 1].Tangent += TB.first;
-            vertices[t1 + 1].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
 
             // LEFT
             // First Triangle
-            indices.push_back(t2);
-            indices.push_back(t2 + 4);
-            indices.push_back(t2 + 1);
+            f = t2;
+            s = t2 + 4u;
+            t = t2 + 1u;
 
-            TB = calcTangentBitangent(t2, t2 + 4, t2 + 1);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t2].Tangent += TB.first;
-            vertices[t2].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t2 + 4].Tangent += TB.first;
-            vertices[t2 + 4].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t2 + 1].Tangent += TB.first;
-            vertices[t2 + 1].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
 
             // Second Triangle
-            indices.push_back(t2);
-            indices.push_back(t2 + 1);
-            indices.push_back(t2 - 3);
+            s = t2 + 1u;
+            t = t2 - 3u;
 
-            TB = calcTangentBitangent(t2, t2 + 1, t2 - 3);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t2].Tangent += TB.first;
-            vertices[t2].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t2 + 1].Tangent += TB.first;
-            vertices[t2 + 1].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t2 - 3].Tangent += TB.first;
-            vertices[t2 - 3].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
         }
-        else if (p == 2) {
+        else if (p == 2u) {
             // TOP
             // First Triangle
-            indices.push_back(t1);
-            indices.push_back(t1 - 3);
-            indices.push_back(t1 - 2);
+            f = t1;
+            s = t1 - 3u;
+            t = t1 - 2u;
 
-            TB = calcTangentBitangent(t1, t1 - 3, t1 - 2);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t1].Tangent += TB.first;
-            vertices[t1].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t1 - 3].Tangent += TB.first;
-            vertices[t1 - 3].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t1 - 2].Tangent += TB.first;
-            vertices[t1 - 2].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
 
             // Second Triangle
-            indices.push_back(t1);
-            indices.push_back(t1 - 2);
-            indices.push_back(t1 - 1);
+            s = t1 - 2u;
+            t = t1 - 1u;
 
-            TB = calcTangentBitangent(t1, t1 - 2, t1 - 1);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t1].Tangent += TB.first;
-            vertices[t1].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t1 - 2].Tangent += TB.first;
-            vertices[t1 - 2].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t1 - 1].Tangent += TB.first;
-            vertices[t1 - 1].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
 
             // BOTTOM
             // First Triangle
-            indices.push_back(t2);
-            indices.push_back(t2 + 3);
-            indices.push_back(t2 + 2);
+            f = t2;
+            s = t2 + 3u;
+            t = t2 + 2u;
 
-            TB = calcTangentBitangent(t2, t2 + 3, t2 + 2);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t2].Tangent += TB.first;
-            vertices[t2].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t2 + 3].Tangent += TB.first;
-            vertices[t2 + 3].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t2 + 2].Tangent += TB.first;
-            vertices[t2 + 2].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
 
             // Second Triangle
-            indices.push_back(t2);
-            indices.push_back(t2 + 2);
-            indices.push_back(t2 + 1);
+            s = t2 + 2u;
+            t = t2 + 1u;
 
-            TB = calcTangentBitangent(t2, t2 + 2, t2 + 1);
+            _indices.push_back(f);
+            _indices.push_back(s);
+            _indices.push_back(t);
 
-            vertices[t2].Tangent += TB.first;
-            vertices[t2].Bitangent += TB.second;
+            TB = _calcTangentBitangent(f, s, t);
 
-            vertices[t2 + 2].Tangent += TB.first;
-            vertices[t2 + 2].Bitangent += TB.second;
+            _vertices[f].Tangent += TB.first;
+            _vertices[f].Bitangent += TB.second;
 
-            vertices[t2 + 1].Tangent += TB.first;
-            vertices[t2 + 1].Bitangent += TB.second;
+            _vertices[s].Tangent += TB.first;
+            _vertices[s].Bitangent += TB.second;
+
+            _vertices[t].Tangent += TB.first;
+            _vertices[t].Bitangent += TB.second;
         }
     }
 
-    for (unsigned int i = 0; i < vertices.size(); ++i) {
-        vertices[i].Tangent /= (float)trisNum[i];
+    _normalizeTangents(trisNum, 0ull, _vertices.size());
 
-        if (glm::length(vertices[i].Tangent) != 0.f) {
-            vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
-        }
+    trisNum.clear();
+}
 
-        vertices[i].Bitangent /= (float)trisNum[i];
-
-        if (glm::length(vertices[i].Bitangent) != 0.f) {
-            vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
-        }
-    }
+Cube::Cube(ValuesRange range)
+{
+    _vertices.clear();
+    _indices.clear();
+    generate(range);
 }
 
 Cube::~Cube() {}

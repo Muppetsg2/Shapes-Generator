@@ -29,5 +29,8 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/constants.hpp>
 
+// DEFINES
+#define EPSILON 1e-6f
+
 // VERSION
 #include "version.h"

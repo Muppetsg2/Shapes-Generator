@@ -4,8 +4,8 @@
 
 Hexagon::Hexagon(unsigned int segments, ValuesRange range)
 {
-    vertices.clear();
-    indices.clear();
+    _vertices.clear();
+    _indices.clear();
     generate(segments, 6u, range, true);
 }
 

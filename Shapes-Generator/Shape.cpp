@@ -8,13 +8,13 @@ const T& unmove(T&& x)
     return x;
 }
 
-float Shape::fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd) {
+float Shape::_fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd) {
     return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
 }
 
-Vertex Shape::calcTangentBitangent(unsigned int vertexIndex)
+Vertex Shape::_calcTangentBitangent(unsigned int vertexIndex)
 {
-    Vertex v = vertices[vertexIndex];
+    Vertex v = _vertices[vertexIndex];
 
     glm::vec3 tangent = glm::vec3(0.f);
     glm::vec3 bitangent = glm::vec3(0.f);
@@ -22,17 +22,17 @@ Vertex Shape::calcTangentBitangent(unsigned int vertexIndex)
 
     // Find the triangles that use v
     //  * Loop over every triangle (i + 3)
-    for (unsigned int i = 0; i < indices.size(); i += 3) {
-        unsigned int index0 = indices[i];
-        unsigned int index1 = indices[i + 1];
-        unsigned int index2 = indices[i + 2];
+    for (unsigned int i = 0; i < _indices.size(); i += 3) {
+        unsigned int index0 = _indices[i];
+        unsigned int index1 = _indices[i + 1];
+        unsigned int index2 = _indices[i + 2];
 
         // Only perform the calculation if one of the indices
         // matches our vertexIndex
         if (index0 == vertexIndex || index1 == vertexIndex || index2 == vertexIndex) {
-            Vertex v0 = vertices[index0];
-            Vertex v1 = vertices[index1];
-            Vertex v2 = vertices[index2];
+            Vertex v0 = _vertices[index0];
+            Vertex v1 = _vertices[index1];
+            Vertex v2 = _vertices[index2];
 
             glm::vec3 pos0 = v0.Position;
             glm::vec3 pos1 = v1.Position;
@@ -81,13 +81,13 @@ Vertex Shape::calcTangentBitangent(unsigned int vertexIndex)
     return v;
 }
 
-std::pair<glm::vec3, glm::vec3> Shape::calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3)
+std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3)
 {
     std::pair<glm::vec3, glm::vec3> TB;
 
-    Vertex v0 = vertices[t1];
-    Vertex v1 = vertices[t2];
-    Vertex v2 = vertices[t3];
+    Vertex v0 = _vertices[t1];
+    Vertex v1 = _vertices[t2];
+    Vertex v2 = _vertices[t3];
 
     glm::vec3 pos0 = v0.Position;
     glm::vec3 pos1 = v1.Position;
@@ -112,7 +112,31 @@ std::pair<glm::vec3, glm::vec3> Shape::calcTangentBitangent(unsigned int t1, uns
     return TB;
 }
 
-std::string Shape::formatFloat(float value, bool delRedundantZeros) const
+void Shape::_normalizeTangents(const std::vector<unsigned int>& trisNum, size_t start, size_t end)
+{
+    for (size_t i = start; i < end; ++i) {
+        _vertices[i].Tangent /= (float)trisNum[i - start];
+
+        if (glm::length(_vertices[i].Tangent) >= EPSILON) {
+            _vertices[i].Tangent = glm::normalize(_vertices[i].Tangent);
+        }
+
+        _vertices[i].Bitangent /= (float)trisNum[i - start];
+
+        if (glm::length(_vertices[i].Bitangent) >= EPSILON) {
+            _vertices[i].Bitangent = glm::normalize(_vertices[i].Bitangent);
+        }
+    }
+}
+
+std::string Shape::_getStructDefinition() const
+{
+    return  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
+            "struct vec2\n{\n\tfloat x, y;\n};\n\n"
+            "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n";
+}
+
+std::string Shape::_formatFloat(float value, bool delRedundantZeros) const
 {
     std::stringstream ss;
 
@@ -128,7 +152,88 @@ std::string Shape::formatFloat(float value, bool delRedundantZeros) const
     return str;
 }
 
-std::string Shape::toOBJ() const
+std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
+{
+    if (useFloat) {
+        return  std::vformat
+        (
+            std::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
+            std::make_format_args(
+                unmove(_formatFloat(v.Position.x)),     unmove(_formatFloat(v.Position.y)),     unmove(_formatFloat(v.Position.z)),
+                unmove(_formatFloat(v.TexCoord.x)),     unmove(_formatFloat(v.TexCoord.y)),
+                unmove(_formatFloat(v.Normal.x)),       unmove(_formatFloat(v.Normal.y)),       unmove(_formatFloat(v.Normal.z)),
+                unmove(_formatFloat(v.Tangent.x)),      unmove(_formatFloat(v.Tangent.y)),      unmove(_formatFloat(v.Tangent.z)),
+                unmove(_formatFloat(v.Bitangent.x)),    unmove(_formatFloat(v.Bitangent.y)),    unmove(_formatFloat(v.Bitangent.z))
+            )
+        );
+    }
+    else {
+        return std::vformat(
+            std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
+            std::make_format_args(
+                "{", ".Position = vec3(",
+                unmove(_formatFloat(v.Position.x)),     unmove(_formatFloat(v.Position.y)),     unmove(_formatFloat(v.Position.z)),
+                ")", ".TexCoords = vec2(",
+                unmove(_formatFloat(v.TexCoord.x)),     unmove(_formatFloat(v.TexCoord.y)),
+                ")", ".Normal = vec3(",
+                unmove(_formatFloat(v.Normal.x)),       unmove(_formatFloat(v.Normal.y)),       unmove(_formatFloat(v.Normal.z)),
+                ")", ".Tangent = vec3(",
+                unmove(_formatFloat(v.Tangent.x)),      unmove(_formatFloat(v.Tangent.y)),      unmove(_formatFloat(v.Tangent.z)),
+                ")", ".Bitangent = vec3(",
+                unmove(_formatFloat(v.Bitangent.x)),    unmove(_formatFloat(v.Bitangent.y)),    unmove(_formatFloat(v.Bitangent.z)),
+                ")", "}"
+            )
+        );
+    }
+}
+
+std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFloat) const
+{
+    std::string result;
+    std::string type = useFloat ? "float" : "Vertex";
+    std::string header = useArray
+        ? type + " vertices[" + std::to_string((onlyVertices ? _indices.size() : _vertices.size()) * (useFloat ? 14ull : 1ull)) + "] = {\n"
+        : "std::vector<" + type + "> vertices = {\n";
+
+    result += header;
+
+    if (useFloat) result += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
+
+    size_t count = onlyVertices ? _indices.size() : _vertices.size();
+    for (size_t i = 0; i < count; ++i) {
+        const Vertex& v = onlyVertices ? _vertices[_indices[i]] : _vertices[i];
+        result += _formatVertex(v, useFloat);
+        if (i + 1ull < count) result += ",";
+        result += "\n";
+    }
+
+    result += "};";
+    return result;
+}
+
+std::string Shape::_formatIndices(bool useArray) const
+{
+    std::string result;
+    std::string header = useArray
+        ? "unsigned int indices[" + std::to_string(_indices.size()) + "] = {\n"
+        : "std::vector<unsigned int> indices = {\n";
+
+    result += header;
+
+    for (size_t i = 0; i < _indices.size(); i += 3) {
+        result += std::vformat(
+            std::string_view("\t{0}, {1}, {2}"),
+            std::make_format_args(_indices[i], _indices[i + 1], _indices[i + 2])
+        );
+        if (i + 3 < _indices.size()) result += ",";
+        result += "\n";
+    }
+
+    result += "};";
+    return result;
+}
+
+std::string Shape::_toOBJ() const
 {
     std::unordered_map<glm::vec3, unsigned int, Vec3Hash, Vec3Equal> vertexMap;
     std::unordered_map<glm::vec2, unsigned int, Vec2Hash, Vec2Equal> texCoordMap;
@@ -139,13 +244,13 @@ std::string Shape::toOBJ() const
     std::vector<glm::vec3> vn;
     std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> vertIndices;
 
-    v.reserve(vertices.size());
-    vt.reserve(vertices.size());
-    vn.reserve(vertices.size());
-    vertIndices.reserve(indices.size());
+    v.reserve(_vertices.size());
+    vt.reserve(_vertices.size());
+    vn.reserve(_vertices.size());
+    vertIndices.reserve(_indices.size());
 
-    for (unsigned int i : indices) {
-        Vertex vert = vertices[i];
+    for (unsigned int i : _indices) {
+        Vertex vert = _vertices[i];
         std::tuple<unsigned int, unsigned int, unsigned int> ind = {};
 
         auto [itV, insertedV] = vertexMap.try_emplace(vert.Position, (unsigned int)v.size() + 1u);
@@ -168,9 +273,9 @@ std::string Shape::toOBJ() const
         text += std::vformat(std::string_view("v {} {} {}\n"),
             std::make_format_args
             (
-                unmove(formatFloat(pos.x, false)),
-                unmove(formatFloat(pos.y, false)),
-                unmove(formatFloat(pos.z, false))
+                unmove(_formatFloat(pos.x, false)),
+                unmove(_formatFloat(pos.y, false)),
+                unmove(_formatFloat(pos.z, false))
             )
         );
     }
@@ -179,9 +284,9 @@ std::string Shape::toOBJ() const
         text += std::vformat(std::string_view("vn {} {} {}\n"),
             std::make_format_args
             (
-                unmove(formatFloat(norm.x, false)),
-                unmove(formatFloat(norm.y, false)),
-                unmove(formatFloat(norm.z, false))
+                unmove(_formatFloat(norm.x, false)),
+                unmove(_formatFloat(norm.y, false)),
+                unmove(_formatFloat(norm.z, false))
             )
         );
     }
@@ -190,8 +295,8 @@ std::string Shape::toOBJ() const
         text += std::vformat(std::string_view("vt {} {}\n"),
             std::make_format_args
             (
-                unmove(formatFloat(tex.x, false)),
-                unmove(formatFloat(tex.y, false))
+                unmove(_formatFloat(tex.x, false)),
+                unmove(_formatFloat(tex.y, false))
             )
         );
     }
@@ -214,191 +319,51 @@ std::string Shape::toOBJ() const
 
 Shape::~Shape()
 {
-    vertices.clear();
-    indices.clear();
+    _vertices.clear();
+    _indices.clear();
 }
 
 std::string Shape::toString(FormatType type) const
 {
-    std::string text;
     switch (type) {
-        case FormatType::VECTOR_INDICES: {
-            text =  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
-                    "struct vec2\n{\n\tfloat x, y;\n};\n\n"
-                    "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n"
-                    "std::vector<Vertex> vertices = {\n";
-
-            for (size_t i = 0; i < vertices.size(); ++i) {
-                Vertex v = vertices[i];
-
-                text += std::vformat(std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
-                    std::make_format_args
-                    (
-                        "{", ".Position = glm::vec3(",
-                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
-                        ")", ".TexCoords = glm::vec2(",
-                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
-                        ")", ".Normal = glm::vec3(",
-                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
-                        ")", ".Tangent = glm::vec3(",
-                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
-                        ")", ".Bitangent = glm::vec3(",
-                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z)),
-                        ")", "}"
-                    )
-                );
-
-                if (i + 1ull < vertices.size()) {
-                    text += ",";
-                }
-
-                text += "\n";
-            }
-
-            text += "};\n\nstd::vector<unsigned int> indices = {\n";
-
-            for (size_t i = 0; i < indices.size(); i += 3ull) {
-                text += std::vformat
-                (
-                    std::string_view("\t{0}, {1}, {2}"),
-                    std::make_format_args
-                    (
-                        indices[i],
-                        indices[i + 1ull],
-                        indices[i + 2ull]
-                    )
-                );
-
-                if (i + 3ull < indices.size()) {
-                    text += ",";
-                }
-
-                text += "\n";
-            }
-
-            text += "};";
-            break;
+        case FormatType::VECTOR_INDICES_STRUCT : {
+            return _getStructDefinition() +
+                   _formatVertices(false, false, false) + "\n\n" +
+                   _formatIndices(false);
         }
-        case FormatType::ARRAY_INDICES: {
-            text = "float vertices[" + std::to_string(vertices.size() * 14) + "] = {\n";
-            text += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
-
-            for (size_t i = 0; i < vertices.size(); ++i) {
-                Vertex v = vertices[i];
-
-                text += std::vformat(std::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
-                    std::make_format_args
-                    (
-                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
-                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
-                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
-                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
-                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z))
-                    )
-                );
-
-                if (i + 1ull < vertices.size()) {
-                    text += ",";
-                }
-
-                text += "\n";
-            }
-
-            text += "};\n\nunsigned int indices[" + std::to_string(indices.size()) + "] = {\n";
-
-            for (size_t i = 0; i < indices.size(); i += 3ull) {
-                text += std::vformat
-                (
-                    std::string_view("\t{0}, {1}, {2}"),
-                    std::make_format_args
-                    (
-                        indices[i],
-                        indices[i + 1ull],
-                        indices[i + 2ull]
-                    )
-                );
-
-                if (i + 3ull < indices.size()) {
-                    text += ",";
-                }
-
-                text += "\n";
-            }
-
-            text += "};";
-            break;
+        case FormatType::ARRAY_INDICES_STRUCT : {
+            return _getStructDefinition() +
+                   _formatVertices(false, true, false) + "\n\n" +
+                   _formatIndices(true);
         }
-        case FormatType::VECTOR_VERTICES: {
-            text =  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
-                    "struct vec2\n{\n\tfloat x, y;\n};\n\n"
-                    "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n"
-                    "std::vector<Vertex> vertices = {\n";
-
-            for (size_t i = 0; i < indices.size(); ++i) {
-                Vertex v = vertices[indices[i]];
-
-                text += std::vformat(std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
-                    std::make_format_args
-                    (
-                        "{", ".Position = glm::vec3(",
-                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
-                        ")", ".TexCoords = glm::vec2(",
-                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
-                        ")", ".Normal = glm::vec3(",
-                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
-                        ")", ".Tangent = glm::vec3(",
-                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
-                        ")", ".Bitangent = glm::vec3(",
-                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z)),
-                        ")", "}"
-                    )
-                );
-
-                if (i + 1ull < indices.size()) {
-                    text += ",";
-                }
-
-                text += "\n";
-            }
-
-            text += "};";
-            break;
+        case FormatType::VECTOR_VERTICES_STRUCT: {
+            return _getStructDefinition() +
+                   _formatVertices(true, false, false);
         }
-        case FormatType::ARRAY_VERTICES: {
-            text = "float vertices[" + std::to_string(indices.size() * 14) + "] = {\n";
-            text += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
-
-            for (size_t i = 0; i < indices.size(); ++i) {
-                Vertex v = vertices[indices[i]];
-
-                text += std::vformat(std::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
-                    std::make_format_args
-                    (
-                        unmove(formatFloat(v.Position.x)), unmove(formatFloat(v.Position.y)), unmove(formatFloat(v.Position.z)),
-                        unmove(formatFloat(v.TexCoord.x)), unmove(formatFloat(v.TexCoord.y)),
-                        unmove(formatFloat(v.Normal.x)), unmove(formatFloat(v.Normal.y)), unmove(formatFloat(v.Normal.z)),
-                        unmove(formatFloat(v.Tangent.x)), unmove(formatFloat(v.Tangent.y)), unmove(formatFloat(v.Tangent.z)),
-                        unmove(formatFloat(v.Bitangent.x)), unmove(formatFloat(v.Bitangent.y)), unmove(formatFloat(v.Bitangent.z))
-                    )
-                );
-
-                if (i + 1ull < indices.size()) {
-                    text += ",";
-                }
-
-                text += "\n";
-            }
-
-            text += "};";
-            break;
+        case FormatType::ARRAY_VERTICES_STRUCT: {
+            return _getStructDefinition() +
+                   _formatVertices(true, true, false);
+        }
+        case FormatType::VECTOR_INDICES_FLOAT: {
+            return _formatVertices(false, false, true) + "\n\n" +
+                   _formatIndices(false);
+        }
+        case FormatType::ARRAY_INDICES_FLOAT: {
+            return _formatVertices(false, true, true) + "\n\n" +
+                   _formatIndices(true);
+        }
+        case FormatType::VECTOR_VERTICES_FLOAT: {
+            return _formatVertices(true, false, true);
+        }
+        case FormatType::ARRAY_VERTICES_FLOAT: {
+            return _formatVertices(true, true, true);
         }
         case FormatType::OBJ: {
-            text = toOBJ();
-            break;
+            return _toOBJ();
         }
     }
 
-    return text;
+    return "";
 }
 
 std::string Shape::getClassName()
