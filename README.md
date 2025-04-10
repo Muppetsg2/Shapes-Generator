@@ -54,7 +54,7 @@ The program dynamically generates the shape based on user input and exports the 
 
 ✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
 <br/>
-✅ **File Output**: Generated shapes are saved in `shape.txt` or `shape.obj` for later use. 
+✅ **File Output**: Generated shapes are saved in `shape.txt` or `shape.obj` for later use.
 <br/>
 ✅ **Error Handling**: Provides feedback for invalid inputs and applies sensible defaults.
 
