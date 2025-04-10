@@ -2,7 +2,13 @@
 #include "pch.h"
 #include "Sphere.h"
 
-void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range)
+glm::vec3 Sphere::_getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3)
+{
+	glm::vec3 average = n1 + n2 + n3;
+	return fabsf(glm::length(average)) >= EPSILON ? glm::normalize(average) : average;
+}
+
+void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool useFlatShading)
 {
 	float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
 	float angleYDiff = (float)M_PI / (float)h;
@@ -71,101 +77,208 @@ void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range)
 	// INDICIES, TANGENTS AND BITANGENTS
 	std::pair<glm::vec3, glm::vec3> TB;
 
-	// TOP CIRCLE + BOTTOM CIRCLE
-	const size_t verticesNum = _vertices.size();
-	for (unsigned int i = 0u; i < v; ++i) {
-		// TOP CIRCLE
-		unsigned int rightVertex = (i + 1u) + 1u;
-		unsigned int topVertex = 0u;
-		unsigned int leftVertex = i + 1u;
+	if (useFlatShading) {
+		std::vector<Vertex> tempVertices(_vertices);
+		_vertices.clear();
 
-		_indices.push_back(rightVertex);
-		_indices.push_back(topVertex);
-		_indices.push_back(leftVertex);
-
-		TB = _calcTangentBitangent(rightVertex, topVertex, leftVertex);
-
-		_vertices[rightVertex].Tangent += TB.first;
-		_vertices[rightVertex].Bitangent += TB.second;
-
-		_vertices[topVertex].Tangent += TB.first;
-		_vertices[topVertex].Bitangent += TB.second;
-
-		_vertices[leftVertex].Tangent += TB.first;
-		_vertices[leftVertex].Bitangent += TB.second;
-
-		// BOTTOM CIRCLE
-		rightVertex = (unsigned int)verticesNum - 2u - v - 1u + (i + 1u) + 1u;
-		leftVertex = (unsigned int)verticesNum - 2u - v - 1u + i + 1u;
-		topVertex = (unsigned int)verticesNum - 1u;
-
-		_indices.push_back(rightVertex);
-		_indices.push_back(leftVertex);
-		_indices.push_back(topVertex);
-
-		TB = _calcTangentBitangent(rightVertex, leftVertex, topVertex);
-
-		_vertices[rightVertex].Tangent += TB.first;
-		_vertices[rightVertex].Bitangent += TB.second;
-
-		_vertices[leftVertex].Tangent += TB.first;
-		_vertices[leftVertex].Bitangent += TB.second;
-
-		_vertices[topVertex].Tangent += TB.first;
-		_vertices[topVertex].Bitangent += TB.second;
-	}
-
-	// CENTER CIRCLES
-	for (unsigned int c = 0u; c < h - 2u; ++c) {
-		unsigned int startV = c * (v + 1u) + 1u;
+		// TOP CIRCLE + BOTTOM CIRCLE
+		const size_t verticesNum = tempVertices.size();
 		for (unsigned int i = 0u; i < v; ++i) {
-			unsigned int topLeft = i + startV;
-			unsigned int topRight = (i + 1u) + startV;
-			unsigned int bottomLeft = i + v + 1u + startV;
-			unsigned int bottomRight = (i + 1u) + v + 1u + startV;
+			size_t start = _vertices.size();
+			unsigned int first = (unsigned int)start;
+			unsigned int second = (unsigned int)start + 1u;
+			unsigned int third = (unsigned int)start + 2u;
+			for (int s = 0; s < 2; ++s) {
+				// 0 - TOP CIRCLE
+				// 1 - BOTTOM CIRCLE
+				bool isTop = s == 0;
+				unsigned int rightVertex = isTop ? (i + 1u) + 1u : (unsigned int)verticesNum - 2u - v - 1u + (i + 1u) + 1u;
+				unsigned int topVertex = isTop ? 0u : (unsigned int)verticesNum - 1u;
+				unsigned int leftVertex = isTop ? i + 1u : (unsigned int)verticesNum - 2u - v - 1u + i + 1u;
 
-			_indices.push_back(topRight);
-			_indices.push_back(topLeft);
-			_indices.push_back(bottomLeft);
+				Vertex v1 = tempVertices[rightVertex];
+				Vertex v2 = tempVertices[topVertex];
+				Vertex v3 = tempVertices[leftVertex];
 
-			TB = _calcTangentBitangent(topRight, topLeft, bottomLeft);
+				if (!isTop) std::swap(v2, v3);
 
-			_vertices[topRight].Tangent += TB.first;
-			_vertices[topRight].Bitangent += TB.second;
+				glm::vec3 normal = _getAverageNormal(v1.Normal, v2.Normal, v3.Normal);
+				v1.Normal = normal;
+				v2.Normal = normal;
+				v3.Normal = normal;
 
-			_vertices[topLeft].Tangent += TB.first;
-			_vertices[topLeft].Bitangent += TB.second;
+				_vertices.push_back(v1);
+				_vertices.push_back(v2);
+				_vertices.push_back(v3);
 
-			_vertices[bottomLeft].Tangent += TB.first;
-			_vertices[bottomLeft].Bitangent += TB.second;
+				_indices.push_back(first);
+				_indices.push_back(second);
+				_indices.push_back(third);
 
-			_indices.push_back(bottomRight);
-			_indices.push_back(topRight);
-			_indices.push_back(bottomLeft);
+				TB = _calcTangentBitangent(first, second, third);
 
-			TB = _calcTangentBitangent(bottomRight, topRight, bottomLeft);
+				_vertices[first].Tangent = TB.first;
+				_vertices[first].Bitangent = TB.second;
 
-			_vertices[bottomRight].Tangent += TB.first;
-			_vertices[bottomRight].Bitangent += TB.second;
+				_vertices[second].Tangent = TB.first;
+				_vertices[second].Bitangent = TB.second;
 
-			_vertices[topRight].Tangent += TB.first;
-			_vertices[topRight].Bitangent += TB.second;
+				_vertices[third].Tangent = TB.first;
+				_vertices[third].Bitangent = TB.second;
 
-			_vertices[bottomLeft].Tangent += TB.first;
-			_vertices[bottomLeft].Bitangent += TB.second;
+				first += 3u;
+				second += 3u;
+				third += 3u;
+			}
+		}
+
+		// CENTER CIRCLES
+		for (unsigned int c = 0u; c < h - 2u; ++c) {
+			unsigned int startV = c * (v + 1u) + 1u;
+			for (unsigned int i = 0u; i < v; ++i) {
+				unsigned int topLeft = i + startV;
+				unsigned int topRight = (i + 1u) + startV;
+				unsigned int bottomLeft = i + v + 1u + startV;
+				unsigned int bottomRight = (i + 1u) + v + 1u + startV;
+				size_t start = _vertices.size();
+				unsigned int first = (unsigned int)start;
+				unsigned int second = (unsigned int)start + 1u;
+				unsigned int third = (unsigned int)start + 2u;
+
+				for (int s = 0; s < 2; ++s) {
+					bool isFirst = s == 0;
+					Vertex v1 = isFirst ? tempVertices[topRight] : tempVertices[bottomRight];
+					Vertex v2 = isFirst ? tempVertices[topLeft] : tempVertices[topRight];
+					Vertex v3 = tempVertices[bottomLeft];
+
+					glm::vec3 normal = _getAverageNormal(v1.Normal, v2.Normal, v3.Normal);
+					v1.Normal = normal;
+					v2.Normal = normal;
+					v3.Normal = normal;
+
+					_vertices.push_back(v1);
+					_vertices.push_back(v2);
+					_vertices.push_back(v3);
+
+					_indices.push_back(first);
+					_indices.push_back(second);
+					_indices.push_back(third);
+
+					TB = _calcTangentBitangent(first, second, third);
+
+					_vertices[first].Tangent = TB.first;
+					_vertices[first].Bitangent = TB.second;
+
+					_vertices[second].Tangent = TB.first;
+					_vertices[second].Bitangent = TB.second;
+
+					_vertices[third].Tangent = TB.first;
+					_vertices[third].Bitangent = TB.second;
+
+					first += 3u;
+					second += 3u;
+					third += 3u;
+				}
+			}
 		}
 	}
+	else {
+		// TOP CIRCLE + BOTTOM CIRCLE
+		const size_t verticesNum = _vertices.size();
+		for (unsigned int i = 0u; i < v; ++i) {
+			// TOP CIRCLE
+			unsigned int rightVertex = (i + 1u) + 1u;
+			unsigned int topVertex = 0u;
+			unsigned int leftVertex = i + 1u;
 
-	_normalizeTangents(trisNum, 0ull, verticesNum);
+			_indices.push_back(rightVertex);
+			_indices.push_back(topVertex);
+			_indices.push_back(leftVertex);
+
+			TB = _calcTangentBitangent(rightVertex, topVertex, leftVertex);
+
+			_vertices[rightVertex].Tangent += TB.first;
+			_vertices[rightVertex].Bitangent += TB.second;
+
+			_vertices[topVertex].Tangent += TB.first;
+			_vertices[topVertex].Bitangent += TB.second;
+
+			_vertices[leftVertex].Tangent += TB.first;
+			_vertices[leftVertex].Bitangent += TB.second;
+
+			// BOTTOM CIRCLE
+			rightVertex = (unsigned int)verticesNum - 2u - v - 1u + (i + 1u) + 1u;
+			leftVertex = (unsigned int)verticesNum - 2u - v - 1u + i + 1u;
+			topVertex = (unsigned int)verticesNum - 1u;
+
+			_indices.push_back(rightVertex);
+			_indices.push_back(leftVertex);
+			_indices.push_back(topVertex);
+
+			TB = _calcTangentBitangent(rightVertex, leftVertex, topVertex);
+
+			_vertices[rightVertex].Tangent += TB.first;
+			_vertices[rightVertex].Bitangent += TB.second;
+
+			_vertices[leftVertex].Tangent += TB.first;
+			_vertices[leftVertex].Bitangent += TB.second;
+
+			_vertices[topVertex].Tangent += TB.first;
+			_vertices[topVertex].Bitangent += TB.second;
+		}
+
+		// CENTER CIRCLES
+		for (unsigned int c = 0u; c < h - 2u; ++c) {
+			unsigned int startV = c * (v + 1u) + 1u;
+			for (unsigned int i = 0u; i < v; ++i) {
+				unsigned int topLeft = i + startV;
+				unsigned int topRight = (i + 1u) + startV;
+				unsigned int bottomLeft = i + v + 1u + startV;
+				unsigned int bottomRight = (i + 1u) + v + 1u + startV;
+
+				_indices.push_back(topRight);
+				_indices.push_back(topLeft);
+				_indices.push_back(bottomLeft);
+
+				TB = _calcTangentBitangent(topRight, topLeft, bottomLeft);
+
+				_vertices[topRight].Tangent += TB.first;
+				_vertices[topRight].Bitangent += TB.second;
+
+				_vertices[topLeft].Tangent += TB.first;
+				_vertices[topLeft].Bitangent += TB.second;
+
+				_vertices[bottomLeft].Tangent += TB.first;
+				_vertices[bottomLeft].Bitangent += TB.second;
+
+				_indices.push_back(bottomRight);
+				_indices.push_back(topRight);
+				_indices.push_back(bottomLeft);
+
+				TB = _calcTangentBitangent(bottomRight, topRight, bottomLeft);
+
+				_vertices[bottomRight].Tangent += TB.first;
+				_vertices[bottomRight].Bitangent += TB.second;
+
+				_vertices[topRight].Tangent += TB.first;
+				_vertices[topRight].Bitangent += TB.second;
+
+				_vertices[bottomLeft].Tangent += TB.first;
+				_vertices[bottomLeft].Bitangent += TB.second;
+			}
+		}
+
+		_normalizeTangents(trisNum, 0ull, verticesNum);
+	}
 
 	trisNum.clear();
 }
 
-Sphere::Sphere(unsigned int h, unsigned int v, ValuesRange range)
+Sphere::Sphere(unsigned int h, unsigned int v, SphereShading shading, ValuesRange range)
 {
 	_vertices.clear();
 	_indices.clear();
-	_generate(std::max(2u, h), std::max(3u, v), range);
+	_generate(std::max(2u, h), std::max(3u, v), range, shading == SphereShading::FLAT);
 }
 
 Sphere::~Sphere() {}

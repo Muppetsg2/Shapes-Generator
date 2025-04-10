@@ -328,7 +328,10 @@ int main(int argc, char** argv)
                 fmt::print("[{}] Adjusted to minimum of 3 vertical segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
                 vertical = 3;
             }
-            elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, range);
+
+            SphereShading shade = getShadingType<SphereShading>("sphere", intChooseInputLambda, printInvalidOption);
+
+            elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, shade, range);
             break;
         }
         case 2 : {

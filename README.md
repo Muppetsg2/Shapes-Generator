@@ -16,7 +16,9 @@ This project is a console-based **Shape Generator** written in **C++**. It allow
 🔴 Sphere | 🔷 IcoSphere | ▭ Plane | 🧊 Cube | 🛢 Cylinder | ⬢ Hexagon | 🍦 Cone | 🔼 Tetrahedron | 🔺 Pyramid | 🍩 Torus
 
 The program dynamically generates the shape based on user input and exports the shape data to a file.
-> 🧭 Note: All shapes use the counterclockwise order for listing vertices — this helps keep things consistent and makes rendering easier in most 3D engines.
+> 🧭 Note: All shapes use the counterclockwise order for listing vertices, which ensures consistency and simplifies rendering in most 3D engines.
+
+> 🔺 Note: Each shape is constructed using triangles.
 
 🛠 **Technologies used:**
 - **GLM** (OpenGL Mathematics) for vector operations
