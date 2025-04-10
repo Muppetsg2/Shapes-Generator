@@ -8,7 +8,7 @@ enum class ConeShading {
 
 class Cone : public Shape {
 private:
-	void generate(unsigned int segments, float height, float radius, ValuesRange range, bool useFlatShading);
+	void _generate(unsigned int segments, float height, float radius, ValuesRange range, bool useFlatShading);
 public:
 	Cone(unsigned int segments = 3u, float height = 1.f, float radius = 1.f, ConeShading shading = ConeShading::FLAT, ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Cone();

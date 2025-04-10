@@ -10,8 +10,9 @@ struct Vertex
 };
 
 struct Vec3Hash {
-    std::size_t operator()(const glm::vec3& v) const {
-        constexpr float epsilon = 1e-6f;
+    std::size_t operator()(const glm::vec3& v) const
+    {
+        constexpr float epsilon = EPSILON;
 
         auto to_grid = [](float value) -> int {
             return static_cast<int>(std::round(value / epsilon));
@@ -26,16 +27,18 @@ struct Vec3Hash {
 };
 
 struct Vec3Equal {
-    constexpr static float epsilon = 1e-6f;
+    bool operator()(const glm::vec3& a, const glm::vec3& b) const
+    {
+        constexpr float epsilon = EPSILON;
 
-    bool operator()(const glm::vec3& a, const glm::vec3& b) const {
         return glm::all(glm::epsilonEqual(a, b, epsilon));
     }
 };
 
 struct Vec2Hash {
-    std::size_t operator()(const glm::vec2& v) const {
-        constexpr float epsilon = 1e-6f;
+    std::size_t operator()(const glm::vec2& v) const
+    {
+        constexpr float epsilon = EPSILON;
 
         auto to_grid = [](float value) -> int {
             return static_cast<int>(std::round(value / epsilon));
@@ -49,9 +52,10 @@ struct Vec2Hash {
 };
 
 struct Vec2Equal {
-    constexpr static float epsilon = 1e-6f;
+    bool operator()(const glm::vec2& a, const glm::vec2& b) const
+    {
+        constexpr float epsilon = EPSILON;
 
-    bool operator()(const glm::vec2& a, const glm::vec2& b) const {
         return glm::all(glm::epsilonEqual(a, b, epsilon));
     }
 };

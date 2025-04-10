@@ -2,6 +2,9 @@
 #include "Shape.h"
 
 class Cube : public Shape {
+private:
+	void _generate(ValuesRange range);
+
 public:
 	Cube(ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Cube();

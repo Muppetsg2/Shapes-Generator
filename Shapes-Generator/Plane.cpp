@@ -2,119 +2,111 @@
 #include "pch.h"
 #include "Plane.h"
 
-void Plane::generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
+void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
 {
     float space = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
     float minRange = -space * .5f;
     float maxRange = space * .5f;
     
-    float diffX = space / (columns - 1);
-    float diffZ = space / (rows - 1);
+    float diffX = space / (float)(columns - 1u);
+    float diffZ = space / (float)(rows - 1u);
 
-    std::vector<unsigned int> triangleNumForVert;
+    std::vector<unsigned int> trisNum;
 
-    for (unsigned int row = 0; row < rows; ++row) {
-        float z = minRange + row * diffZ;
+    for (unsigned int row = 0u; row < rows; ++row) {
+        float z = minRange + (float)row * diffZ;
 
-        for (unsigned int col = 0; col < columns; ++col) {
-            float x = minRange + col * diffX;
+        for (unsigned int col = 0u; col < columns; ++col) {
+            float x = minRange + (float)col * diffX;
 
             switch (dir) {
-                case PlaneNormalDir::UP:
-                {
-                    vertices.push_back({ { x, 0.f, z }, { fmapf(x, minRange, maxRange, 0.f, 1.f), fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                case PlaneNormalDir::UP : {
+                    _vertices.push_back({ { x, 0.f, z }, { _fmapf(x, minRange, maxRange, 0.f, 1.f), _fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
-                case PlaneNormalDir::FRONT:
-                {
-                    vertices.push_back({ { x, z, 0.f }, { fmapf(x, minRange, maxRange, 0.f, 1.f), fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 0.f, 1.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                case PlaneNormalDir::FRONT : {
+                    _vertices.push_back({ { x, z, 0.f }, { _fmapf(x, minRange, maxRange, 0.f, 1.f), _fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 0.f, 1.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
-                default:
-                {
-                    vertices.push_back({ { x, 0.f, z }, { fmapf(x, minRange, maxRange, 0.f, 1.f), fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                default : {
+                    _vertices.push_back({ { x, 0.f, z }, { _fmapf(x, minRange, maxRange, 0.f, 1.f), _fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
             }
 
-            if (row * columns + col == 0 || row * columns + col == rows * columns - 1) {
-                triangleNumForVert.push_back(1);
+            if (row * columns + col == 0u || row * columns + col == rows * columns - 1u) {
+                trisNum.push_back(1u);
             }
-            else if ((row == 0 && col + 1 == columns) || (row + 1 == rows && col == 0)) {
-                triangleNumForVert.push_back(2);
+            else if ((row == 0u && col + 1u == columns) || (row + 1u == rows && col == 0u)) {
+                trisNum.push_back(2u);
             }
-            else if (row == 0 || row + 1 == rows || col == 0 || col + 1 == columns) {
-                triangleNumForVert.push_back(3);
+            else if (row == 0u || row + 1u == rows || col == 0u || col + 1u == columns) {
+                trisNum.push_back(3u);
             }
             else {
-                triangleNumForVert.push_back(6);
+                trisNum.push_back(6u);
             }
         }
     }
 
-    for (unsigned int i = 0; i < vertices.size(); ++i) {
+    const size_t vertSize = _vertices.size();
+    for (size_t i = 0ull; i < vertSize; ++i) {
 
-        if ((i + 1) % columns == 0) {
-            continue;
-        }
+        size_t first = i + (size_t)columns;
+        size_t second = i + 1ull;
 
-        if (i + columns >= vertices.size()) {
-            break;
-        }
+        if (second % (size_t)columns == 0ull) continue;
+
+        if (first >= vertSize) break;
 
         // First Triangle
-        indices.push_back(i + columns);
-        indices.push_back(i + 1);
-        indices.push_back(i);
+        size_t third = i;
 
-        std::pair<glm::vec3, glm::vec3> TB = calcTangentBitangent(i + columns, i + 1, i);
+        _indices.push_back((unsigned int)first);
+        _indices.push_back((unsigned int)second);
+        _indices.push_back((unsigned int)third);
 
-        vertices[i + columns].Tangent += TB.first;
-        vertices[i + columns].Bitangent += TB.second;
+        std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
-        vertices[i + 1].Tangent += TB.first;
-        vertices[i + 1].Bitangent += TB.second;
+        _vertices[first].Tangent += TB.first;
+        _vertices[first].Bitangent += TB.second;
 
-        vertices[i].Tangent += TB.first;
-        vertices[i].Bitangent += TB.second;
+        _vertices[second].Tangent += TB.first;
+        _vertices[second].Bitangent += TB.second;
+
+        _vertices[third].Tangent += TB.first;
+        _vertices[third].Bitangent += TB.second;
 
         // Second Triangle
-        indices.push_back(i + columns);
-        indices.push_back(i + columns + 1);
-        indices.push_back(i + 1);
+        third = second;
+        second = first + 1ull;
 
-        TB = calcTangentBitangent(i + columns, i + columns + 1, i + 1);
+        _indices.push_back((unsigned int)first);
+        _indices.push_back((unsigned int)second);
+        _indices.push_back((unsigned int)third);
 
-        vertices[i + columns].Tangent += TB.first;
-        vertices[i + columns].Bitangent += TB.second;
+        TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
-        vertices[i + columns + 1].Tangent += TB.first;
-        vertices[i + columns + 1].Bitangent += TB.second;
+        _vertices[first].Tangent += TB.first;
+        _vertices[first].Bitangent += TB.second;
 
-        vertices[i + 1].Tangent += TB.first;
-        vertices[i + 1].Bitangent += TB.second;
+        _vertices[second].Tangent += TB.first;
+        _vertices[second].Bitangent += TB.second;
+
+        _vertices[third].Tangent += TB.first;
+        _vertices[third].Bitangent += TB.second;
     }
 
-    for (unsigned int i = 0; i < vertices.size(); ++i) {
-        vertices[i].Tangent /= (float)triangleNumForVert[i];
+    _normalizeTangents(trisNum, 0ull, vertSize);
 
-        if (glm::length(vertices[i].Tangent) != 0.f) {
-            vertices[i].Tangent = glm::normalize(vertices[i].Tangent);
-        }
-
-        vertices[i].Bitangent /= (float)triangleNumForVert[i];
-
-        if (glm::length(vertices[i].Bitangent) != 0.f) {
-            vertices[i].Bitangent = glm::normalize(vertices[i].Bitangent);
-        }
-    }
+    trisNum.clear();
 }
 
 Plane::Plane(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
 {
-    vertices.clear();
-    indices.clear();
-    generate(std::max(2u, rows), std::max(2u, columns), dir, range);
+    _vertices.clear();
+    _indices.clear();
+    _generate(std::max(2u, rows), std::max(2u, columns), dir, range);
 }
 
 Plane::~Plane() {}

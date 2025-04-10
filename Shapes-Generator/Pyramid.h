@@ -2,6 +2,9 @@
 #include "Shape.h"
 
 class Pyramid : public Shape {
+private:
+	void _generate(ValuesRange range);
+
 public:
 	Pyramid(ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Pyramid();
