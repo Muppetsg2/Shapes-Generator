@@ -2,8 +2,10 @@
 #include "pch.h"
 #include "Torus.h"
 
-void Torus::_generate(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range)
+void Torus::_generate(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range, bool useFlatShading)
 {
+    // TODO: Add flat shading
+
     // Helpful 
     // https://gamedev.stackexchange.com/questions/16845/how-do-i-generate-a-torus-mesh
 
@@ -92,11 +94,11 @@ void Torus::_generate(unsigned int segments, unsigned int cs_segments, float rad
     trisNum.clear();
 }
 
-Torus::Torus(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range)
+Torus::Torus(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, TorusShading shading, ValuesRange range)
 {
 	_vertices.clear();
 	_indices.clear();
-    _generate(std::max(3u, segments), std::max(3u, cs_segments), std::max(EPSILON, radius), std::max(EPSILON, cs_radius), range);
+    _generate(std::max(3u, segments), std::max(3u, cs_segments), std::max(EPSILON, radius), std::max(EPSILON, cs_radius), range, shading == TorusShading::FLAT);
 }
 
 Torus::~Torus() {}
