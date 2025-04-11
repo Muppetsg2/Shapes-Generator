@@ -88,14 +88,23 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 
 			glm::vec3 norm = glm::normalize(glm::vec3(cos_cone * x, sin_cone, cos_cone * z));
 
-			constexpr float uC = .5f;
-			constexpr float vC = .25f;
-			constexpr float radiansUV0 = 0.75f * (float)M_PI;
-			float uvR = (float)M_SQRT2 * .5f;
+			// Also good aproach
+			//constexpr float uC = .5f;
+			//constexpr float vC = .25f;
+			//constexpr float radiansUV0 = 0.75f * (float)M_PI;
+			//constexpr float uvR = (float)M_SQRT2 * .5f;
 
-			float radiansUV = _fmapf(angleXZ, 0.f, 2.f * (float)M_PI, 0.f, (float)M_PI_2);
-			float u = uC + uvR * cosf(radiansUV0 - radiansUV);
-			float v = vC + uvR * sinf(radiansUV0 - radiansUV);
+			//float radiansUV = _fmapf(angleXZ, 0.f, 2.f * (float)M_PI, 0.f, (float)M_PI_2);
+			//float u = uC + uvR * cosf(radiansUV0 - radiansUV);
+			//float v = vC + uvR * sinf(radiansUV0 - radiansUV);
+
+			constexpr float uC = .5f;
+			constexpr float vC = 0.f;
+			constexpr float radiansUV0 = (float)M_PI_3 * .5f;
+			
+			float radiansUV = _fmapf(angleXZ, 0.f, 2.f * (float)M_PI, 0.f, (float)M_PI_3);
+			float u = uC + sinf(radiansUV - radiansUV0);
+			float v = vC + cosf(radiansUV - radiansUV0);
 
 			_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { u, v }, norm, glm::vec3(0.f), glm::vec3(0.f) });
 

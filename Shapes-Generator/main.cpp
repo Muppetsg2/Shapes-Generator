@@ -328,7 +328,10 @@ int main(int argc, char** argv)
                 fmt::print("[{}] Adjusted to minimum of 3 vertical segments.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
                 vertical = 3;
             }
-            elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, range);
+
+            SphereShading shade = getShadingType<SphereShading>("sphere", intChooseInputLambda, printInvalidOption);
+
+            elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, shade, range);
             break;
         }
         case 2 : {
@@ -361,7 +364,9 @@ int main(int argc, char** argv)
                 fmt::print("[{}] Adjusted to minimum of 2 columns.\n", fmt::styled("INFO", fmt::fg(fmt::color::white)));
                 columns = 2;
             }
+
             PlaneNormalDir dir = getPlaneDirection();
+
             elapsed_seconds = generateShape<Plane>(selectedShape, rows, columns, dir, range);
             break;
         }
@@ -448,7 +453,9 @@ int main(int argc, char** argv)
                 cs_radius = 1.0f;
             }
 
-            elapsed_seconds = generateShape<Torus>(selectedShape, segments, cs_segments, radius, cs_radius, range);
+            TorusShading shade = getShadingType<TorusShading>("torus", intChooseInputLambda, printInvalidOption);
+
+            elapsed_seconds = generateShape<Torus>(selectedShape, segments, cs_segments, radius, cs_radius, shade, range);
             break;
         }
     }

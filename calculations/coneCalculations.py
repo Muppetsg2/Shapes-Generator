@@ -1,26 +1,82 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def cone_uv_circle_points(theta_degrees):
+####################
+#     CONE UV     #
+####################
+
+def cone_uv_circle_points(circle_center, theta_degrees):
     # Convert degrees to radians
     theta = np.radians(theta_degrees)
     
     # Circle data
-    x_s, y_s = 0.5, 0  # Circle center
+    x_s, y_s = circle_center  # Circle center
     r = np.sqrt(2) / 2  # Radius
     theta_0 = 3 * np.pi / 4  # Shift angle (135 degrees)
     
     # Parametric equations
     x = x_s + r * np.cos(theta_0 - theta)
-    y = y_s + r * np.sin(theta_0 - theta)
+    y = y_s + r * np.sin(theta_0 - theta) + 0.25
     
     return x, y
 
-# Testing for angles 0, 30, 45, 60, 90 degrees
-test_angles = [0, 30, 45, 60, 90]
+def cone_uv_circle_points_2(circle_center, theta_degrees):
+    # Convert degrees to radians
+    theta = np.radians(theta_degrees)
+
+    # Circle data
+    x_s, y_s = circle_center  # Circle center
+    theta_0 = np.pi / 6.0 # Shift angle
+
+    # Parametric equations
+    x = x_s + np.sin(theta - theta_0)
+    y = y_s + np.cos(theta - theta_0)
+
+    return x, y
+
+# Testing for angles 0, 15, 30, 45, 60, 75, 90 degrees for cone_uv_circle_points
+# test_angles = [0, 15, 30, 45, 60, 75, 90]
+
+# Testing for angles 0, 10, 20, 30, 40, 50, 60 degrees for cone_uv_circle_points_2
+test_angles = [0, 10, 20, 30, 40, 50, 60]
+
+circle_center = (0.5, 0)
+
+points = []
+points.append(circle_center)
 for angle in test_angles:
-    x, y = cone_uv_circle_points(angle)
+    # x, y = cone_uv_circle_points(circle_center, angle)
+    x, y = cone_uv_circle_points_2(circle_center, angle)
+    points.append((x, y))
     print(f"Theta = {angle}° -> x = {x:.4f}, y = {y:.4f}")
+
+points.append(circle_center)
+
+# Rozdzielenie współrzędnych do list
+xs, ys = zip(*points)
+
+# Tworzenie wykresu
+plt.figure(figsize=(6, 6))
+plt.plot(xs, ys, '-o', label='Merge Points')
+
+# Dodanie numerów kroków
+for i, (x, y) in enumerate(points):
+    plt.text(x, y, f'{i}', fontsize=9, ha='right', va='bottom')
+
+# Ograniczenie osi do zakresu [0,1]
+plt.xlim(0, 1)
+plt.ylim(0, 1)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Cone UV points')
+plt.grid(True)
+plt.gca().set_aspect('equal', adjustable='box')
+plt.legend()
+plt.show()
+
+####################
+# CONE FACE NORMAL #
+####################
 
 def cross_product(vec1, vec2):
     # Unpack vector coordinates

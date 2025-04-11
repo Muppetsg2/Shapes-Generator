@@ -2,7 +2,13 @@
 #include "pch.h"
 #include "Torus.h"
 
-void Torus::_generate(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range)
+glm::vec3 Torus::_getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3)
+{
+    glm::vec3 average = n1 + n2 + n3;
+    return fabsf(glm::length(average)) >= EPSILON ? glm::normalize(average) : average;
+}
+
+void Torus::_generate(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range, bool useFlatShading)
 {
     // Helpful 
     // https://gamedev.stackexchange.com/questions/16845/how-do-i-generate-a-torus-mesh
@@ -36,67 +42,128 @@ void Torus::_generate(unsigned int segments, unsigned int cs_segments, float rad
         }
     }
 
-    /* inner ring */
-    std::pair<glm::vec3, glm::vec3> TB;
-    for (unsigned int i = 0u; i < cs_segments; ++i) {
-        unsigned int nextrow = segments + 1u;
+    if (useFlatShading) {
+        /* inner ring */
+        std::pair<glm::vec3, glm::vec3> TB;
+        std::vector<Vertex> tempVertices(_vertices);
+        _vertices.clear();
+        for (unsigned int i = 0u; i < cs_segments; ++i) {
+            unsigned int nextrow = segments + 1u;
 
-        // outer ring
-        for (unsigned int j = 0u; j < segments; ++j) {
-            unsigned int first = i * nextrow + j;
-            unsigned int second = i * nextrow + j + 1u;
-            unsigned int third = i * nextrow + j + nextrow;
-            unsigned int fourth = i * nextrow + j + nextrow + 1u;
+            /* outer ring */
+            for (unsigned int j = 0u; j < segments; ++j) {
+                unsigned int first = i * nextrow + j;
+                unsigned int second = i * nextrow + j + 1u;
+                unsigned int third = i * nextrow + j + nextrow;
+                unsigned int fourth = i * nextrow + j + nextrow + 1u;
 
-            _indices.push_back(third);
-            _indices.push_back(second);
-            _indices.push_back(first);
+                size_t start = _vertices.size();
+                unsigned int f = (unsigned int)start;
+                unsigned int s = (unsigned int)start + 1u;
+                unsigned int t = (unsigned int)start + 2u;
 
-            TB = _calcTangentBitangent(third, second, first);
+                for (int tri = 0; tri < 2; ++tri) {
+                    bool isFirst = tri == 0;
 
-            _vertices[third].Tangent += TB.first;
-            _vertices[third].Bitangent += TB.second;
+                    Vertex v1 = isFirst ? tempVertices[third] : tempVertices[second];
+                    Vertex v2 = isFirst ? tempVertices[second] : tempVertices[third];
+                    Vertex v3 = isFirst ? tempVertices[first] : tempVertices[fourth];
 
-            _vertices[second].Tangent += TB.first;
-            _vertices[second].Bitangent += TB.second;
+                    glm::vec3 norm = _getAverageNormal(v1.Normal, v2.Normal, v3.Normal);
+                    
+                    v1.Normal = norm;
+                    v2.Normal = norm;
+                    v3.Normal = norm;
 
-            _vertices[first].Tangent += TB.first;
-            _vertices[first].Bitangent += TB.second;
+                    _vertices.push_back(v1);
+                    _vertices.push_back(v2);
+                    _vertices.push_back(v3);
 
-            _indices.push_back(second);
-            _indices.push_back(third);
-            _indices.push_back(fourth);
+                    _indices.push_back(f);
+                    _indices.push_back(s);
+                    _indices.push_back(t);
 
-            TB = _calcTangentBitangent(second, third, fourth);
+                    TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[second].Tangent += TB.first;
-            _vertices[second].Bitangent += TB.second;
+                    _vertices[f].Tangent = TB.first;
+                    _vertices[f].Bitangent = TB.second;
 
-            _vertices[third].Tangent += TB.first;
-            _vertices[third].Bitangent += TB.second;
+                    _vertices[s].Tangent = TB.first;
+                    _vertices[s].Bitangent = TB.second;
 
-            _vertices[fourth].Tangent += TB.first;
-            _vertices[fourth].Bitangent += TB.second;
+                    _vertices[t].Tangent = TB.first;
+                    _vertices[t].Bitangent = TB.second;
+
+                    f += 3u;
+                    s += 3u;
+                    t += 3u;
+                }
+            }
         }
     }
+    else {
+        /* inner ring */
+        std::pair<glm::vec3, glm::vec3> TB;
+        for (unsigned int i = 0u; i < cs_segments; ++i) {
+            unsigned int nextrow = segments + 1u;
 
-    std::vector<unsigned int> trisNum(_vertices.size(), 0u);
+            /* outer ring */
+            for (unsigned int j = 0u; j < segments; ++j) {
+                unsigned int first = i * nextrow + j;
+                unsigned int second = i * nextrow + j + 1u;
+                unsigned int third = i * nextrow + j + nextrow;
+                unsigned int fourth = i * nextrow + j + nextrow + 1u;
 
-    const size_t indexCount = _indices.size();
-    for (size_t i = 0ull; i < indexCount; ++i) {
-        ++trisNum[_indices[i]];
+                _indices.push_back(third);
+                _indices.push_back(second);
+                _indices.push_back(first);
+
+                TB = _calcTangentBitangent(third, second, first);
+
+                _vertices[third].Tangent += TB.first;
+                _vertices[third].Bitangent += TB.second;
+
+                _vertices[second].Tangent += TB.first;
+                _vertices[second].Bitangent += TB.second;
+
+                _vertices[first].Tangent += TB.first;
+                _vertices[first].Bitangent += TB.second;
+
+                _indices.push_back(second);
+                _indices.push_back(third);
+                _indices.push_back(fourth);
+
+                TB = _calcTangentBitangent(second, third, fourth);
+
+                _vertices[second].Tangent += TB.first;
+                _vertices[second].Bitangent += TB.second;
+
+                _vertices[third].Tangent += TB.first;
+                _vertices[third].Bitangent += TB.second;
+
+                _vertices[fourth].Tangent += TB.first;
+                _vertices[fourth].Bitangent += TB.second;
+            }
+        }
+
+        std::vector<unsigned int> trisNum(_vertices.size(), 0u);
+
+        const size_t indexCount = _indices.size();
+        for (size_t i = 0ull; i < indexCount; ++i) {
+            ++trisNum[_indices[i]];
+        }
+
+        _normalizeTangents(trisNum, 0ull, _vertices.size());
+
+        trisNum.clear();
     }
-
-    _normalizeTangents(trisNum, 0ull, _vertices.size());
-
-    trisNum.clear();
 }
 
-Torus::Torus(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range)
+Torus::Torus(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, TorusShading shading, ValuesRange range)
 {
 	_vertices.clear();
 	_indices.clear();
-    _generate(std::max(3u, segments), std::max(3u, cs_segments), std::max(EPSILON, radius), std::max(EPSILON, cs_radius), range);
+    _generate(std::max(3u, segments), std::max(3u, cs_segments), std::max(EPSILON, radius), std::max(EPSILON, cs_radius), range, shading == TorusShading::FLAT);
 }
 
 Torus::~Torus() {}
