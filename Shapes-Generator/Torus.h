@@ -8,6 +8,7 @@ enum class TorusShading {
 
 class Torus : public Shape {
 private:
+	glm::vec3 _getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3);
 	void _generate(unsigned int segments, unsigned int cs_segments, float radius, float cs_radius, ValuesRange range, bool useFlatShading);
 
 public:
