@@ -81,12 +81,14 @@ void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalS
                 float x_n = (sinf(angleXZ) + sinf(angleXZ + angleXZDiff)) * 0.5f;
                 float z_n = (cosf(angleXZ) + cosf(angleXZ + angleXZDiff)) * 0.5f;
 
+                glm::vec3 norm = glm::normalize(glm::vec3(x_n, 0.f, z_n));
+
                 for (unsigned int f = 0u; f < 2u; ++f) {
                     float angleXZF = angleXZ + angleXZDiff * f;
                     float z = cosf(angleXZF) * mult;
                     float x = sinf(angleXZF) * mult;
 
-                    _vertices.push_back({ { x, y, z }, { (float)f, yDiff / h }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
+                    _vertices.push_back({ { x, y, z }, { (float)f, yDiff / h }, norm, glm::vec3(0.f), glm::vec3(0.f) });
                     trisNum.push_back(1u + (i + f) % 2u);
                 }
             }
