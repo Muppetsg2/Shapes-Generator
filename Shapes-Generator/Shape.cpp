@@ -1,14 +1,8 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Shape.h"
+#include "pch.hpp"
+#include "Shape.hpp"
+#include "templates.hpp"
 
-template<typename T>
-const T& unmove(T&& x) 
-{
-    return x;
-}
-
-float Shape::_fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd)
+float Shape::_map(float input, float currStart, float currEnd, float expectedStart, float expectedEnd)
 {
     return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
 }
@@ -129,11 +123,23 @@ void Shape::_normalizeTangents(const std::vector<unsigned int>& trisNum, size_t 
     }
 }
 
-std::string Shape::_getStructDefinition() const
+std::string Shape::_getGeneratedHeader(std::string commentSign) const
 {
-    return  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
-            "struct vec2\n{\n\tfloat x, y;\n};\n\n"
-            "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n";
+    return commentSign + " Shapes Generator " + SHAPES_GENERATOR_VERSION_STR + "\n" + commentSign + " https://github.com/Muppetsg2/Shapes-Generator\n\n";
+}
+
+std::string Shape::_getStructDefinition(bool isC99) const
+{
+    if (isC99) {
+        return  "typedef struct {\n\tfloat x, y, z;\n} vec3;\n\n"
+                "typedef struct {\n\tfloat x, y;\n} vec2;\n\n"
+                "typedef struct {\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n} Vertex;\n\n";
+    }
+    else {
+        return  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
+                "struct vec2\n{\n\tfloat x, y;\n};\n\n"
+                "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n";
+    }
 }
 
 std::string Shape::_formatFloat(float value, bool delRedundantZeros) const
@@ -171,17 +177,17 @@ std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
         return std::vformat(
             std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
             std::make_format_args(
-                "{", ".Position = vec3(",
+                "{", "{ ",
                 unmove(_formatFloat(v.Position.x)),     unmove(_formatFloat(v.Position.y)),     unmove(_formatFloat(v.Position.z)),
-                ")", ".TexCoords = vec2(",
+                " }", "{ ",
                 unmove(_formatFloat(v.TexCoord.x)),     unmove(_formatFloat(v.TexCoord.y)),
-                ")", ".Normal = vec3(",
+                " }", "{ ",
                 unmove(_formatFloat(v.Normal.x)),       unmove(_formatFloat(v.Normal.y)),       unmove(_formatFloat(v.Normal.z)),
-                ")", ".Tangent = vec3(",
+                " }", "{ ",
                 unmove(_formatFloat(v.Tangent.x)),      unmove(_formatFloat(v.Tangent.y)),      unmove(_formatFloat(v.Tangent.z)),
-                ")", ".Bitangent = vec3(",
+                " }", "{ ",
                 unmove(_formatFloat(v.Bitangent.x)),    unmove(_formatFloat(v.Bitangent.y)),    unmove(_formatFloat(v.Bitangent.z)),
-                ")", "}"
+                " }", "}"
             )
         );
     }
@@ -197,7 +203,8 @@ std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFlo
 
     result += header;
 
-    if (useFloat) result += "\t//POSITION\t\t\t\t\t//TEX COORDS\t//NORMALS\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
+    if (useFloat) result += "\t//POSITION\t\t\t\t\t//TEX COORD\t//NORMAL\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
+    else result += "\t//POSITION\t\t\t\t\t\t//TEX COORD\t\t//NORMAL\t\t\t\t\t//TANGENT\t\t\t\t\t//BITANGENT\n";
 
     size_t count = onlyVertices ? _indices.size() : _vertices.size();
     for (size_t i = 0; i < count; ++i) {
@@ -268,7 +275,7 @@ std::string Shape::_toOBJ() const
         vertIndices.push_back(ind);
     }
 
-    std::string text = "# Shapes Generator " + SHAPES_GENERATOR_VERSION_STR + "\n# https://github.com/Muppetsg2/Shapes-Generator\no " + getObjectClassName() + "\n";
+    std::string text = _getGeneratedHeader("#") + "o " + getObjectClassName() + "\n";
     for (const glm::vec3& pos : v) {
         text += std::vformat(std::string_view("v {} {} {}\n"),
             std::make_format_args
@@ -327,36 +334,48 @@ std::string Shape::toString(FormatType type) const
 {
     switch (type) {
         case FormatType::VECTOR_INDICES_STRUCT : {
-            return _getStructDefinition() +
+            return _getGeneratedHeader("//") +
+                   "#include <vector>\n\n" +
+                   _getStructDefinition(false) +
                    _formatVertices(false, false, false) + "\n\n" +
                    _formatIndices(false);
         }
         case FormatType::ARRAY_INDICES_STRUCT : {
-            return _getStructDefinition() +
+            return _getGeneratedHeader("//") +
+                   _getStructDefinition(true) +
                    _formatVertices(false, true, false) + "\n\n" +
                    _formatIndices(true);
         }
         case FormatType::VECTOR_VERTICES_STRUCT: {
-            return _getStructDefinition() +
+            return _getGeneratedHeader("//") +
+                   "#include <vector>\n\n" +
+                   _getStructDefinition(false)  +
                    _formatVertices(true, false, false);
         }
         case FormatType::ARRAY_VERTICES_STRUCT: {
-            return _getStructDefinition() +
+            return _getGeneratedHeader("//") +
+                   _getStructDefinition(true) +
                    _formatVertices(true, true, false);
         }
         case FormatType::VECTOR_INDICES_FLOAT: {
-            return _formatVertices(false, false, true) + "\n\n" +
+            return _getGeneratedHeader("//") +
+                   "#include <vector>\n\n" +
+                   _formatVertices(false, false, true) + "\n\n" +
                    _formatIndices(false);
         }
         case FormatType::ARRAY_INDICES_FLOAT: {
-            return _formatVertices(false, true, true) + "\n\n" +
+            return _getGeneratedHeader("//") +
+                   _formatVertices(false, true, true) + "\n\n" +
                    _formatIndices(true);
         }
         case FormatType::VECTOR_VERTICES_FLOAT: {
-            return _formatVertices(true, false, true);
+            return _getGeneratedHeader("//") +
+                   "#include <vector>\n\n" +
+                   _formatVertices(true, false, true);
         }
         case FormatType::ARRAY_VERTICES_FLOAT: {
-            return _formatVertices(true, true, true);
+            return _getGeneratedHeader("//") +
+                   _formatVertices(true, true, true);
         }
         case FormatType::OBJ: {
             return _toOBJ();

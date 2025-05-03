@@ -1,5 +1,5 @@
 #pragma once
-#include "Shape.h"
+#include "Shape.hpp"
 
 enum class CylinderShading {
 	FLAT = 0,

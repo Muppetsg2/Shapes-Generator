@@ -1,5 +1,5 @@
 #pragma once
-#include "Cylinder.h"
+#include "Cylinder.hpp"
 
 class Hexagon : public Cylinder {
 public:

@@ -1,13 +1,13 @@
 #pragma once
-#include "Shape.h"
+#include "Shape.hpp"
 
-class Pyramid : public Shape {
+class Tetrahedron : public Shape {
 private:
 	void _generate(ValuesRange range);
 
 public:
-	Pyramid(ValuesRange range = ValuesRange::HALF_TO_HALF);
-	virtual ~Pyramid();
+	Tetrahedron(ValuesRange range = ValuesRange::HALF_TO_HALF);
+	virtual ~Tetrahedron();
 
 	static std::string getClassName();
 	std::string getObjectClassName() const override;

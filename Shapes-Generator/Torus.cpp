@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Torus.h"
+#include "pch.hpp"
+#include "Torus.hpp"
 
 glm::vec3 Torus::_getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3)
 {
@@ -37,7 +36,7 @@ void Torus::_generate(unsigned int segments, unsigned int cs_segments, float rad
             float zc = radius * sinf(radI);
 
             glm::vec3 pos = glm::vec3(currentradius * cosf(radI), yval, currentradius * sinf(radI));
-            glm::vec3 n = glm::vec3(_fmapf(pos.x, -maxradius, maxradius, -1.f, 1.f), _fmapf(pos.y, -maxradius, maxradius, -1.f, 1.f), _fmapf(pos.z, -maxradius, maxradius, -1.f, 1.f));
+            glm::vec3 n = glm::vec3(_map(pos.x, -maxradius, maxradius, -1.f, 1.f), _map(pos.y, -maxradius, maxradius, -1.f, 1.f), _map(pos.z, -maxradius, maxradius, -1.f, 1.f));
             _vertices.push_back({ n * mult, { u, v }, glm::normalize(glm::vec3(pos.x - xc, pos.y, pos.z - zc)), glm::vec3(0.f), glm::vec3(0.f) });
         }
     }

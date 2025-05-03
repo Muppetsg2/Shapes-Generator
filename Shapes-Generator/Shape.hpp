@@ -1,5 +1,5 @@
 #pragma once
-#include "Vertex.h"
+#include "Vertex.hpp"
 
 enum class FormatType {
 	VECTOR_INDICES_STRUCT = 0,
@@ -24,14 +24,15 @@ protected:
 	std::vector<Vertex> _vertices;
 	std::vector<unsigned int> _indices;
 
-	float _fmapf(float input, float currStart, float currEnd, float expectedStart, float expectedEnd);
+	float _map(float input, float currStart, float currEnd, float expectedStart, float expectedEnd);
 
 	Vertex _calcTangentBitangent(unsigned int vertexIndex);
 	std::pair<glm::vec3, glm::vec3> _calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
 	// start - inclusive, end - exclusive
 	void _normalizeTangents(const std::vector<unsigned int>& trisNum, size_t start, size_t end);
 
-	std::string _getStructDefinition() const;
+	std::string _getGeneratedHeader(std::string commentSign) const;
+	std::string _getStructDefinition(bool isC99) const;
 	std::string _formatFloat(float value, bool delRedundantZeros=true) const;
 	std::string _formatVertex(const Vertex& v, bool useFloat) const;
 	std::string _formatVertices(bool onlyVertices, bool useArray, bool useFloat) const;

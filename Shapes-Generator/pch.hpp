@@ -15,12 +15,33 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
+// PLATFORM DEPENDANT
 #ifdef _WIN32
+#include <direct.h>
+#define MKDIR(path) _mkdir(path)
+#else
+#define MKDIR(path) mkdir(path, 0777)
+#endif
+
+#if defined(_WIN32)
+#define NOGDI
+#define NOATOM
+#define NOMINMAX
 #include <windows.h>
+#undef near
+#undef far
+#include <psapi.h>
+#elif defined(__APPLE__)
+#include <mach/mach.h>
+#include <mach-o/dyld.h>
+#elif defined(__linux__)
+#include <unistd.h>
 #endif
 
 // FROM VCPKG
@@ -41,4 +62,6 @@
 #include <corecrt_math_defines.h>
 
 // VERSION
-#include "version.h"
+#include "version.hpp"
+#include "system_functions.hpp"
+#include "Config.hpp"

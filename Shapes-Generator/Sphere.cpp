@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Sphere.h"
+#include "pch.hpp"
+#include "Sphere.hpp"
 
 glm::vec3 Sphere::_getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3)
 {

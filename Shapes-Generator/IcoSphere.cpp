@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "IcoSphere.h"
+#include "pch.hpp"
+#include "IcoSphere.hpp"
 
 void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSubdivisions)
 {

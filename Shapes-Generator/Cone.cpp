@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Cone.h"
+#include "pch.hpp"
+#include "Cone.hpp"
 
 void Cone::_generate(unsigned int segments, float height, float radius, ValuesRange range, bool useFlatShading)
 {
@@ -102,7 +101,7 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 			constexpr float vC = 0.f;
 			constexpr float radiansUV0 = (float)M_PI_3 * .5f;
 			
-			float radiansUV = _fmapf(angleXZ, 0.f, 2.f * (float)M_PI, 0.f, (float)M_PI_3);
+			float radiansUV = _map(angleXZ, 0.f, 2.f * (float)M_PI, 0.f, (float)M_PI_3);
 			float u = uC + sinf(radiansUV - radiansUV0);
 			float v = vC + cosf(radiansUV - radiansUV0);
 

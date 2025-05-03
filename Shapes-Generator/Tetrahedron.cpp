@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Tetrahedron.h"
+#include "pch.hpp"
+#include "Tetrahedron.hpp"
 
 void Tetrahedron::_generate(ValuesRange range)
 {

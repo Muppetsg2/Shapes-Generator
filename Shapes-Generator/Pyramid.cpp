@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Pyramid.h"
+#include "pch.hpp"
+#include "Pyramid.hpp"
 
 void Pyramid::_generate(ValuesRange range)
 {

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 template<class ShapeType, class... Args>
-std::chrono::duration<double> generateShape(Shape*& out, const Args&... args) {
+static std::chrono::duration<double> generateShape(Shape*& out, const Args&... args) {
     
     fmt::print("\n[{}] Start Generating {}...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), ShapeType::getClassName());
 
@@ -18,7 +18,7 @@ std::chrono::duration<double> generateShape(Shape*& out, const Args&... args) {
 }
 
 template<class T>
-T getShadingType(const std::string& shapeName, std::function<int(int, int)> intInputFunc, std::function<void(int, int)> errorMsgFunc) {
+static T getShadingType(const std::string& shapeName, std::function<int(int, int)> intInputFunc, std::function<void(int, int)> errorMsgFunc) {
     int dir_choice;
     do {
         fmt::print("\n> Select the {} shading type:\n1) FLAT\n2) SMOOTH\n", shapeName);
@@ -30,4 +30,10 @@ T getShadingType(const std::string& shapeName, std::function<int(int, int)> intI
     } while (dir_choice < 1 || dir_choice > 2);
 
     return static_cast<T>(dir_choice - 1);
+}
+
+template<typename T>
+static const T& unmove(T&& x)
+{
+    return x;
 }

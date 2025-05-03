@@ -83,7 +83,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -101,7 +101,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +119,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,22 +167,24 @@
     <ClCompile Include="Torus.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cone.h" />
-    <ClInclude Include="Cube.h" />
-    <ClInclude Include="Cylinder.h" />
-    <ClInclude Include="Hexagon.h" />
-    <ClInclude Include="IcoSphere.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="templates.h" />
-    <ClInclude Include="Torus.h" />
-    <ClInclude Include="version.h" />
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Pyramid.h" />
-    <ClInclude Include="Plane.h" />
-    <ClInclude Include="Shape.h" />
-    <ClInclude Include="Sphere.h" />
-    <ClInclude Include="Tetrahedron.h" />
+    <ClInclude Include="Cone.hpp" />
+    <ClInclude Include="Config.hpp" />
+    <ClInclude Include="Cube.hpp" />
+    <ClInclude Include="Cylinder.hpp" />
+    <ClInclude Include="Hexagon.hpp" />
+    <ClInclude Include="IcoSphere.hpp" />
+    <ClInclude Include="pch.hpp" />
+    <ClInclude Include="resource.hpp" />
+    <ClInclude Include="system_functions.hpp" />
+    <ClInclude Include="templates.hpp" />
+    <ClInclude Include="Torus.hpp" />
+    <ClInclude Include="version.hpp" />
+    <ClInclude Include="Vertex.hpp" />
+    <ClInclude Include="Pyramid.hpp" />
+    <ClInclude Include="Plane.hpp" />
+    <ClInclude Include="Shape.hpp" />
+    <ClInclude Include="Sphere.hpp" />
+    <ClInclude Include="Tetrahedron.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Shapes-Generator.rc" />

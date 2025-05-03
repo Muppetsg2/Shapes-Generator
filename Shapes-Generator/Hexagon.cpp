@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Hexagon.h"
+#include "pch.hpp"
+#include "Hexagon.hpp"
 
 Hexagon::Hexagon(unsigned int segments, ValuesRange range)
 {

@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Cube.h"
+#include "pch.hpp"
+#include "Cube.hpp"
 
 void Cube::_generate(ValuesRange range)
 {

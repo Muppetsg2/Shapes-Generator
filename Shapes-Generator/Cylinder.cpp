@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Cylinder.h"
+#include "pch.hpp"
+#include "Cylinder.hpp"
 
 void Cylinder::_generateCircle(unsigned int segments, float y, CylinderCullFace cullFace, ValuesRange range)
 {

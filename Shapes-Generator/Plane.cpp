@@ -1,6 +1,5 @@
-// PRECOMPILED HEADER
-#include "pch.h"
-#include "Plane.h"
+#include "pch.hpp"
+#include "Plane.hpp"
 
 void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
 {
@@ -21,15 +20,15 @@ void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir di
 
             switch (dir) {
                 case PlaneNormalDir::UP : {
-                    _vertices.push_back({ { x, 0.f, z }, { _fmapf(x, minRange, maxRange, 0.f, 1.f), _fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                    _vertices.push_back({ { x, 0.f, z }, { _map(x, minRange, maxRange, 0.f, 1.f), _map(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
                 case PlaneNormalDir::FRONT : {
-                    _vertices.push_back({ { x, z, 0.f }, { _fmapf(x, minRange, maxRange, 0.f, 1.f), _fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 0.f, -1.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                    _vertices.push_back({ { x, z, 0.f }, { _map(x, minRange, maxRange, 0.f, 1.f), _map(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 0.f, -1.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
                 default : {
-                    _vertices.push_back({ { x, 0.f, z }, { _fmapf(x, minRange, maxRange, 0.f, 1.f), _fmapf(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
+                    _vertices.push_back({ { x, 0.f, z }, { _map(x, minRange, maxRange, 0.f, 1.f), _map(z, minRange, maxRange, 0.f, 1.f) }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
                     break;
                 }
             }

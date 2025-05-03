@@ -8,26 +8,27 @@
 //
 // Version: 1.2.6
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 22.04.2025
+// Last Update: 3.05.2025
 
 // PRECOMPILED HEADER
-#include "pch.h"
+#include "pch.hpp"
 
 // MY FILES
-#include "Sphere.h"
-#include "IcoSphere.h"
-#include "Plane.h"
-#include "Cube.h"
-#include "Cylinder.h"
-#include "Hexagon.h"
-#include "Cone.h"
-#include "Tetrahedron.h"
-#include "Pyramid.h"
-#include "Torus.h"
-#include "templates.h"
+#include "Sphere.hpp"
+#include "IcoSphere.hpp"
+#include "Plane.hpp"
+#include "Cube.hpp"
+#include "Cylinder.hpp"
+#include "Hexagon.hpp"
+#include "Cone.hpp"
+#include "Tetrahedron.hpp"
+#include "Pyramid.hpp"
+#include "Torus.hpp"
+#include "templates.hpp"
 
 Shape* selectedShape = nullptr;
 
+#pragma region STRING_OPERATORS
 void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
 {
     std::string buf;
@@ -49,7 +50,59 @@ void replace_all(std::string& s, std::string const& toReplace, std::string const
     buf.append(s, prevPos, s.size() - prevPos);
     s.swap(buf);
 }
+#pragma endregion
 
+#pragma region CONSOLE_OUTPUT_FUNCTIONS
+static void printInvalidOption(int firstOptionNum, int lastOptionNum)
+{
+    fmt::print("[{}] Invalid option! Enter a number between {} and {} and try again.\n",
+        fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), firstOptionNum, lastOptionNum);
+}
+
+static std::string getInputPrompt(int firstOptionNum, int lastOptionNum)
+{
+    return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
+}
+
+void printBannerLineColored(std::string text, fmt::color color)
+{
+    fmt::print("│");
+    fmt::print("{}", fmt::styled(text, fmt::fg(color)));
+    fmt::print("│\n");
+}
+
+void displayStartWindow()
+{
+    size_t lineLength = std::string("   ____  _                              ____                           _               ").size();
+    std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION_STR);
+    std::string escTxt = std::string("Press ESC to exit the program");
+
+    size_t verSpaceCount = (lineLength - versionTxt.size()) / 2ull;
+    size_t verRemainder = (lineLength - versionTxt.size()) % 2ull;
+
+    size_t escSpaceCount = (lineLength - escTxt.size()) / 2ull;
+    size_t escRemainder = (lineLength - escTxt.size()) % 2ull;
+
+    fmt::color color = fmt::color::cyan;
+
+    fmt::print("┌───────────────────────────────────────────────────────────────────────────────────────┐\n");
+    fmt::print("│                                                                                       │\n");
+    printBannerLineColored("   ____  _                              ____                           _               ", color);
+    printBannerLineColored("  / ___|| |__   __ _ _ __   ___  ___   / ___| ___ _ __   ___ _ __ __ _| |_ ___  _ __   ", color);
+    printBannerLineColored("  \\___ \\| '_ \\ / _` | '_ \\ / _ \\/ __| | |  _ / _ \\ '_ \\ / _ \\ '__/ _` | __/ _ \\| '__|  ", color);
+    printBannerLineColored("   ___) | | | | (_| | |_) |  __/\\__ \\ | |_| |  __/ | | |  __/ | | (_| | || (_) | |     ", color);
+    printBannerLineColored("  |____/|_| |_|\\__,_| .__/ \\___||___/  \\____|\\___|_| |_|\\___|_|  \\__,_|\\__\\___/|_|     ", color);
+    printBannerLineColored("                    |_|                                                                ", color);
+    fmt::print("│                                                                                       │\n");
+    fmt::print("│{:<{}}{}{:>{}}│\n", "", verSpaceCount, versionTxt, "", verSpaceCount + verRemainder);
+    fmt::print("│                                                                                       │\n");
+    fmt::print("│{:<{}}{}{:>{}}│\n", "", escSpaceCount, escTxt, "", escSpaceCount + escRemainder);
+    fmt::print("│                                                                                       │\n");
+    fmt::print("└───────────────────────────────────────────────────────────────────────────────────────┘\n");
+}
+#pragma endregion
+
+#pragma region INPUT_FUNCTIONS
 static bool checkForEsc(char ch)
 {
     if (ch == 27) {  // ASCII code for ESC key
@@ -185,54 +238,13 @@ static void waitForEnter(const std::string& prompt)
     }
 }
 
-static void printInvalidOption(int firstOptionNum, int lastOptionNum)
+int intChooseInput(int min, int max)
 {
-    fmt::print("[{}] Invalid option! Enter a number between {} and {} and try again.\n",
-        fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), firstOptionNum, lastOptionNum);
+    return getIntInput(getInputPrompt(min, max));
 }
+#pragma endregion
 
-static std::string getInputPrompt(int firstOptionNum, int lastOptionNum)
-{
-    return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
-}
-
-void printBannerLineColored(std::string text, fmt::color color)
-{
-    fmt::print("│");
-    fmt::print("{}", fmt::styled(text, fmt::fg(color)));
-    fmt::print("│\n");
-}
-
-void displayStartWindow()
-{
-    size_t lineLength = std::string("   ____  _                              ____                           _               ").size();
-    std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION_STR);
-    std::string escTxt = std::string("Press ESC to exit the program");
-
-    size_t verSpaceCount = (lineLength - versionTxt.size()) / 2ull;
-    size_t verRemainder = (lineLength - versionTxt.size()) % 2ull;
-
-    size_t escSpaceCount = (lineLength - escTxt.size()) / 2ull;
-    size_t escRemainder = (lineLength - escTxt.size()) % 2ull;
-
-    fmt::color color = fmt::color::cyan;
-
-    fmt::print("┌───────────────────────────────────────────────────────────────────────────────────────┐\n");
-    fmt::print("│                                                                                       │\n");
-    printBannerLineColored("   ____  _                              ____                           _               ", color);
-    printBannerLineColored("  / ___|| |__   __ _ _ __   ___  ___   / ___| ___ _ __   ___ _ __ __ _| |_ ___  _ __   ", color);
-    printBannerLineColored("  \\___ \\| '_ \\ / _` | '_ \\ / _ \\/ __| | |  _ / _ \\ '_ \\ / _ \\ '__/ _` | __/ _ \\| '__|  ", color);
-    printBannerLineColored("   ___) | | | | (_| | |_) |  __/\\__ \\ | |_| |  __/ | | |  __/ | | (_| | || (_) | |     ", color);
-    printBannerLineColored("  |____/|_| |_|\\__,_| .__/ \\___||___/  \\____|\\___|_| |_|\\___|_|  \\__,_|\\__\\___/|_|     ", color);
-    printBannerLineColored("                    |_|                                                                ", color);
-    fmt::print("│                                                                                       │\n");
-    fmt::print("│{:<{}}{}{:>{}}│\n", "", verSpaceCount, versionTxt, "", verSpaceCount + verRemainder);
-    fmt::print("│                                                                                       │\n");
-    fmt::print("│{:<{}}{}{:>{}}│\n", "", escSpaceCount, escTxt, "", escSpaceCount + escRemainder);
-    fmt::print("│                                                                                       │\n");
-    fmt::print("└───────────────────────────────────────────────────────────────────────────────────────┘\n");
-}
-
+#pragma region SHAPE_FUNCTIONS
 PlaneNormalDir getPlaneDirection()
 {
     int dir_choice;
@@ -263,15 +275,15 @@ ValuesRange getValuesRange()
 
 FormatType getFormatType()
 {
-    static const std::vector<std::string> options {
+    static const std::vector<std::string> options{
         "std::vector  - Vertices & Indices (struct)",
-        "C++ array    - Vertices & Indices (struct)",
+        "C array      - Vertices & Indices (struct)",
         "std::vector  - Only Vertices (struct)",
-        "C++ array    - Only Vertices (struct)",
+        "C array      - Only Vertices (struct)",
         "std::vector  - Vertices & Indices (float)",
-        "C++ array    - Vertices & Indices (float)",
+        "C array      - Vertices & Indices (float)",
         "std::vector  - Only Vertices (float)",
-        "C++ array    - Only Vertices (float)",
+        "C array      - Only Vertices (float)",
         "Save as OBJ file"
     };
 
@@ -294,9 +306,11 @@ FormatType getFormatType()
 
     return static_cast<FormatType>(arr_choice - 1);
 }
+#pragma endregion
 
 int main(int argc, char** argv)
 {
+#pragma region INIT
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
@@ -304,30 +318,30 @@ int main(int argc, char** argv)
     SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 #endif
 
-    auto intChooseInputLambda = [](int min, int max) -> int {
-        return getIntInput(getInputPrompt(min, max));
-    };
-
-    std::string exeDirPath = std::filesystem::absolute(argv[0]).parent_path().string();
+    std::string exeDirPath = get_executable_path();
     ValuesRange range = ValuesRange::HALF_TO_HALF;
+    Config config = load_config(exeDirPath);
 
     displayStartWindow();
+#pragma endregion
 
+#pragma region SELECT_SHAPE
     int choice;
     do {
         fmt::print("\n> Select a shape to create:\n");
         std::cout << "1) Sphere\n2) IcoSphere\n3) Plane\n4) Cube\n5) Cylinder\n6) Hexagon\n7) Cone\n8) Tetrahedron\n9) Pyramid\n10) Torus\n";
-        choice = intChooseInputLambda(1, 10);
+        choice = intChooseInput(1, 10);
         if (choice < 1 || choice > 10) {
             printInvalidOption(1, 10);
         }
-    } while(choice < 1 || choice > 10);
+    } while (choice < 1 || choice > 10);
+#pragma endregion
 
+#pragma region SHAPE_GENERATION
     range = getValuesRange();
-
     std::chrono::duration<double> elapsed_seconds;
     switch (choice) {
-        case 1 : {
+        case 1: {
             fmt::print("\n> Enter sphere parameters:\n");
             int horizontal = getIntInput("   - Number of horizontal segments (min: 2): ");
             if (horizontal < 2) {
@@ -341,12 +355,12 @@ int main(int argc, char** argv)
                 vertical = 3;
             }
 
-            SphereShading shade = getShadingType<SphereShading>("sphere", intChooseInputLambda, printInvalidOption);
+            SphereShading shade = getShadingType<SphereShading>("sphere", intChooseInput, printInvalidOption);
 
             elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, shade, range);
             break;
         }
-        case 2 : {
+        case 2: {
             fmt::print("\n> Enter icoSphere parameters:\n");
             int subs = getIntInput("   - Number of subdivisions (0 - 8): ");
             if (subs < 0) {
@@ -358,12 +372,12 @@ int main(int argc, char** argv)
                 subs = 8;
             }
 
-            IcoSphereShading shade = getShadingType<IcoSphereShading>("icoSphere", intChooseInputLambda, printInvalidOption);
+            IcoSphereShading shade = getShadingType<IcoSphereShading>("icoSphere", intChooseInput, printInvalidOption);
 
             elapsed_seconds = generateShape<IcoSphere>(selectedShape, subs, shade, range);
             break;
         }
-        case 3 : {
+        case 3: {
             fmt::print("\n> Enter plane dimensions:\n");
             int rows = getIntInput("   - Number of rows (min: 2): ");
             if (rows < 2) {
@@ -382,8 +396,8 @@ int main(int argc, char** argv)
             elapsed_seconds = generateShape<Plane>(selectedShape, rows, columns, dir, range);
             break;
         }
-        case 4 : elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
-        case 5 : {
+        case 4: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
+        case 5: {
             fmt::print("\n> Enter cylinder parameters:\n");
             int verticalSegments = getIntInput("   - Number of vertical segments (min: 3): ");
             if (verticalSegments < 3) {
@@ -396,12 +410,12 @@ int main(int argc, char** argv)
                 horizontalSegments = 1;
             }
 
-            CylinderShading shade = getShadingType<CylinderShading>("cylinder", intChooseInputLambda, printInvalidOption);
+            CylinderShading shade = getShadingType<CylinderShading>("cylinder", intChooseInput, printInvalidOption);
 
             elapsed_seconds = generateShape<Cylinder>(selectedShape, horizontalSegments, verticalSegments, shade, range);
             break;
         }
-        case 6 : {
+        case 6: {
             fmt::print("\n> Enter hexagon parameters:\n");
             int horizontalSegments = getIntInput("   - Number of horizontal segments (min: 1): ");
             if (horizontalSegments < 1) {
@@ -412,7 +426,7 @@ int main(int argc, char** argv)
             elapsed_seconds = generateShape<Hexagon>(selectedShape, horizontalSegments, range);
             break;
         }
-        case 7 : {
+        case 7: {
             fmt::print("\n> Enter cone parameters:\n");
             int segments = getIntInput("   - Number of segments (min: 3): ");
             if (segments < 3) {
@@ -432,14 +446,14 @@ int main(int argc, char** argv)
                 radius = 1.0f;
             }
 
-            ConeShading shade = getShadingType<ConeShading>("cone", intChooseInputLambda, printInvalidOption);
+            ConeShading shade = getShadingType<ConeShading>("cone", intChooseInput, printInvalidOption);
 
             elapsed_seconds = generateShape<Cone>(selectedShape, segments, height, radius, shade, range);
             break;
         }
-        case 8 : elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
-        case 9 : elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
-        case 10 : {
+        case 8: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
+        case 9: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
+        case 10: {
             fmt::print("\n> Enter torus parameters:\n");
             int segments = getIntInput("   - Number of segments for the main axis of the circle (min: 3): ");
             if (segments < 3) {
@@ -465,22 +479,38 @@ int main(int argc, char** argv)
                 cs_radius = 1.0f;
             }
 
-            TorusShading shade = getShadingType<TorusShading>("torus", intChooseInputLambda, printInvalidOption);
+            TorusShading shade = getShadingType<TorusShading>("torus", intChooseInput, printInvalidOption);
 
             elapsed_seconds = generateShape<Torus>(selectedShape, segments, cs_segments, radius, cs_radius, shade, range);
             break;
         }
     }
+#pragma endregion
 
+#pragma region SHAPE_GENERATED_INFO
     if (!selectedShape) {
         fmt::print("\n[{}] Error: Failed to generate the shape!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
         return EXIT_FAILURE;
     }
 
     fmt::print("\n[{}] Shape successfully generated in {}s!\n", fmt::styled("INFO", fmt::fg(fmt::color::white)), elapsed_seconds.count());
+#pragma endregion
 
+#pragma region SAVE_SHAPE
     FormatType format = getFormatType();
-    std::string filePath = exeDirPath + ((format != FormatType::OBJ) ? "\\shape.txt" : "\\shape.obj");
+
+    if (!check_directory(config.saveDir.c_str())) {
+        if (create_directory(config.saveDir.c_str())) {
+            fmt::print("\n[{}] Directory created successfully: {}\n", fmt::styled("CREATED", fmt::fg(fmt::color::green)), config.saveDir);
+        }
+        else {
+            fmt::print("\n[{}] Error: Could not create directory: {}\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)), config.saveDir);
+            delete selectedShape;
+            return EXIT_FAILURE;
+        }
+    }
+
+    std::string filePath = config.saveDir + "\\" + config.fileName + ((format != FormatType::OBJ) ? ".txt" : ".obj");
 
     fmt::print("\n[{}] Start Saving {} to file...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), selectedShape->getObjectClassName());
     auto start = std::chrono::system_clock::now();
@@ -496,19 +526,21 @@ int main(int argc, char** argv)
 
         elapsed_seconds = (end - start);
 
-        std::string path = std::filesystem::absolute(filePath).string();
-        replace_all(path, "\\\\", "\\");
+        replace_all(filePath, "\\\\", "\\");
 
         fmt::print("[{}] Shape saved successfully in {}s!\n[{}] File path: {}\n",
             fmt::styled("SAVED", fmt::fg(fmt::color::green)),
             elapsed_seconds.count(),
-            fmt::styled("PATH", fmt::fg(fmt::color::white)), path);
+            fmt::styled("PATH", fmt::fg(fmt::color::white)), filePath);
     }
     else {
         fmt::print("[{}] Error: Could not save the file!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
     }
+#pragma endregion
     
+#pragma region EXIT
     waitForEnter("\nPress Enter to exit...");
     delete selectedShape;
     return EXIT_SUCCESS;
+#pragma endregion
 }
