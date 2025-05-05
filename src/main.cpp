@@ -6,14 +6,10 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.2.8
+// Version: 1.2.9
 // Author: Marceli Antosik (Muppetsg2)
 // Last Update: 5.05.2025
 
-// PRECOMPILED HEADER
-#include "pch.hpp"
-
-// MY FILES
 #include "Sphere.hpp"
 #include "IcoSphere.hpp"
 #include "Plane.hpp"
@@ -103,6 +99,27 @@ void displayStartWindow()
 #pragma endregion
 
 #pragma region INPUT_FUNCTIONS
+static char getChar() {
+#if defined(_WIN32)
+    return _getch();
+#else
+    struct termios oldt, newt;
+    char ch;
+    tcgetattr(STDIN_FILENO, &oldt);                 // Get current terminal settings
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);               // Disable canonical mode and echo
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);        // Apply new settings
+    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1); // Read one character
+    if (bytesRead != 1) {
+        // Handle error or unexpected input length
+        fmt::print("\n[{}] Error: Failed to read input stream! Expected 1 character got {}.\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)), bytesRead);
+        exit(EXIT_FAILURE);
+    }
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);        // Restore original settings
+    return ch;
+#endif
+}
+
 static bool checkForEsc(char ch)
 {
     if (ch == 27) {  // ASCII code for ESC key
@@ -119,17 +136,27 @@ static int getIntInput(const std::string& prompt)
     char ch;
 
     fmt::print("{}", prompt);
+#if !defined(_WIN32)
+    std::cout << std::flush;
+#endif
 
     while (true) {
-        ch = _getch();  // Get a single character from the user
+        ch = getChar();  // Get a single character from the user
 
         // Check if ESC key is pressed
         checkForEsc(ch);
 
         // If Enter is pressed, stop input
-        if (ch == '\r') {  // ASCII code for Enter
+#if defined(_WIN32)
+        if (ch == '\r') {
+#else
+        if (ch == '\n') {
+#endif
             if (input.empty() || input == "-") {
                 fmt::print("\n[{}] Invalid input! Please enter a number.\n{}", fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), prompt);
+#if !defined(_WIN32)
+                std::cout << std::flush;
+#endif
                 input.clear();
             }
             else {
@@ -140,17 +167,26 @@ static int getIntInput(const std::string& prompt)
         // If Backspace is pressed, remove the last character
         else if (ch == '\b' && !input.empty()) {
             std::cout << "\b \b";  // Erase the last character on the console
+#if !defined(_WIN32)
+            std::cout << std::flush;
+#endif
             input.pop_back();      // Remove last character from string
         }
         // Handling the '-' character at the beginning of a number
         else if (ch == '-' && input.empty()) {
             input += ch;
             std::cout << ch;
+#if !defined(_WIN32)
+            std::cout << std::flush;
+#endif
         }
         // Check if the character is a digit
         else if (isdigit(ch)) {
             input += ch;           // Append the digit to the input string
             std::cout << ch;       // Echo the character to the console
+#if !defined(_WIN32)
+            std::cout << std::flush;
+#endif
         }
         // Ignore non-digit characters (other than backspace or enter)
     }
@@ -167,17 +203,27 @@ static float getFloatInput(const std::string& prompt)
     bool hasDot = false;  // Flag to check if user has already entered a dot
 
     fmt::print("{}", prompt);
+#if !defined(_WIN32)
+        std::cout << std::flush;
+#endif
 
     while (true) {
-        ch = _getch();  // Get a single character from the user
+        ch = getChar();  // Get a single character from the user
 
         // Check if ESC key is pressed
         checkForEsc(ch);
 
         // If Enter is pressed, stop input
+#if defined(_WIN32)
         if (ch == '\r') {
+#else
+        if (ch == '\n') {
+#endif
             if (input.empty() || input == "-") {
                 fmt::print("\n[{}] Invalid input! Please enter a number.\n{}", fmt::styled("WARNING", fmt::fg(fmt::color::yellow)), prompt);
+#if !defined(_WIN32)
+                std::cout << std::flush;
+#endif
                 input.clear();
             }
             else {
@@ -191,23 +237,35 @@ static float getFloatInput(const std::string& prompt)
                 hasDot = false;  // Removing the dot resets the flag
             }
             std::cout << "\b \b";
+#if !defined(_WIN32)
+            std::cout << std::flush;
+#endif
             input.pop_back();
         }
         // Handling the '-' character at the beginning of a number
         else if (ch == '-' && input.empty()) {
             input += ch;
             std::cout << ch;
+#if !defined(_WIN32)
+            std::cout << std::flush;
+#endif
         }
         // Check if the character is a digit
         else if (isdigit(ch)) {
             input += ch;
             std::cout << ch;
+#if !defined(_WIN32)
+            std::cout << std::flush;
+#endif
         }
         // Decimal point handling (one time)
         else if (ch == '.' && !hasDot && !input.empty() && input != "-") {
             input += ch;
             hasDot = true;
             std::cout << ch;
+#if !defined(_WIN32)
+            std::cout << std::flush;
+#endif
         }
         // Ignore non-digit characters (other than backspace or enter)
     }
@@ -222,15 +280,22 @@ static void waitForEnter(const std::string& prompt)
     char ch;
 
     fmt::print("{}", prompt);
+#if !defined(_WIN32)
+    std::cout << std::flush;
+#endif
 
     while (true) {
-        ch = _getch();  // Get a single character from the user
+        ch = getChar();  // Get a single character from the user
 
         // Check if ESC key is pressed
         checkForEsc(ch);
 
         // If Enter is pressed, stop input
-        if (ch == '\r') {  // ASCII code for Enter
+#if defined(_WIN32)
+        if (ch == '\r') {
+#else
+        if (ch == '\n') {
+#endif
             std::cout << '\n';  // Add a new line after input is confirmed
             break;  // Valid input, exit the loop
         }
@@ -510,7 +575,7 @@ int main(int argc, char** argv)
         }
     }
 
-    std::string filePath = config.saveDir + "\\" + config.fileName + ((format != FormatType::OBJ) ? ".txt" : ".obj");
+    std::string filePath = config.saveDir + DIRSEP + config.fileName + ((format != FormatType::OBJ) ? ".txt" : ".obj");
 
     fmt::print("\n[{}] Start Saving {} to file...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), selectedShape->getObjectClassName());
     auto start = std::chrono::system_clock::now();
@@ -526,7 +591,11 @@ int main(int argc, char** argv)
 
         elapsed_seconds = (end - start);
 
+#if defined(_WIN32)
         replace_all(filePath, "\\\\", "\\");
+#else
+        replace_all(filePath, "//", "/");
+#endif
 
         fmt::print("[{}] Shape saved successfully in {}s!\n[{}] File path: {}\n",
             fmt::styled("SAVED", fmt::fg(fmt::color::green)),

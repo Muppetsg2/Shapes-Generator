@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "Torus.hpp"
 
 glm::vec3 Torus::_getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3)

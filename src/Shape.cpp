@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "Shape.hpp"
 #include "templates.hpp"
 
@@ -161,10 +160,10 @@ std::string Shape::_formatFloat(float value, bool delRedundantZeros) const
 std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
 {
     if (useFloat) {
-        return  std::vformat
+        return  fmt::vformat
         (
-            std::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
-            std::make_format_args(
+            fmt::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
+            fmt::make_format_args(
                 unmove(_formatFloat(v.Position.x)),     unmove(_formatFloat(v.Position.y)),     unmove(_formatFloat(v.Position.z)),
                 unmove(_formatFloat(v.TexCoord.x)),     unmove(_formatFloat(v.TexCoord.y)),
                 unmove(_formatFloat(v.Normal.x)),       unmove(_formatFloat(v.Normal.y)),       unmove(_formatFloat(v.Normal.z)),
@@ -174,9 +173,9 @@ std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
         );
     }
     else {
-        return std::vformat(
-            std::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
-            std::make_format_args(
+        return fmt::vformat(
+            fmt::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
+            fmt::make_format_args(
                 "{", "{ ",
                 unmove(_formatFloat(v.Position.x)),     unmove(_formatFloat(v.Position.y)),     unmove(_formatFloat(v.Position.z)),
                 " }", "{ ",
@@ -228,9 +227,9 @@ std::string Shape::_formatIndices(bool useArray) const
     result += header;
 
     for (size_t i = 0; i < _indices.size(); i += 3) {
-        result += std::vformat(
-            std::string_view("\t{0}, {1}, {2}"),
-            std::make_format_args(_indices[i], _indices[i + 1], _indices[i + 2])
+        result += fmt::vformat(
+            fmt::string_view("\t{0}, {1}, {2}"),
+            fmt::make_format_args(_indices[i], _indices[i + 1], _indices[i + 2])
         );
         if (i + 3 < _indices.size()) result += ",";
         result += "\n";
@@ -277,8 +276,8 @@ std::string Shape::_toOBJ() const
 
     std::string text = _getGeneratedHeader("#") + "o " + getObjectClassName() + "\n";
     for (const glm::vec3& pos : v) {
-        text += std::vformat(std::string_view("v {} {} {}\n"),
-            std::make_format_args
+        text += fmt::vformat(fmt::string_view("v {} {} {}\n"),
+            fmt::make_format_args
             (
                 unmove(_formatFloat(pos.x, false)),
                 unmove(_formatFloat(pos.y, false)),
@@ -288,8 +287,8 @@ std::string Shape::_toOBJ() const
     }
 
     for (const glm::vec3& norm : vn) {
-        text += std::vformat(std::string_view("vn {} {} {}\n"),
-            std::make_format_args
+        text += fmt::vformat(fmt::string_view("vn {} {} {}\n"),
+            fmt::make_format_args
             (
                 unmove(_formatFloat(norm.x, false)),
                 unmove(_formatFloat(norm.y, false)),
@@ -299,8 +298,8 @@ std::string Shape::_toOBJ() const
     }
 
     for (const glm::vec2& tex : vt) {
-        text += std::vformat(std::string_view("vt {} {}\n"),
-            std::make_format_args
+        text += fmt::vformat(fmt::string_view("vt {} {}\n"),
+            fmt::make_format_args
             (
                 unmove(_formatFloat(tex.x, false)),
                 unmove(_formatFloat(tex.y, false))
@@ -311,8 +310,8 @@ std::string Shape::_toOBJ() const
     text += "s 0\n";
 
     for (size_t i = 0; i < vertIndices.size(); i += 3ull) {
-        text += std::vformat(std::string_view("f {}/{}/{} {}/{}/{} {}/{}/{}\n"),
-            std::make_format_args
+        text += fmt::vformat(fmt::string_view("f {}/{}/{} {}/{}/{} {}/{}/{}\n"),
+            fmt::make_format_args
             (
                 std::get<0>(vertIndices[i]), std::get<1>(vertIndices[i]), std::get<2>(vertIndices[i]),
                 std::get<0>(vertIndices[i + 1]), std::get<1>(vertIndices[i + 1]), std::get<2>(vertIndices[i + 1]),

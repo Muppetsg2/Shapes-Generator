@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "Cone.hpp"
 
 void Cone::_generate(unsigned int segments, float height, float radius, ValuesRange range, bool useFlatShading)

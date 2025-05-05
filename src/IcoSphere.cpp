@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "IcoSphere.hpp"
 
 void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSubdivisions)

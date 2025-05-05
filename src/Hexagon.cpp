@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "Hexagon.hpp"
 
 Hexagon::Hexagon(unsigned int segments, ValuesRange range)

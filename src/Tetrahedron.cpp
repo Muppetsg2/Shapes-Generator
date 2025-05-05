@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "Tetrahedron.hpp"
 
 void Tetrahedron::_generate(ValuesRange range)

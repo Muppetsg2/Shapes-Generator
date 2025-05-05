@@ -7,10 +7,10 @@ struct Config {
 
 static Config load_config(const std::string& exeDirPath)
 {
-    const std::string configFilePath = exeDirPath + "\\shapes.config";
+    const std::string configFilePath = exeDirPath + DIRSEP + "shapes.config";
     std::ifstream inFile(configFilePath);
     Config config;
-    config.saveDir = exeDirPath + "\\";
+    config.saveDir = exeDirPath + DIRSEP;
     config.fileName = "shape";
 
     bool hasSaveDir = false;

@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.2.8</h1>
+        <h1>Shapes Generator 1.2.9</h1>
       </summary>
     </ul>
   </div>
@@ -164,7 +164,8 @@ The application allows you to configure the default output path and filename usi
 - **saveDir**: Sets the directory where shape files will be saved.
 - **fileName**: Sets the base name of the output file (e.g., `my_shape.txt`, `my_shape.obj`).
 
-> 💡 If the config file is missing or malformed, defaults will be used.
+> 💡 If the config file is missing or malformed, defaults will be used.\
+ℹ The path will be different depending on your operating system. Here is an example of the path for Windows
 
 ## 📜 Example Output
 
@@ -196,6 +197,8 @@ Enter your choice (1 - 9): 1
 Press Enter to exit...
 ```
 
+> ℹ This example is shown on a Windows system. It may vary on other systems.
+
 ## 🛠 Troubleshooting
 
 ❌ **Issues? Try this:**
@@ -203,7 +206,7 @@ Press Enter to exit...
 - Check **console messages** for errors.
 - Verify you're using **C++20** or later.
 
-> If you cannot see or understand the error, [open an issue](https://github.com/Muppetsg2/Shapes-Generator/issues).
+> ℹ If you cannot see or understand the error, [open an issue](https://github.com/Muppetsg2/Shapes-Generator/issues).
 
 ## 👨‍💻 Authors
 

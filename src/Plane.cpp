@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "Plane.hpp"
 
 void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)

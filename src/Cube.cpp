@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "Cube.hpp"
 
 void Cube::_generate(ValuesRange range)
