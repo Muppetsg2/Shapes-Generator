@@ -18,7 +18,7 @@ add_subdirectory(res)
 # ---- Main project's files ----
 add_subdirectory(src)
 
-if (WIN32)
+if(WIN32)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 elseif(APPLE)
 	set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
