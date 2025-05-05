@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 */shape.txt
 */vcpkg_installed/
+out/
+[Bb]uild/
+cpm_cache/

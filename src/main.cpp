@@ -6,9 +6,9 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.2.6
+// Version: 1.2.8
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 3.05.2025
+// Last Update: 5.05.2025
 
 // PRECOMPILED HEADER
 #include "pch.hpp"

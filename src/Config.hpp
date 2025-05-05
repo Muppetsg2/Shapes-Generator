@@ -13,6 +13,9 @@ static Config load_config(const std::string& exeDirPath)
     config.saveDir = exeDirPath + "\\";
     config.fileName = "shape";
 
+    bool hasSaveDir = false;
+    bool hasFileName = false;
+
     if (inFile) {
         std::string line;
         while (std::getline(inFile, line)) {
@@ -24,10 +27,31 @@ static Config load_config(const std::string& exeDirPath)
             value.erase(0, value.find_first_not_of(" \t\r\n"));
             value.erase(value.find_last_not_of(" \t\r\n") + 1);
 
-            if (key == "saveDir") config.saveDir = value;
-            else if (key == "fileName") config.fileName = value;
+            if (key == "saveDir") {
+                config.saveDir = value;
+                hasSaveDir = true;
+            }
+            else if (key == "fileName") {
+                config.fileName = value;
+                hasFileName = true;
+            }
         }
         inFile.close();
+
+        if (!hasSaveDir || !hasFileName) {
+            std::ofstream outFile(configFilePath, std::ios::app);
+            if (outFile) {
+                if (!hasSaveDir)
+                    outFile << "saveDir: " << config.saveDir << "\n";
+                if (!hasFileName)
+                    outFile << "fileName: " << config.fileName << "\n";
+                outFile.close();
+            }
+            else {
+                fmt::print("[{}] Warning: Could not update shapes.config with default values.\n",
+                    fmt::styled("WARN", fmt::fg(fmt::color::yellow)));
+            }
+        }
     }
     else {
         std::ofstream outFile(configFilePath);

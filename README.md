@@ -4,13 +4,14 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.2.6</h1>
+        <h1>Shapes Generator 1.2.8</h1>
       </summary>
     </ul>
   </div>
 </div>
 
 ## 📌 Description
+
 This project is a console-based **Shape Generator** written in **C++**. It allows users to create and save various **3D shapes** such as:
 
 🔴 Sphere | 🔷 IcoSphere | ▭ Plane | 🧊 Cube | 🛢 Cylinder | ⬢ Hexagon | 🍦 Cone | 🔼 Tetrahedron | 🔺 Pyramid | 🍩 Torus
@@ -29,10 +30,11 @@ The program dynamically generates the shape based on user input and exports the 
 - [✨ Features](#-features)
 - [📦 Dependencies](#-dependencies)
 - [⚙️ How to Build](#%EF%B8%8F-how-to-build)
-   - [🖥️ Windows with vcpkg](#%EF%B8%8F-windows-with-vcpkg)
+   - [🖥️ Windows](#%EF%B8%8F-windows)
    - [🐧 Linux](#-linux)
    - [🍏 MacOS](#-macos)
 - [▶️ Usage](#%EF%B8%8F-usage)
+- [🧾 Configuration](#-configuration)
 - [📜 Example Output](#-example-output)
 - [🛠 Troubleshooting](#-troubleshooting)
 - [👨‍💻 Authors](#-authors)
@@ -61,97 +63,85 @@ The program dynamically generates the shape based on user input and exports the 
 ✅ **Error Handling**: Provides feedback for invalid inputs and applies sensible defaults.
 
 ## 📦 Dependencies
+
 - **C++20** or later
+- **CMake 3.21** or later
 - **GLM** Library (OpenGL Mathematics)
 - **FMT** Library (Formatted console output)
 
 ## ⚙️ How to Build
 
-### 🖥️ Windows with **vcpkg**
+### 🖥️ Windows
 
 1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Muppetsg2/Shapes-Generator.git
-   ```
-2. **Install vcpkg** (if not installed):
-   ```bash
-   git clone https://github.com/microsoft/vcpkg
-   cd vcpkg
-   .\bootstrap-vcpkg.bat
-   ```
-   > 💡 **Tip:** If using **Visual Studio 2022**, check if `vcpkg` is already installed. [More info here](https://devblogs.microsoft.com/cppblog/vcpkg-is-now-included-with-visual-studio/).
-3. **Integrate vcpkg with MSBuild:**
-   ```bash
-   .\vcpkg integrate install
-   ```
-4. **Open the project in Visual Studio** – dependencies are automatically included.
 
-#### ⚡ Alternatively, using `g++` directly:
-
-4. **Install dependencies using `vcpkg`:**
    ```bash
-   .\vcpkg install glm fmt
+   > git clone https://github.com/Muppetsg2/Shapes-Generator.git
+   > cd Shapes-Generator
    ```
-5. **Ensure correct include paths and link libraries** from `vcpkg`.
+
+2. **Open the folder in Visual Studio** (supports CMake natively).
+3. CMake will **configure** the project and **download** dependencies automatically via `CPM.cmake`.
+4. **Press ▶️** to build and run the app.
 
 ### 🐧 Linux
 
 1. **Clone the repository:**
+
    ```bash
-   git clone https://github.com/Muppetsg2/Shapes-Generator.git
-   cd Shapes-Generator
+   > git clone https://github.com/Muppetsg2/Shapes-Generator.git
+   > cd Shapes-Generator
    ```
-2. **Install dependencies:**
+
+2. **Install CMake and a compiler** (if not installed):
+
    ```bash
-   sudo apt-get install libglm-dev libfmt-dev
+   > sudo apt install cmake g++ ninja-build
    ```
-   > 🔹 `libfmt-dev` may not be available in all repositories. If not available check this solution. [Solution](https://askubuntu.com/questions/1205765/c-fmt-library-installation-is-not-working).
-3. **Compile the precompiled header (PCH)**
+
+3. **Build the project**:
+
    ```bash
-   g++ -std=c++20 -x c++-header pch.h -o pch.h.gch
+   > cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+   > cmake --build build
    ```
-4. **Compile source files into object files**
+
+4. **Run the app**:
+
    ```bash
-   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp IcoSphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Cone.cpp Tetrahedron.cpp Pyramid.cpp Torus.cpp -I. -o main.o
-   ```
-5. **Link object files to create the final executable**
-   ```bsh
-   g++ -std=c++20 main.o -o Shapes-Generator -lfmt -lglm
-   ```
-6. **Run the program:**
-   ```bash
-   ./Shapes-Generator
+   > ./build/bin/Shapes-Generator
    ```
 
 ### 🍏 MacOS
 
 1. **Clone the repository:**
+
    ```bash
-   git clone https://github.com/Muppetsg2/Shapes-Generator.git
-   cd Shapes-Generator
+   > git clone https://github.com/Muppetsg2/Shapes-Generator.git
+   > cd Shapes-Generator
    ```
-2. **Install dependencies using Homebrew:**
+
+2. **Install dependencies (CMake, Ninja, compiler)** (if not installed):
+
    ```bash
-   brew install glm fmt
+   > brew install cmake ninja
    ```
-3. **Compile the precompiled header (PCH)**
+
+3. **Build the project with app bundle**:
+
    ```bash
-   g++ -std=c++20 -x c++-header pch.h -o pch.h.gch -I/opt/homebrew/include
+   > cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+   > cmake --build build
    ```
-4. **Compile source files into object files**
+
+4. **Run the app**:
+
    ```bash
-   g++ -std=c++20 -c main.cpp Shape.cpp Sphere.cpp IcoSphere.cpp Plane.cpp Cube.cpp Cylinder.cpp Hexagon.cpp Cone.cpp Tetrahedron.cpp Pyramid.cpp Torus.cpp -I. -I/opt/homebrew/include -o main.o
-   ```
-5. **Link object files to create the final executable**
-   ```bsh
-   g++ -std=c++20 main.o -o Shapes-Generator -L/opt/homebrew/lib -lfmt -lglm
-   ```
-4. **Run the program:**
-   ```bash
-   ./Shapes-Generator
+   > open build/bin/Shapes-Generator.app
    ```
 
 ## ▶️ Usage
+
 1. **Launch the program** - ASCII art and a menu will appear.
 2. **Select a shape** by entering a number (1-10).
 3. **Enter the required shape parameters**, if applicable.
@@ -159,6 +149,22 @@ The program dynamically generates the shape based on user input and exports the 
 5. **Select the file format** for saving.
 6. **The file path** will be displayed in the console.
 7. **Exit anytime** by pressing the **ESC** key.
+
+## 🧾 Configuration
+
+The application allows you to configure the default output path and filename using the `shapes.config` file.
+
+**Example contents** of `shapes.config`:
+
+   ```bash
+   saveDir: C:\my\custom\output\
+   fileName: my_shape
+   ```
+
+- **saveDir**: Sets the directory where shape files will be saved.
+- **fileName**: Sets the base name of the output file (e.g., `my_shape.txt`, `my_shape.obj`).
+
+> 💡 If the config file is missing or malformed, defaults will be used.
 
 ## 📜 Example Output
 
@@ -172,20 +178,20 @@ When generating a **Sphere**, the output will look like this:
 ──────────────────────────────────────────────────
 [FILE] Select the save format:
  1) std::vector  - Vertices & Indices (struct)
- 2) C++ array    - Vertices & Indices (struct)
+ 2) C array      - Vertices & Indices (struct)
  3) std::vector  - Only Vertices (struct)
- 4) C++ array    - Only Vertices (struct)
+ 4) C array      - Only Vertices (struct)
  5) std::vector  - Vertices & Indices (float)
- 6) C++ array    - Vertices & Indices (float)
+ 6) C array      - Vertices & Indices (float)
  7) std::vector  - Only Vertices (float)
- 8) C++ array    - Only Vertices (float)
+ 8) C array      - Only Vertices (float)
  9) Save as OBJ file
  ──────────────────────────────────────────────────
 Enter your choice (1 - 9): 1
 
 [OK] Start Saving Sphere to file...
 [SAVED] Shape saved successfully in 0.0013585s!
-[PATH] File path: C:\path\to\folder\shape.txt
+[PATH] File path: C:\my\custom\output\my_shape.txt
 
 Press Enter to exit...
 ```
@@ -197,7 +203,10 @@ Press Enter to exit...
 - Check **console messages** for errors.
 - Verify you're using **C++20** or later.
 
+> If you cannot see or understand the error, [open an issue](https://github.com/Muppetsg2/Shapes-Generator/issues).
+
 ## 👨‍💻 Authors
+
 📌 **Marceli Antosik (Muppetsg2)**
 
 ## 📜 License
