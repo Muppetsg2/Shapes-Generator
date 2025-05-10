@@ -2,6 +2,7 @@
 
 void Cylinder::_generateCircle(unsigned int segments, float y, CylinderCullFace cullFace, ValuesRange range)
 {
+    const Config& config = get_config();
     std::vector<unsigned int> trisNum;
 
     float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
@@ -15,11 +16,11 @@ void Cylinder::_generateCircle(unsigned int segments, float y, CylinderCullFace 
         float z = cosf(angleXZ);
         float x = sinf(angleXZ);
         _vertices.push_back({ { x * mult, y, z * mult }, { .5f + x * .5f, .5f + z * .5f }, (cullFace == CylinderCullFace::FRONT ? glm::vec3(0.f, 1.f, 0.f) : glm::vec3(0.f, -1.f, 0.f)), glm::vec3(0.f), glm::vec3(0.f) });
-        trisNum.push_back(2u);
+        if (config.genTangents) trisNum.push_back(2u);
         angleXZ += angleXZDiff;
     }
     _vertices.push_back({ { 0.f, y, 0.f }, { .5f, .5f }, (cullFace == CylinderCullFace::FRONT ? glm::vec3(0.f, 1.f, 0.f) : glm::vec3(0.f, -1.f, 0.f)), glm::vec3(0.f), glm::vec3(0.f) });
-    trisNum.push_back(segments);
+    if (config.genTangents) trisNum.push_back(segments);
 
     // INDICES
     const size_t vertSize = _vertices.size();
@@ -31,30 +32,33 @@ void Cylinder::_generateCircle(unsigned int segments, float y, CylinderCullFace 
         _indices.push_back((unsigned int)(cullFace == CylinderCullFace::FRONT ? right : i));
         _indices.push_back((unsigned int)vertSize - 1u);
 
-        if (cullFace == CylinderCullFace::FRONT) {
-            TB = _calcTangentBitangent((unsigned int)i, (unsigned int)right, (unsigned int)vertSize - 1u);
+        if (config.genTangents) {
+            if (cullFace == CylinderCullFace::FRONT) {
+                TB = _calcTangentBitangent((unsigned int)i, (unsigned int)right, (unsigned int)vertSize - 1u);
+            }
+            else {
+                TB = _calcTangentBitangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
+            }
+
+            _vertices[i].Tangent += TB.first;
+            _vertices[i].Bitangent += TB.second;
+
+            _vertices[right].Tangent += TB.first;
+            _vertices[right].Bitangent += TB.second;
+
+            _vertices[vertSize - 1ull].Tangent += TB.first;
+            _vertices[vertSize - 1ull].Bitangent += TB.second;
         }
-        else {
-            TB = _calcTangentBitangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
-        }
-
-        _vertices[i].Tangent += TB.first;
-        _vertices[i].Bitangent += TB.second;
-
-        _vertices[right].Tangent += TB.first;
-        _vertices[right].Bitangent += TB.second;
-
-        _vertices[vertSize - 1ull].Tangent += TB.first;
-        _vertices[vertSize - 1ull].Bitangent += TB.second;
     }
 
-    _normalizeTangents(trisNum, start, _vertices.size());
+    if (config.genTangents) _normalizeTangents(trisNum, start, _vertices.size());
 
     trisNum.clear();
 }
 
 void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalSegments, ValuesRange range, bool useFlatShading)
 {
+    const Config& config = get_config();
     float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
     float h = 2.f * mult;
 
@@ -87,7 +91,7 @@ void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalS
                     float x = sinf(angleXZF) * mult;
 
                     _vertices.push_back({ { x, y, z }, { (float)f, yDiff / h }, norm, glm::vec3(0.f), glm::vec3(0.f) });
-                    trisNum.push_back(1u + (i + f) % 2u);
+                    if (config.genTangents) trisNum.push_back(1u + (i + f) % 2u);
                 }
             }
             else {
@@ -96,19 +100,21 @@ void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalS
 
                 _vertices.push_back({ { x_n * mult, y, z_n * mult }, { (float)angleXZ * 0.5f * M_1_PI, yDiff / h }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
 
-                unsigned int count =
-                    (j == 0u || j == verticalSegments
-                        ? (i == 0u || i == horizontalSegments
+                if (config.genTangents) {
+                    unsigned int count =
+                        (j == 0u || j == verticalSegments
+                            ? (i == 0u || i == horizontalSegments
+                                ? 1u
+                                : 3u)
+                            : (i == 0u || i == horizontalSegments
+                                ? 3u
+                                : 6u))
+                        + ((i == 0u && j == verticalSegments) ||
+                            (i == horizontalSegments && j == 0u)
                             ? 1u
-                            : 3u)
-                        : (i == 0u || i == horizontalSegments
-                            ? 3u
-                            : 6u))
-                    + ((i == 0u && j == verticalSegments) ||
-                        (i == horizontalSegments && j == 0u)
-                        ? 1u
-                        : 0u);
-                trisNum.push_back(count);
+                            : 0u);
+                    trisNum.push_back(count);
+                }
             }
             angleXZ += angleXZDiff;
         }
@@ -131,16 +137,18 @@ void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalS
             _indices.push_back((unsigned int)dt);
             _indices.push_back((unsigned int)right);
 
-            TB = _calcTangentBitangent((unsigned int)left, (unsigned int)dt, (unsigned int)right);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent((unsigned int)left, (unsigned int)dt, (unsigned int)right);
 
-            _vertices[left].Tangent += TB.first;
-            _vertices[left].Bitangent += TB.second;
+                _vertices[left].Tangent += TB.first;
+                _vertices[left].Bitangent += TB.second;
 
-            _vertices[dt].Tangent += TB.first;
-            _vertices[dt].Bitangent += TB.second;
+                _vertices[dt].Tangent += TB.first;
+                _vertices[dt].Bitangent += TB.second;
 
-            _vertices[right].Tangent += TB.first;
-            _vertices[right].Bitangent += TB.second;
+                _vertices[right].Tangent += TB.first;
+                _vertices[right].Bitangent += TB.second;
+            }
 
             std::swap(dt, right);
             left = right;
@@ -150,20 +158,22 @@ void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalS
             _indices.push_back((unsigned int)left);
             _indices.push_back((unsigned int)right);
 
-            TB = _calcTangentBitangent((unsigned int)dt, (unsigned int)left, (unsigned int)right);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent((unsigned int)dt, (unsigned int)left, (unsigned int)right);
 
-            _vertices[dt].Tangent += TB.first;
-            _vertices[dt].Bitangent += TB.second;
+                _vertices[dt].Tangent += TB.first;
+                _vertices[dt].Bitangent += TB.second;
 
-            _vertices[left].Tangent += TB.first;
-            _vertices[left].Bitangent += TB.second;
+                _vertices[left].Tangent += TB.first;
+                _vertices[left].Bitangent += TB.second;
 
-            _vertices[right].Tangent += TB.first;
-            _vertices[right].Bitangent += TB.second;
+                _vertices[right].Tangent += TB.first;
+                _vertices[right].Bitangent += TB.second;
+            }
         }
     }
 
-    _normalizeTangents(trisNum, start, _vertices.size());
+    if (config.genTangents) _normalizeTangents(trisNum, start, _vertices.size());
 
     trisNum.clear();
 

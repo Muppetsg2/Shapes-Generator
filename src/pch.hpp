@@ -51,6 +51,7 @@
 // FROM VCPKG
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
+#include <fmt/args.h>
 #include <fmt/color.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/epsilon.hpp>

@@ -76,6 +76,7 @@ void Cube::_generate(ValuesRange range)
     20, 20 + 2, 20 + 1
     */
 
+    const Config& config = get_config();
     std::vector<unsigned int> trisNum;
 
     for (int p = 0; p < 3; ++p) {
@@ -144,7 +145,7 @@ void Cube::_generate(ValuesRange range)
             }
 
             _vertices.push_back({ pos, tex, norm, glm::vec3(0.f), glm::vec3(0.f) });
-            trisNum.push_back(tris);
+            if (config.genTangents) trisNum.push_back(tris);
         }
     }
 
@@ -167,16 +168,18 @@ void Cube::_generate(ValuesRange range)
                 _indices.push_back(s);
                 _indices.push_back(t);
 
-                TB = _calcTangentBitangent(f, s, t);
+                if (config.genTangents) {
+                    TB = _calcTangentBitangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
+                    _vertices[f].Tangent += TB.first;
+                    _vertices[f].Bitangent += TB.second;
 
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
+                    _vertices[s].Tangent += TB.first;
+                    _vertices[s].Bitangent += TB.second;
 
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                    _vertices[t].Tangent += TB.first;
+                    _vertices[t].Bitangent += TB.second;
+                }
 
                 // Second Triangle
                 s = v + 5u;
@@ -186,16 +189,18 @@ void Cube::_generate(ValuesRange range)
                 _indices.push_back(s);
                 _indices.push_back(t);
 
-                TB = _calcTangentBitangent(f, s, t);
+                if (config.genTangents) {
+                    TB = _calcTangentBitangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
+                    _vertices[f].Tangent += TB.first;
+                    _vertices[f].Bitangent += TB.second;
 
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
+                    _vertices[s].Tangent += TB.first;
+                    _vertices[s].Bitangent += TB.second;
 
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                    _vertices[t].Tangent += TB.first;
+                    _vertices[t].Bitangent += TB.second;
+                }
             }
         }
         else if (p == 1u) {
@@ -209,16 +214,18 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
 
             // Second Triangle
             s = t1 + 5u;
@@ -228,16 +235,18 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
 
             // LEFT
             // First Triangle
@@ -249,16 +258,18 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
 
             // Second Triangle
             s = t2 + 1u;
@@ -268,16 +279,18 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
         }
         else if (p == 2u) {
             // TOP
@@ -290,16 +303,18 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
 
             // Second Triangle
             s = t1 - 2u;
@@ -309,16 +324,18 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
 
             // BOTTOM
             // First Triangle
@@ -330,16 +347,18 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
 
             // Second Triangle
             s = t2 + 2u;
@@ -349,20 +368,22 @@ void Cube::_generate(ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            TB = _calcTangentBitangent(f, s, t);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(f, s, t);
 
-            _vertices[f].Tangent += TB.first;
-            _vertices[f].Bitangent += TB.second;
+                _vertices[f].Tangent += TB.first;
+                _vertices[f].Bitangent += TB.second;
 
-            _vertices[s].Tangent += TB.first;
-            _vertices[s].Bitangent += TB.second;
+                _vertices[s].Tangent += TB.first;
+                _vertices[s].Bitangent += TB.second;
 
-            _vertices[t].Tangent += TB.first;
-            _vertices[t].Bitangent += TB.second;
+                _vertices[t].Tangent += TB.first;
+                _vertices[t].Bitangent += TB.second;
+            }
         }
     }
 
-    _normalizeTangents(trisNum, 0ull, _vertices.size());
+    if (config.genTangents) _normalizeTangents(trisNum, 0ull, _vertices.size());
 
     trisNum.clear();
 }

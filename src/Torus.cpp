@@ -11,6 +11,7 @@ void Torus::_generate(unsigned int segments, unsigned int cs_segments, float rad
     // Helpful 
     // https://gamedev.stackexchange.com/questions/16845/how-do-i-generate-a-torus-mesh
 
+    const Config& config = get_config();
     float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
 
     float angleincs = 2.f * (float)M_PI / (float)segments;
@@ -81,16 +82,18 @@ void Torus::_generate(unsigned int segments, unsigned int cs_segments, float rad
                     _indices.push_back(s);
                     _indices.push_back(t);
 
-                    TB = _calcTangentBitangent(f, s, t);
+                    if (config.genTangents) {
+                        TB = _calcTangentBitangent(f, s, t);
 
-                    _vertices[f].Tangent = TB.first;
-                    _vertices[f].Bitangent = TB.second;
+                        _vertices[f].Tangent = TB.first;
+                        _vertices[f].Bitangent = TB.second;
 
-                    _vertices[s].Tangent = TB.first;
-                    _vertices[s].Bitangent = TB.second;
+                        _vertices[s].Tangent = TB.first;
+                        _vertices[s].Bitangent = TB.second;
 
-                    _vertices[t].Tangent = TB.first;
-                    _vertices[t].Bitangent = TB.second;
+                        _vertices[t].Tangent = TB.first;
+                        _vertices[t].Bitangent = TB.second;
+                    }
 
                     f += 3u;
                     s += 3u;
@@ -116,44 +119,49 @@ void Torus::_generate(unsigned int segments, unsigned int cs_segments, float rad
                 _indices.push_back(second);
                 _indices.push_back(first);
 
-                TB = _calcTangentBitangent(third, second, first);
+                if (config.genTangents) {
+                    TB = _calcTangentBitangent(third, second, first);
 
-                _vertices[third].Tangent += TB.first;
-                _vertices[third].Bitangent += TB.second;
+                    _vertices[third].Tangent += TB.first;
+                    _vertices[third].Bitangent += TB.second;
 
-                _vertices[second].Tangent += TB.first;
-                _vertices[second].Bitangent += TB.second;
+                    _vertices[second].Tangent += TB.first;
+                    _vertices[second].Bitangent += TB.second;
 
-                _vertices[first].Tangent += TB.first;
-                _vertices[first].Bitangent += TB.second;
+                    _vertices[first].Tangent += TB.first;
+                    _vertices[first].Bitangent += TB.second;
+                }
 
                 _indices.push_back(second);
                 _indices.push_back(third);
                 _indices.push_back(fourth);
 
-                TB = _calcTangentBitangent(second, third, fourth);
+                if (config.genTangents) {
+                    TB = _calcTangentBitangent(second, third, fourth);
 
-                _vertices[second].Tangent += TB.first;
-                _vertices[second].Bitangent += TB.second;
+                    _vertices[second].Tangent += TB.first;
+                    _vertices[second].Bitangent += TB.second;
 
-                _vertices[third].Tangent += TB.first;
-                _vertices[third].Bitangent += TB.second;
+                    _vertices[third].Tangent += TB.first;
+                    _vertices[third].Bitangent += TB.second;
 
-                _vertices[fourth].Tangent += TB.first;
-                _vertices[fourth].Bitangent += TB.second;
+                    _vertices[fourth].Tangent += TB.first;
+                    _vertices[fourth].Bitangent += TB.second;
+                }
             }
         }
 
-        std::vector<unsigned int> trisNum(_vertices.size(), 0u);
+        if (config.genTangents) {
+            std::vector<unsigned int> trisNum(_vertices.size(), 0u);
 
-        const size_t indexCount = _indices.size();
-        for (size_t i = 0ull; i < indexCount; ++i) {
-            ++trisNum[_indices[i]];
+            const size_t indexCount = _indices.size();
+            for (size_t i = 0ull; i < indexCount; ++i) {
+                ++trisNum[_indices[i]];
+            }
+
+            _normalizeTangents(trisNum, 0ull, _vertices.size());
+            trisNum.clear();
         }
-
-        _normalizeTangents(trisNum, 0ull, _vertices.size());
-
-        trisNum.clear();
     }
 }
 

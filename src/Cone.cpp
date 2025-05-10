@@ -2,6 +2,8 @@
 
 void Cone::_generate(unsigned int segments, float height, float radius, ValuesRange range, bool useFlatShading)
 {
+	const Config& config = get_config();
+
 	float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
 
 	float h = height < EPSILON ? 1.f : height;
@@ -22,11 +24,11 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 		float z = cosf(angleXZ);
 		float x = sinf(angleXZ);
 		_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { .5f + x * .5f, .5f + z * .5f }, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f) });
-		trisNum.push_back(2u);
+		if (config.genTangents) trisNum.push_back(2u);
 		angleXZ += angleXZDiff;
 	}
 	_vertices.push_back({ glm::vec3(0.f, _vertices[_vertices.size() - 1ull].Position.y, 0.f) * mult, {.5f, .5f}, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f)});
-	trisNum.push_back(segments);
+	if (config.genTangents) trisNum.push_back(segments);
 
 	// INDICES
 	const size_t vertSize = _vertices.size();
@@ -38,16 +40,18 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 		_indices.push_back((unsigned int)i);
 		_indices.push_back((unsigned int)vertSize - 1u);
 
-		std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
+		if (config.genTangents) {
+			std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
 
-		_vertices[right].Tangent += TB.first;
-		_vertices[right].Bitangent += TB.second;
+			_vertices[right].Tangent += TB.first;
+			_vertices[right].Bitangent += TB.second;
 
-		_vertices[i].Tangent += TB.first;
-		_vertices[i].Bitangent += TB.second;
+			_vertices[i].Tangent += TB.first;
+			_vertices[i].Bitangent += TB.second;
 
-		_vertices[vertSize - 1ull].Tangent += TB.first;
-		_vertices[vertSize - 1ull].Bitangent += TB.second;
+			_vertices[vertSize - 1ull].Tangent += TB.first;
+			_vertices[vertSize - 1ull].Bitangent += TB.second;
+		}
 	}
 
 	// CONE
@@ -74,11 +78,11 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 				float x = sinf(angle);
 
 				_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { (float)i, 1.f}, norm, glm::vec3(0.f), glm::vec3(0.f) });
-				trisNum.push_back(1u);
+				if (config.genTangents) trisNum.push_back(1u);
 			}
 
 			_vertices.push_back({ glm::normalize(glm::vec3(0.f, -y, 0.f)) * mult, {.5f, 0.f}, norm, glm::vec3(0.f), glm::vec3(0.f) });
-			trisNum.push_back(1u);
+			if (config.genTangents) trisNum.push_back(1u);
 		}
 		else {
 			float x = sinf(angleXZ);
@@ -106,11 +110,13 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 
 			_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { u, v }, norm, glm::vec3(0.f), glm::vec3(0.f) });
 
-			if (j == 0u || j == segments) {
-				trisNum.push_back(1u);
-			}
-			else {
-				trisNum.push_back(2u);
+			if (config.genTangents) {
+				if (j == 0u || j == segments) {
+					trisNum.push_back(1u);
+				}
+				else {
+					trisNum.push_back(2u);
+				}
 			}
 		}
 
@@ -119,7 +125,7 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 
 	if (!useFlatShading) {
 		_vertices.push_back({ glm::normalize(glm::vec3(0.f, -y, 0.f)) * mult, { .5f, 0.f }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
-		trisNum.push_back(segments);
+		if (config.genTangents) trisNum.push_back(segments);
 	}
 
 	// INDICES
@@ -135,19 +141,21 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 		_indices.push_back((unsigned int)right);
 		_indices.push_back((unsigned int)top);
 
-		std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
+		if (config.genTangents) {
+			std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
 
-		_vertices[left].Tangent += TB.first;
-		_vertices[left].Bitangent += TB.second;
+			_vertices[left].Tangent += TB.first;
+			_vertices[left].Bitangent += TB.second;
 
-		_vertices[right].Tangent += TB.first;
-		_vertices[right].Bitangent += TB.second;
+			_vertices[right].Tangent += TB.first;
+			_vertices[right].Bitangent += TB.second;
 
-		_vertices[top].Tangent += TB.first;
-		_vertices[top].Bitangent += TB.second;
+			_vertices[top].Tangent += TB.first;
+			_vertices[top].Bitangent += TB.second;
+		}
 	}
 
-	_normalizeTangents(trisNum, 0ull, _vertices.size());
+	if (config.genTangents) _normalizeTangents(trisNum, 0ull, _vertices.size());
 
 	trisNum.clear();
 }

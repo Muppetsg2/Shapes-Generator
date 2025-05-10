@@ -2,6 +2,8 @@
 
 void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSubdivisions)
 {
+    const Config& config = get_config();
+
     std::vector<Vertex> tempVertices;
     std::vector<unsigned int> tempIndices;
 
@@ -82,7 +84,7 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
             _indices.push_back(ib);
             _indices.push_back(ic);
 
-            if (!hasSubdivisions) {
+            if (!hasSubdivisions && config.genTangents) {
                 TB = _calcTangentBitangent(ia, ib, ic);
 
                 _vertices[ia].Tangent += TB.first;
@@ -96,7 +98,7 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
             }
         }
 
-        if (!hasSubdivisions) {
+        if (!hasSubdivisions && config.genTangents) {
             const size_t vertSize = _vertices.size();
             for (size_t i = 0ull; i < vertSize; ++i) {
                 _vertices[i].Tangent *= .2f;
@@ -135,7 +137,7 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
             _indices.push_back((unsigned int)third);
             _vertices.push_back({ tempVertices[ic].Position, tempVertices[ic].TexCoord, normal, glm::vec3(0.f), glm::vec3(0.f) });
 
-            if (!hasSubdivisions) {
+            if (!hasSubdivisions && config.genTangents) {
                 TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
                 _defineTangentBitangentFlatShading(TB, first);
@@ -148,6 +150,8 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
 
 void IcoSphere::_generate(unsigned int subdivisions, ValuesRange range, bool useFlatShading)
 {
+    const Config& config = get_config();
+
     float mult = (range == ValuesRange::HALF_TO_HALF) ? .5f : 1.f;
     _generateIcoSahedron(mult, useFlatShading, subdivisions != 0u);
 
@@ -185,7 +189,7 @@ void IcoSphere::_generate(unsigned int subdivisions, ValuesRange range, bool use
 
     std::pair<glm::vec3, glm::vec3> TB;
     const size_t indSize = _indices.size();
-    if (!useFlatShading) {
+    if (!useFlatShading && config.genTangents) {
         for (size_t i = 0ull; i < indSize; i += 3ull) {
             unsigned int ia = _indices[i];
             unsigned int ib = _indices[i + 1ull];
@@ -230,11 +234,13 @@ void IcoSphere::_generate(unsigned int subdivisions, ValuesRange range, bool use
             _vertices[ib].Normal = normal;
             _vertices[ic].Normal = normal;
 
-            TB = _calcTangentBitangent(ia, ib, ic);
+            if (config.genTangents) {
+                TB = _calcTangentBitangent(ia, ib, ic);
 
-            _defineTangentBitangentFlatShading(TB, ia);
-            _defineTangentBitangentFlatShading(TB, ib);
-            _defineTangentBitangentFlatShading(TB, ic);
+                _defineTangentBitangentFlatShading(TB, ia);
+                _defineTangentBitangentFlatShading(TB, ib);
+                _defineTangentBitangentFlatShading(TB, ic);
+            }
         }
     }
 }

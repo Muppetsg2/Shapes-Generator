@@ -2,6 +2,8 @@
 
 void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
 {
+    const Config& config = get_config();
+
     float space = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
     float minRange = -space * .5f;
     float maxRange = space * .5f;
@@ -32,22 +34,25 @@ void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir di
                 }
             }
 
-            if (row * columns + col == 0u || row * columns + col == rows * columns - 1u) {
-                trisNum.push_back(1u);
-            }
-            else if ((row == 0u && col + 1u == columns) || (row + 1u == rows && col == 0u)) {
-                trisNum.push_back(2u);
-            }
-            else if (row == 0u || row + 1u == rows || col == 0u || col + 1u == columns) {
-                trisNum.push_back(3u);
-            }
-            else {
-                trisNum.push_back(6u);
+            if (config.genTangents) {
+                if (row * columns + col == 0u || row * columns + col == rows * columns - 1u) {
+                    trisNum.push_back(1u);
+                }
+                else if ((row == 0u && col + 1u == columns) || (row + 1u == rows && col == 0u)) {
+                    trisNum.push_back(2u);
+                }
+                else if (row == 0u || row + 1u == rows || col == 0u || col + 1u == columns) {
+                    trisNum.push_back(3u);
+                }
+                else {
+                    trisNum.push_back(6u);
+                }
             }
         }
     }
 
     const size_t vertSize = _vertices.size();
+    std::pair<glm::vec3, glm::vec3> TB;
     for (size_t i = 0ull; i < vertSize; ++i) {
 
         size_t first = i + (size_t)columns;
@@ -64,16 +69,18 @@ void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir di
         _indices.push_back((unsigned int)second);
         _indices.push_back((unsigned int)third);
 
-        std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
+        if (config.genTangents) {
+            TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
-        _vertices[first].Tangent += TB.first;
-        _vertices[first].Bitangent += TB.second;
+            _vertices[first].Tangent += TB.first;
+            _vertices[first].Bitangent += TB.second;
 
-        _vertices[second].Tangent += TB.first;
-        _vertices[second].Bitangent += TB.second;
+            _vertices[second].Tangent += TB.first;
+            _vertices[second].Bitangent += TB.second;
 
-        _vertices[third].Tangent += TB.first;
-        _vertices[third].Bitangent += TB.second;
+            _vertices[third].Tangent += TB.first;
+            _vertices[third].Bitangent += TB.second;
+        }
 
         // Second Triangle
         third = second;
@@ -83,19 +90,21 @@ void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir di
         _indices.push_back((unsigned int)second);
         _indices.push_back((unsigned int)third);
 
-        TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
+        if (config.genTangents) {
+            TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
-        _vertices[first].Tangent += TB.first;
-        _vertices[first].Bitangent += TB.second;
+            _vertices[first].Tangent += TB.first;
+            _vertices[first].Bitangent += TB.second;
 
-        _vertices[second].Tangent += TB.first;
-        _vertices[second].Bitangent += TB.second;
+            _vertices[second].Tangent += TB.first;
+            _vertices[second].Bitangent += TB.second;
 
-        _vertices[third].Tangent += TB.first;
-        _vertices[third].Bitangent += TB.second;
+            _vertices[third].Tangent += TB.first;
+            _vertices[third].Bitangent += TB.second;
+        }
     }
 
-    _normalizeTangents(trisNum, 0ull, vertSize);
+    if (config.genTangents) _normalizeTangents(trisNum, 0ull, vertSize);
 
     trisNum.clear();
 }

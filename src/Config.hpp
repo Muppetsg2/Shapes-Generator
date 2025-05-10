@@ -1,18 +1,29 @@
 #pragma once
 
 struct Config {
+    bool genTangents;
 	std::string saveDir;
 	std::string fileName;
 };
 
-static Config load_config(const std::string& exeDirPath)
+static Config& get_config(const std::string& exeDirPath = ".")
 {
+    static bool init = false;
+    static Config config;
+
+    if (init) {
+        return config;
+    }
+
     const std::string configFilePath = exeDirPath + DIRSEP + "shapes.config";
     std::ifstream inFile(configFilePath);
-    Config config;
+    config.genTangents = true;
     config.saveDir = exeDirPath + DIRSEP;
     config.fileName = "shape";
 
+    init = true;
+
+    bool hasGenTangents = false;
     bool hasSaveDir = false;
     bool hasFileName = false;
 
@@ -27,7 +38,15 @@ static Config load_config(const std::string& exeDirPath)
             value.erase(0, value.find_first_not_of(" \t\r\n"));
             value.erase(value.find_last_not_of(" \t\r\n") + 1);
 
-            if (key == "saveDir") {
+            if (key == "generateTangents") {
+                std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) 
+                { 
+                    return std::tolower(c); 
+                });
+                config.genTangents = (value == "true" || value == "1");
+                hasGenTangents = true;
+            }
+            else if (key == "saveDir") {
                 config.saveDir = value;
                 hasSaveDir = true;
             }
@@ -38,9 +57,11 @@ static Config load_config(const std::string& exeDirPath)
         }
         inFile.close();
 
-        if (!hasSaveDir || !hasFileName) {
+        if (!hasGenTangents || !hasSaveDir || !hasFileName) {
             std::ofstream outFile(configFilePath, std::ios::app);
             if (outFile) {
+                if (!hasGenTangents)
+                    outFile << "generateTangents: " << (config.genTangents ? "true" : "false") << "\n";
                 if (!hasSaveDir)
                     outFile << "saveDir: " << config.saveDir << "\n";
                 if (!hasFileName)
@@ -56,6 +77,7 @@ static Config load_config(const std::string& exeDirPath)
     else {
         std::ofstream outFile(configFilePath);
         if (outFile) {
+            outFile << "generateTangents: " << (config.genTangents ? "true" : "false") << "\n";
             outFile << "saveDir: " << config.saveDir << "\n";
             outFile << "fileName: " << config.fileName << "\n";
             outFile.close();

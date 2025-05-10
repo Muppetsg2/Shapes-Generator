@@ -129,15 +129,22 @@ std::string Shape::_getGeneratedHeader(std::string commentSign) const
 
 std::string Shape::_getStructDefinition(bool isC99) const
 {
+    const Config& config = get_config();
+
+    std::string tangentBlock = "";
+    if (config.genTangents) {
+        tangentBlock = "\tvec3 Tangent;\n\tvec3 Bitangent;\n";
+    }
+
     if (isC99) {
         return  "typedef struct {\n\tfloat x, y, z;\n} vec3;\n\n"
                 "typedef struct {\n\tfloat x, y;\n} vec2;\n\n"
-                "typedef struct {\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n} Vertex;\n\n";
+                "typedef struct {\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n" + tangentBlock + "} Vertex;\n\n";
     }
     else {
         return  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
                 "struct vec2\n{\n\tfloat x, y;\n};\n\n"
-                "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n\tvec3 Tangent;\n\tvec3 Bitangent;\n};\n\n";
+                "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n" + tangentBlock + "};\n\n";
     }
 }
 
@@ -159,41 +166,67 @@ std::string Shape::_formatFloat(float value, bool delRedundantZeros) const
 
 std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
 {
+    const Config& config = get_config();
+
+    std::string formatStr;
+    std::vector<std::string> args;
     if (useFloat) {
-        return  fmt::vformat
-        (
-            fmt::string_view("\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f"),
-            fmt::make_format_args(
-                unmove(_formatFloat(v.Position.x)),     unmove(_formatFloat(v.Position.y)),     unmove(_formatFloat(v.Position.z)),
-                unmove(_formatFloat(v.TexCoord.x)),     unmove(_formatFloat(v.TexCoord.y)),
-                unmove(_formatFloat(v.Normal.x)),       unmove(_formatFloat(v.Normal.y)),       unmove(_formatFloat(v.Normal.z)),
-                unmove(_formatFloat(v.Tangent.x)),      unmove(_formatFloat(v.Tangent.y)),      unmove(_formatFloat(v.Tangent.z)),
-                unmove(_formatFloat(v.Bitangent.x)),    unmove(_formatFloat(v.Bitangent.y)),    unmove(_formatFloat(v.Bitangent.z))
-            )
-        );
+        formatStr = "\t{}f, {}f, {}f,\t\t\t\t{}f, {}f,\t{}f, {}f, {}f";
+        args = {
+            unmove(_formatFloat(v.Position.x)), unmove(_formatFloat(v.Position.y)), unmove(_formatFloat(v.Position.z)),
+            unmove(_formatFloat(v.TexCoord.x)), unmove(_formatFloat(v.TexCoord.y)),
+            unmove(_formatFloat(v.Normal.x)),   unmove(_formatFloat(v.Normal.y)),   unmove(_formatFloat(v.Normal.z))
+        };
+
+        if (config.genTangents) {
+            formatStr += ",\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f";
+            args.insert(args.end(), {
+                unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
+                unmove(_formatFloat(v.Bitangent.x)), unmove(_formatFloat(v.Bitangent.y)), unmove(_formatFloat(v.Bitangent.z))
+            });
+        }
     }
     else {
-        return fmt::vformat(
-            fmt::string_view("\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}"),
-            fmt::make_format_args(
-                "{", "{ ",
-                unmove(_formatFloat(v.Position.x)),     unmove(_formatFloat(v.Position.y)),     unmove(_formatFloat(v.Position.z)),
-                " }", "{ ",
-                unmove(_formatFloat(v.TexCoord.x)),     unmove(_formatFloat(v.TexCoord.y)),
-                " }", "{ ",
-                unmove(_formatFloat(v.Normal.x)),       unmove(_formatFloat(v.Normal.y)),       unmove(_formatFloat(v.Normal.z)),
-                " }", "{ ",
-                unmove(_formatFloat(v.Tangent.x)),      unmove(_formatFloat(v.Tangent.y)),      unmove(_formatFloat(v.Tangent.z)),
-                " }", "{ ",
-                unmove(_formatFloat(v.Bitangent.x)),    unmove(_formatFloat(v.Bitangent.y)),    unmove(_formatFloat(v.Bitangent.z)),
+        formatStr = "\t{} {}{}f, {}f, {}f{}, {}{}f, {}f{}, {}{}f, {}f, {}f{}";
+        args = {
+            "{", "{ ",
+            unmove(_formatFloat(v.Position.x)), unmove(_formatFloat(v.Position.y)), unmove(_formatFloat(v.Position.z)),
+            " }", "{ ",
+            unmove(_formatFloat(v.TexCoord.x)), unmove(_formatFloat(v.TexCoord.y)),
+            " }", "{ ",
+            unmove(_formatFloat(v.Normal.x)),   unmove(_formatFloat(v.Normal.y)),   unmove(_formatFloat(v.Normal.z)),
+            " }"
+        };
+
+        if (config.genTangents) {
+            formatStr += ", {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}";
+            args.insert(args.end(), {
+                "{ ",
+                unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
+                " }",
+                "{ ",
+                unmove(_formatFloat(v.Bitangent.x)), unmove(_formatFloat(v.Bitangent.y)), unmove(_formatFloat(v.Bitangent.z)),
                 " }", "}"
-            )
-        );
+            });
+        }
+        else {
+            formatStr += " {}";
+            args.push_back("}");
+        }
     }
+
+    fmt::dynamic_format_arg_store<fmt::format_context> store;
+    for (const std::string& arg : args) {
+        store.push_back(arg);
+    }
+
+    return fmt::vformat(fmt::string_view(formatStr), store);
 }
 
 std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFloat) const
 {
+    const Config& config = get_config();
+
     std::string result;
     std::string type = useFloat ? "float" : "Vertex";
     std::string header = useArray
@@ -202,8 +235,11 @@ std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFlo
 
     result += header;
 
-    if (useFloat) result += "\t//POSITION\t\t\t\t\t//TEX COORD\t//NORMAL\t\t\t\t//TANGENT\t\t\t\t//BITANGENT\n";
-    else result += "\t//POSITION\t\t\t\t\t\t//TEX COORD\t\t//NORMAL\t\t\t\t\t//TANGENT\t\t\t\t\t//BITANGENT\n";
+    std::string indent = useFloat ? "\t\t\t\t" : "\t\t\t\t\t";
+    std::string tangentBlock = config.genTangents ? indent + "//TANGENT" + indent + "//BITANGENT" : "";
+
+    if (useFloat) result += "\t//POSITION\t\t\t\t\t//TEX COORD\t//NORMAL" + tangentBlock + "\n";
+    else result += "\t//POSITION\t\t\t\t\t\t//TEX COORD\t\t//NORMAL" + tangentBlock + "\n";
 
     size_t count = onlyVertices ? _indices.size() : _vertices.size();
     for (size_t i = 0; i < count; ++i) {

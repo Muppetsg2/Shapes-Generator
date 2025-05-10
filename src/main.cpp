@@ -6,9 +6,9 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.2.9
+// Version: 1.3.0
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 5.05.2025
+// Last Update: 10.05.2025
 
 #include "Sphere.hpp"
 #include "IcoSphere.hpp"
@@ -385,7 +385,7 @@ int main(int argc, char** argv)
 
     std::string exeDirPath = get_executable_path();
     ValuesRange range = ValuesRange::HALF_TO_HALF;
-    Config config = load_config(exeDirPath);
+    const Config& config = get_config(exeDirPath);
 
     displayStartWindow();
 #pragma endregion

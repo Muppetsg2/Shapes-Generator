@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.2.9</h1>
+        <h1>Shapes Generator 1.3.0</h1>
       </summary>
     </ul>
   </div>
@@ -157,10 +157,13 @@ The application allows you to configure the default output path and filename usi
 **Example contents** of `shapes.config`:
 
    ```bash
+   generateTangents: true
    saveDir: C:\my\custom\output\
    fileName: my_shape
    ```
 
+- **generateTangents**: Tells the generator whether to compute and include tangent and bitangent \
+vectors for each vertex (useful for normal mapping and advanced shading).
 - **saveDir**: Sets the directory where shape files will be saved.
 - **fileName**: Sets the base name of the output file (e.g., `my_shape.txt`, `my_shape.obj`).
 
