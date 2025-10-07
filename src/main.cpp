@@ -8,8 +8,47 @@
 //
 // Version: 1.3.1
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 07.10.2025
+// Last Update: 08.10.2025
 
+#pragma region PCH
+#include "pch.hpp"
+#pragma endregion
+
+#pragma region STD_LIBS
+#include <chrono>
+#include <cstdint>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+#pragma endregion
+
+#pragma region FMT_LIB
+#include <fmt/base.h>
+#include <fmt/color.h>
+#include <fmt/format.h>
+#pragma endregion
+
+#pragma region PLATFORM_LIBS
+#if defined(_WIN32)
+#define NOGDI
+#define NOATOM
+#define NOMINMAX
+#include <Windows.h>
+#undef near
+#undef far
+#include <consoleapi.h>
+#include <processenv.h>
+#include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Shape.hpp"
 #include "Sphere.hpp"
 #include "IcoSphere.hpp"
 #include "Plane.hpp"
@@ -21,11 +60,13 @@
 #include "Pyramid.hpp"
 #include "Torus.hpp"
 #include "Templates.hpp"
+#include "Config.hpp"
+#pragma endregion
 
 Shape* selectedShape = nullptr;
 
 #pragma region STRING_OPERATORS
-void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
+static void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
 {
     std::string buf;
     size_t pos = 0;
@@ -60,14 +101,14 @@ static std::string getInputPrompt(int firstOptionNum, int lastOptionNum)
     return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
 }
 
-void printBannerLineColored(std::string text, fmt::color color)
+static void printBannerLineColored(std::string text, fmt::color color)
 {
     fmt::print("│");
     fmt::print("{}", fmt::styled(text, fmt::fg(color)));
     fmt::print("│\n");
 }
 
-void displayStartWindow()
+static void displayStartWindow()
 {
     size_t lineLength = std::string("   ____  _                              ____                           _               ").size();
     std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION);
@@ -303,14 +344,14 @@ static void waitForEnter(const std::string& prompt)
     }
 }
 
-int intChooseInput(int min, int max)
+static int intChooseInput(int min, int max)
 {
     return getIntInput(getInputPrompt(min, max));
 }
 #pragma endregion
 
 #pragma region SHAPE_FUNCTIONS
-PlaneNormalDir getPlaneDirection()
+static PlaneNormalDir getPlaneDirection()
 {
     int dir_choice;
     do {
@@ -324,7 +365,7 @@ PlaneNormalDir getPlaneDirection()
     return static_cast<PlaneNormalDir>(dir_choice - 1);
 }
 
-ValuesRange getValuesRange()
+static ValuesRange getValuesRange()
 {
     int dir_choice;
     do {
@@ -338,7 +379,7 @@ ValuesRange getValuesRange()
     return static_cast<ValuesRange>(dir_choice - 1);
 }
 
-FormatType getFormatType()
+static FormatType getFormatType()
 {
     static const std::vector<std::string> options{
         "std::vector  - Vertices & Indices (struct)",
@@ -376,7 +417,7 @@ FormatType getFormatType()
 int main(int argc, char** argv)
 {
 #pragma region INIT
-#ifdef _WIN32
+#if defined(_WIN32)
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
     GetConsoleMode(hOut, &dwMode);

@@ -58,6 +58,7 @@
 // FROM VCPKG
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
+#include <fmt/base.h>
 #include <fmt/args.h>
 #include <fmt/color.h>
 #include <glm/glm.hpp>

@@ -1,29 +1,29 @@
-# ---- Core lib's files ----
-add_subdirectory(core)
-
 # Precompiled header
 set(PCH_FILE ${CMAKE_CURRENT_SOURCE_DIR}/pch.hpp)
 
-set(SUBPROJECT_NAME ${PROJECT_NAME})
-set(SOURCE_FILES main.cpp)
+# Add source files
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS *.cpp)
+	
+# Add header files
+file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS *.hpp)
 
 source_group("Source Files" FILES ${SOURCE_FILES})
-source_group("Resources"    FILES ${ASSETS_FILES})
+source_group("Header Files" FILES ${HEADER_FILES})
 
-# Define the executable
-if(APPLE)
-	add_executable(${SUBPROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES} ${HEADER_FILES} ${ASSETS_FILES})
-else()
-	add_executable(${SUBPROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES} ${ASSETS_FILES})
-endif()
+set(SUBPROJECT_NAME ${PROJECT_NAME}CoreLib)
+
+# Define the library
+add_library(${SUBPROJECT_NAME} STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
 # Precompiled headers
 target_precompile_headers(${SUBPROJECT_NAME} PUBLIC ${PCH_FILE})
 
 set_target_properties(${SUBPROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
+target_include_directories(${SUBPROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
 if(MSVC)
-    # Antivirusdetect this program, which is statically linked with the MSVC runtime, as a virus.
+    # Antivirus detect this program, which is statically linked with the MSVC runtime, as a virus.
     # set_property(TARGET ${SUBPROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     target_compile_definitions(${SUBPROJECT_NAME} PUBLIC NOMINMAX)
 endif()
@@ -81,12 +81,8 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PUBLIC ${PROJECT_NAME}CoreLib fmt::fmt)
+target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm fmt::fmt)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")
-endif()
-
-if(WIN32)
-	copy_dlls_to_target(${SUBPROJECT_NAME} ${DLL_DIRECTORY})
 endif()
