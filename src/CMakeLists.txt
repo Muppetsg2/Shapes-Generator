@@ -28,7 +28,8 @@ set_target_properties(${SUBPROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${SUBPROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MSVC)
-    set_property(TARGET ${SUBPROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    # Antivirusdetect this program, which is statically linked with the MSVC runtime, as a virus.
+    # set_property(TARGET ${SUBPROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     target_compile_definitions(${SUBPROJECT_NAME} PUBLIC NOMINMAX)
 endif()
 
@@ -89,4 +90,8 @@ target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm fmt::fmt)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")
+endif()
+
+if(WIN32)
+	copy_dlls_to_target(${SUBPROJECT_NAME} ${DLL_DIRECTORY})
 endif()
