@@ -1,37 +1,38 @@
 #include "Pyramid.hpp"
+#include "BitMathOperators.hpp"
 
-void Pyramid::_generate(ValuesRange range)
+void Pyramid::_generate(const ValuesRange range)
 {
 	const Config& config = get_config();
 
-	float mult = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
+	const float mult = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
 
-	float sqrt_2 = (float)M_SQRT2 * mult;
-	float h = sqrt_2 * 0.5f;
+	const float sqrt_2 = (float)M_SQRT2 * mult;
+	const float h = sqrt_2 * 0.5f;
 
 	std::vector<unsigned int> trisNum;
 
 	// SQUARE BOTTOM
-	for (int i = 0; i < 4; ++i) {
-		float x = (-.5f + (float)(i % 2)) * mult;
-		float z = (.5f - (float)(i / 2)) * mult;
-		_vertices.push_back({ { x, -h * 0.5f, z }, { (float)(i % 2), (float)(i / 2) }, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f) });
+	for (unsigned int i = 0u; i < 4u; ++i) {
+		float x = (-.5f + (float)(mod_2(i))) * mult;
+		float z = (.5f - (float)(div_2(i))) * mult;
+		_vertices.push_back({ { x, -h * 0.5f, z }, { (float)(mod_2(i)), (float)(div_2(i)) }, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f) });
 
 		if (config.genTangents) {
-			if (i < 2) {
+			if (i < 2u) {
 				trisNum.push_back(1u + (unsigned int)i);
 			}
 			else {
-				trisNum.push_back((unsigned int)(i - (i % 2)));
+				trisNum.push_back((unsigned int)(i - (mod_2(i))));
 			}
 		}
 	}
 
 	std::pair<glm::vec3, glm::vec3> TB;
 	for (unsigned int i = 0u; i < 2u; ++i) {
-		unsigned int f = i;
-		unsigned int s = 2u;
-		unsigned int t = i * 2u + 1u;
+		const unsigned int f = i;
+		const unsigned int s = 2u;
+		const unsigned int t = i * 2u + 1u;
 
 		_indices.push_back(f);
 		_indices.push_back(s);
@@ -52,21 +53,21 @@ void Pyramid::_generate(ValuesRange range)
 	}
 
 	// TOP TRIANGLES
-	size_t start = _vertices.size();
-	float cos_cone = sqrt_2 / sqrtf(sqrt_2 * sqrt_2 + h * h);
-	float sin_cone = h / sqrtf(sqrt_2 * sqrt_2 + h * h);
+	const size_t start = _vertices.size();
+	const float cos_cone = sqrt_2 / sqrtf(sqrt_2 * sqrt_2 + h * h);
+	const float sin_cone = h / sqrtf(sqrt_2 * sqrt_2 + h * h);
 
 	float x = -.5f;
 	float z = .5f;
 
 	for (int i = 0; i < 4; ++i) {
-		float angle = (float)i * (float)M_PI_2;
+		const float angle = (float)i * (float)M_PI_2;
 
-		float cos_angle = cosf(angle);
-		float sin_angle_pi = sinf((float)M_PI + angle);
+		const float cos_angle = cosf(angle);
+		const float sin_angle_pi = sinf((float)M_PI + angle);
 
-		float x_n = cos_cone * sinf(angle);
-		float z_n = cos_cone * cos_angle;
+		const float x_n = cos_cone * sinf(angle);
+		const float z_n = cos_cone * cos_angle;
 
 		glm::vec3 norm = glm::normalize(glm::vec3(x_n, sin_cone, z_n));
 
@@ -84,9 +85,9 @@ void Pyramid::_generate(ValuesRange range)
 	}
 
 	for (size_t i = 0ull; i < 4ull; ++i) {
-		size_t left = start + i * 3ull;
-		size_t right = start + i * 3ull + 1ull;
-		size_t top = start + i * 3ull + 2ull;
+		const size_t left = start + i * 3ull;
+		const size_t right = start + i * 3ull + 1ull;
+		const size_t top = start + i * 3ull + 2ull;
 
 		_indices.push_back((unsigned int)left);
 		_indices.push_back((unsigned int)right);
@@ -111,7 +112,7 @@ void Pyramid::_generate(ValuesRange range)
 	trisNum.clear();
 }
 
-Pyramid::Pyramid(ValuesRange range)
+Pyramid::Pyramid(const ValuesRange range)
 {
 	_vertices.clear();
 	_indices.clear();

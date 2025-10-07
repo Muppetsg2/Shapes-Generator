@@ -1,6 +1,7 @@
 #include "Cube.hpp"
+#include "BitMathOperators.hpp"
 
-void Cube::_generate(ValuesRange range)
+void Cube::_generate(const ValuesRange range)
 {
     //https://catonif.github.io/cube/
     /*
@@ -14,9 +15,9 @@ void Cube::_generate(ValuesRange range)
 
     Pos (Every the same. Like normals but combined and from -0.5 to 0.5)
         [((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2) * 0.5, ((int)((i + 4) / 4) % 2 - (int)(i / 4)) * 0.5, ((((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)) * 0.5]
-        first 8
-        second 8
-        third 8
+        first   8 [(-111-1-111-1), (1111-1-1-1-1), (11-1-111-1-1)] * 0.5
+        second  8 [(-111-1-111-1), (1111-1-1-1-1), (11-1-111-1-1)] * 0.5
+        third   8 [(-111-1-111-1), (1111-1-1-1-1), (11-1-111-1-1)] * 0.5
     */
 
     /*
@@ -79,14 +80,14 @@ void Cube::_generate(ValuesRange range)
     const Config& config = get_config();
     std::vector<unsigned int> trisNum;
 
-    for (int p = 0; p < 3; ++p) {
-        for (int i = 0; i < 8; ++i) {
+    for (unsigned int p = 0u; p < 3u; ++p) {
+        for (unsigned int i = 0u; i < 8u; ++i) {
 
-            float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
-            glm::vec3 pos = {
-                (float)((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2) * mult,
-                (float)((int)((i + 4) / 4) % 2 - (int)(i / 4)) * mult,
-                (float)((((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)) * mult
+            const float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
+            const glm::vec3 pos = {
+                (float)((int)mod_2(div_2(i + 1u)) - (int)mod_2(div_2(i + 1u) + 1u)) * mult,
+                (float)((int)mod_2(div_4(i + 4u)) - (int)div_4(i)) * mult,
+                (float)((int)mod_2(div_2(i) + 1u) - (int)mod_2(div_2(i))) * mult
             };
 
             glm::vec2 tex = glm::vec2(0.f);
@@ -94,49 +95,49 @@ void Cube::_generate(ValuesRange range)
             unsigned int tris = 1;
 
             switch (p) {
-                case 0 : {
+                case 0u : {
                     tex = {
-                        (float)(i % 2),
-                        (float)((int)(i / 4))
+                        (float)mod_2(i),
+                        (float)div_4(i)
                     };
 
                     norm = {
                         0.f,
                         0.f,
-                        (float)(((int)(i / 2) + 1) % 2) - ((int)(i / 2) % 2)
+                        (float)((int)mod_2(div_2(i) + 1u) - (int)mod_2(div_2(i)))
                     };
 
-                    tris = ((i + 1 * ((int)((i + 4) / 4) % 2)) % 2) + 1;
+                    tris = mod_2(i + mod_2(div_4(i + 4u))) + 1u;
                     break;
                 }
-                case 1 : {
+                case 1u : {
                     tex = {
-                        (float)((i + 1) % 2),
-                        (float)((int)(i / 4))
+                        (float)mod_2(i + 1u),
+                        (float)div_4(i)
                     };
 
                     norm = {
-                        (float)((int)((i + 1) / 2) % 2 - ((int)((i + 1) / 2) + 1) % 2),
+                        (float)((int)mod_2(div_2(i + 1u)) - (int)mod_2(div_2(i + 1u) + 1u)),
                         0.f,
                         0.f
                     };
 
-                    tris = ((i + 1 * (int)(i / 4)) % 2) + 1;
+                    tris = mod_2(i + div_4(i)) + 1u;
                     break;
                 }
-                case 2 : {
+                case 2u : {
                     tex = {
-                        (float)((int)((i + 1) / 2) % 2),
-                        (float)((int)((i + 2 * ((int)((i + 4) / 4) % 2)) / 2) % 2)
+                        (float)mod_2(div_2(i + 1u)),
+                        (float)mod_2(div_2(i + mul_2(mod_2(div_4(i + 4u)))))
                     };
 
                     norm = {
                         0.f,
-                        (float)((int)((i + 4) / 4) % 2 - (int)(i / 4)),
+                        (float)((int)mod_2(div_4(i + 4u)) - (int)div_4(i)),
                         0.f
                     };
 
-                    tris = ((i + 1 * (int)(i / 4)) % 2) + 1;
+                    tris = mod_2(i + div_4(i)) + 1u;
                     break;
                 }
                 default : {
@@ -151,13 +152,13 @@ void Cube::_generate(ValuesRange range)
 
     std::pair<glm::vec3, glm::vec3> TB;
     for (unsigned int p = 0u; p < 3u; ++p) {
-        unsigned int t1 = p + 8u * p + (unsigned int)(p / 2u);
-        unsigned int t2 = p + 2u + 8u * p;
+        const unsigned int t1 = p + mul_8(p) + div_2(p);
+        const unsigned int t2 = p + 2u + mul_8(p);
 
         unsigned int f, s, t; // First, Second, Third
         if (p == 0u) {
             for (unsigned int i = 0u; i < 2u; ++i) {
-                unsigned int v = i == 0u ? t1 : t2;
+                const unsigned int v = i == 0u ? t1 : t2;
 
                 // First Triangle
                 f = v;
@@ -388,7 +389,7 @@ void Cube::_generate(ValuesRange range)
     trisNum.clear();
 }
 
-Cube::Cube(ValuesRange range)
+Cube::Cube(const ValuesRange range)
 {
     _vertices.clear();
     _indices.clear();

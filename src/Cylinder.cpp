@@ -1,20 +1,21 @@
 #include "Cylinder.hpp"
+#include "BitMathOperators.hpp"
 
-void Cylinder::_generateCircle(unsigned int segments, float y, CylinderCullFace cullFace, ValuesRange range)
+void Cylinder::_generateCircle(const unsigned int segments, const float y, const CylinderCullFace cullFace, const ValuesRange range)
 {
     const Config& config = get_config();
     std::vector<unsigned int> trisNum;
 
-    float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
-    float angleXZDiff = 2.f * (float)M_PI / (float)segments;
+    const float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
+    const float angleXZDiff = 2.f * (float)M_PI / (float)segments;
 
     // CIRCLE TOP
     // VERTICES AND TEX COORDS
-    size_t start = _vertices.size();
+    const size_t start = _vertices.size();
     float angleXZ = 0.f;
     for (unsigned int j = 0u; j < segments; ++j) {
-        float z = cosf(angleXZ);
-        float x = sinf(angleXZ);
+        const float z = cosf(angleXZ);
+        const float x = sinf(angleXZ);
         _vertices.push_back({ { x * mult, y, z * mult }, { .5f + x * .5f, .5f + z * .5f }, (cullFace == CylinderCullFace::FRONT ? glm::vec3(0.f, 1.f, 0.f) : glm::vec3(0.f, -1.f, 0.f)), glm::vec3(0.f), glm::vec3(0.f) });
         if (config.genTangents) trisNum.push_back(2u);
         angleXZ += angleXZDiff;
@@ -26,7 +27,7 @@ void Cylinder::_generateCircle(unsigned int segments, float y, CylinderCullFace 
     const size_t vertSize = _vertices.size();
     std::pair<glm::vec3, glm::vec3> TB;
     for (size_t i = start; i < vertSize - 1ull; ++i) {
-        size_t right = i + 2ull == vertSize ? start : i + 1ull;
+        const size_t right = i + 2ull == vertSize ? start : i + 1ull;
 
         _indices.push_back((unsigned int)(cullFace == CylinderCullFace::FRONT ? i : right));
         _indices.push_back((unsigned int)(cullFace == CylinderCullFace::FRONT ? right : i));
@@ -56,52 +57,52 @@ void Cylinder::_generateCircle(unsigned int segments, float y, CylinderCullFace 
     trisNum.clear();
 }
 
-void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalSegments, ValuesRange range, bool useFlatShading)
+void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned int verticalSegments, const ValuesRange range, const bool useFlatShading)
 {
     const Config& config = get_config();
-    float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
-    float h = 2.f * mult;
+    const float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
+    const float h = 2.f * mult;
 
     _generateCircle(verticalSegments, h * 0.5f, CylinderCullFace::FRONT, range);
 
     std::vector<unsigned int> trisNum;
 
-    float angleXZDiff = 2.f * (float)M_PI / (float)verticalSegments;
-    float hDiff = h / (float)horizontalSegments;
+    const float angleXZDiff = 2.f * (float)M_PI / (float)verticalSegments;
+    const float hDiff = h / (float)horizontalSegments;
 
-    size_t start = _vertices.size();
+    const size_t start = _vertices.size();
 
     // VERTICES UP AND DOWN
-    unsigned int horiSegms = (useFlatShading ? horizontalSegments * 2u : horizontalSegments + 1u);
+    const unsigned int horiSegms = (useFlatShading ? mul_2(horizontalSegments) : horizontalSegments + 1u);
     for (unsigned int i = 0u; i < horiSegms; ++i) {
-        float yDiff = hDiff * (float)(i - (useFlatShading ? i / 2u : 0u));
-        float y = h * 0.5f - yDiff;
+        const float yDiff = hDiff * (float)(i - (useFlatShading ? div_2(i) : 0u));
+        const float y = h * 0.5f - yDiff;
         float angleXZ = 0.f;
-        unsigned int vertSegms = verticalSegments + (useFlatShading ? 0u : 1u);
+        const unsigned int vertSegms = verticalSegments + (useFlatShading ? 0u : 1u);
         for (unsigned int j = 0u; j < vertSegms; ++j) {
             if (useFlatShading) {
-                float x_n = (sinf(angleXZ) + sinf(angleXZ + angleXZDiff)) * 0.5f;
-                float z_n = (cosf(angleXZ) + cosf(angleXZ + angleXZDiff)) * 0.5f;
+                const float x_n = (sinf(angleXZ) + sinf(angleXZ + angleXZDiff)) * 0.5f;
+                const float z_n = (cosf(angleXZ) + cosf(angleXZ + angleXZDiff)) * 0.5f;
 
-                glm::vec3 norm = glm::normalize(glm::vec3(x_n, 0.f, z_n));
+                const glm::vec3 norm = glm::normalize(glm::vec3(x_n, 0.f, z_n));
 
                 for (unsigned int f = 0u; f < 2u; ++f) {
-                    float angleXZF = angleXZ + angleXZDiff * f;
-                    float z = cosf(angleXZF) * mult;
-                    float x = sinf(angleXZF) * mult;
+                    const float angleXZF = angleXZ + angleXZDiff * f;
+                    const float z = cosf(angleXZF) * mult;
+                    const float x = sinf(angleXZF) * mult;
 
                     _vertices.push_back({ { x, y, z }, { (float)f, yDiff / h }, norm, glm::vec3(0.f), glm::vec3(0.f) });
-                    if (config.genTangents) trisNum.push_back(1u + (i + f) % 2u);
+                    if (config.genTangents) trisNum.push_back(1u + mod_2(i + f));
                 }
             }
             else {
-                float x_n = sinf(angleXZ);
-                float z_n = cosf(angleXZ);
+                const float x_n = sinf(angleXZ);
+                const float z_n = cosf(angleXZ);
 
                 _vertices.push_back({ { x_n * mult, y, z_n * mult }, { (float)angleXZ * 0.5f * M_1_PI, yDiff / h }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
 
                 if (config.genTangents) {
-                    unsigned int count =
+                    const unsigned int count =
                         (j == 0u || j == verticalSegments
                             ? (i == 0u || i == horizontalSegments
                                 ? 1u
@@ -124,13 +125,13 @@ void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalS
     std::pair<glm::vec3, glm::vec3> TB;
     for (unsigned int i = 0u; i < horizontalSegments; ++i) {
         for (unsigned int j = 0u; j < verticalSegments; ++j) {
-            size_t f = (useFlatShading ? 1ull : 0ull);
-            size_t m = f + 1ull;
+            const size_t f = (useFlatShading ? 1ull : 0ull);
+            const size_t m = f + 1ull;
 
-            size_t flatDiffrence = m * (verticalSegments - 1ull) * (size_t)i * f;
+            const size_t flatDiffrence = m * (verticalSegments - 1ull) * (size_t)i * f;
 
             size_t left = start + ((size_t)j + (size_t)i * ((size_t)verticalSegments + 1ull)) * m + flatDiffrence;
-            size_t dt = start + ((size_t)j + (size_t)(i + 1ull) * (size_t)verticalSegments + (size_t)i) * m + m % 2ull + flatDiffrence;
+            size_t dt = start + ((size_t)j + (size_t)(i + 1ull) * (size_t)verticalSegments + (size_t)i) * m + mod_2(m) + flatDiffrence;
             size_t right = start + ((size_t)j + (size_t)i * ((size_t)verticalSegments + 1ull)) * m + 1ull + flatDiffrence;
 
             _indices.push_back((unsigned int)left);
@@ -180,7 +181,7 @@ void Cylinder::_generate(unsigned int horizontalSegments, unsigned int verticalS
     _generateCircle(verticalSegments, -h * 0.5f, CylinderCullFace::BACK, range);
 }
 
-Cylinder::Cylinder(unsigned int horizontalSegments, unsigned int verticalSegments, CylinderShading shading, ValuesRange range)
+Cylinder::Cylinder(const unsigned int horizontalSegments, const unsigned int verticalSegments, const CylinderShading shading, const ValuesRange range)
 {
     _vertices.clear();
     _indices.clear();

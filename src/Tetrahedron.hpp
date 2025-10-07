@@ -3,10 +3,10 @@
 
 class Tetrahedron : public Shape {
 private:
-	void _generate(ValuesRange range);
+	void _generate(const ValuesRange range);
 
 public:
-	Tetrahedron(ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Tetrahedron(const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Tetrahedron();
 
 	static std::string getClassName();

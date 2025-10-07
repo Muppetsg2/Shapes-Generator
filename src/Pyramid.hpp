@@ -3,10 +3,10 @@
 
 class Pyramid : public Shape {
 private:
-	void _generate(ValuesRange range);
+	void _generate(const ValuesRange range);
 
 public:
-	Pyramid(ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Pyramid(const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Pyramid();
 
 	static std::string getClassName();

@@ -1,18 +1,19 @@
 #include "IcoSphere.hpp"
+#include "BitMathOperators.hpp"
 
-void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSubdivisions)
+void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading, const bool hasSubdivisions)
 {
     const Config& config = get_config();
 
     std::vector<Vertex> tempVertices;
     std::vector<unsigned int> tempIndices;
 
-    float t = .5f + (float)M_SQRT5 * .5f;
+    constexpr float t = .5f + (float)M_SQRT5 * .5f;
 
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            float a = t * (float)(1 - 2 * (int)(j / 2));
-            float b = (float)(1 - 2 * ((j + 1) % 2));
+    for (unsigned int i = 0u; i < 3u; ++i) {
+        for (unsigned int j = 0u; j < 4u; ++j) {
+            const float a = t * (float)(1 - mul_2(div_2(j)));
+            const float b = (float)(1 - mul_2(mod_2(j + 1)));
             glm::vec3 pos;
             switch(i) {
                 case 0 : {
@@ -29,37 +30,37 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
                 }
             }
 
-            glm::vec3 normal = glm::normalize(pos);
+            const glm::vec3 normal = glm::normalize(pos);
             tempVertices.push_back({ pos, _getTexCoord(normal), normal, glm::vec3(0.f), glm::vec3(0.f) });
         }
     }
 
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 5; ++j) {
+    for (unsigned int i = 0u; i < 4u; ++i) {
+        for (unsigned int j = 0u; j < 5u; ++j) {
             unsigned int ia, ib, ic;
             switch (i) {
-                case 0 : {
+                case 0u : {
                     ia = 0u;
-                    ib = (unsigned int)((11 + 6 * (j - ((int)((j + 2 * ((int)((j + 2) / 4) % 2)) / 2) % 2)) + 2 * (int)(j / 2) + (int)(j / 4)) % 12);
-                    ic = (unsigned int)((5 + 8 * ((((((j + 1) % 3) % 2) - (int)((j % 4) / 3)) + 1) % 2) + 3 * ((j - 1) * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) + 2 * ((int)(j / 2) % 2) + ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) % 12);
+                    ib = (11u + 3u * mul_2(i - div_4(i)) + mul_2(div_2(i)) + div_4(i)) % 12u;
+                    ic = (5u + mul_8(div_4(i + 3u)) + 3u * mod_4(i) * div_4(i + 2u) + mul_2(mod_2(div_2(i))) + div_4(i + 2u)) % 12u;
                     break;
                 }
-                case 1 : {
-                    ia = (unsigned int)((1 + 2 * (2 + 3 * ((j - 1) * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2))) * (((((j + 1) % 3) % 2) - (int)((j % 4) / 3) + 1) % 2) + 3 * ((j - 2) * ((int)((j % 4) / 3) + ((int)((j + 2 * ((int)((j + 2) / 4) % 2)) / 2) % 2))) + 2 * ((int)((j % 4) / 3) + ((int)((j + 2 * ((int)((j + 2) / 4) % 2)) / 2) % 2))) % 12);
-                    ib = (unsigned int)((5 + 6 * j + 3 * (((int)(j / 3) + 1) * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) + 2 * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) % 12);
-                    ic = (unsigned int)((9 + 7 * (((((j + 1) % 3) % 2 - (int)((j % 4) / 3)) + 1) % 2) + 2 * (2 * j + 1 * ((int)((j % 4) / 3) + ((int)((j + ((int)((j + 1) / 4) % 2)) / 2) % 2))) * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) % 12);
+                case 1u : {
+                    ia = (1u + mul_2(2u + 3u * mod_4(i + 3u) * div_4(i + 2)) * div_4(i + 3u) + 3u * ((i / 3u) + div_4(i)) + mul_2(i / 3u)) % 12u;
+                    ib = (5u + 3u * mul_2(i) + 3u * (((i / 3u) + 1u) * div_4(i + 2u)) + mul_2(div_4(i + 2u))) % 12u;
+                    ic = (9u + 7u * div_4(i + 3u) + mul_2(mul_2(i) + (mod_4(i) / 3u) + mod_2((i + 2u) % 3)) * (div_4(i + 2u))) % 12u;
                     break;
                 }
-                case 2 : {
+                case 2u : {
                     ia = 3u;
-                    ib = (unsigned int)((9 + 7 * (((((j + 1) % 3) % 2 - (int)((j % 4) / 3)) + 1) % 2) + 2 * (2 * j + 1 * ((int)((j % 4) / 3) + ((int)((j + ((int)((j + 1) / 4) % 2)) / 2) % 2))) * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) % 12);
-                    ic = (unsigned int)((4 + 2 * (5 + j * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) * (((((j + 1) % 3) % 2 - (int)((j % 4) / 3)) + 1) % 2) - ((int)((j + 2 * ((int)((j + 2) / 4) % 2)) / 2) % 2)) % 12);
+                    ib = (9u + 7u * div_4(i + 3u) + mul_2(mul_2(i) + (mod_4(i) / 3u) + mod_2((i + 2u) % 3)) * div_4(i + 2u)) % 12u;
+                    ic = (4u + mul_2(5u + i * div_4(i + 2u)) * div_4(i + 3u) - div_4(i)) % 12u;
                     break;
                 }
-                case 3 : {
-                    ia = (unsigned int)((4 + 2 * (5 + j * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) * (((((j + 1) % 3) % 2 - (int)((j % 4) / 3)) + 1) % 2) - ((int)((j + 2 * ((int)((j + 2) / 4) % 2)) / 2) % 2)) % 12);
-                    ib = (unsigned int)((9 + 7 * (((((j + 1) % 3) % 2 - (int)((j % 4) / 3)) + 1) % 2) + 2 * (2 * j + 1 * ((int)((j % 4) / 3) + ((int)((j + ((int)((j + 1) / 4) % 2)) / 2) % 2))) * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) % 12);
-                    ic = (unsigned int)((5 + 6 * j + 3 * (((int)(j / 3) + 1) * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) + 2 * ((int)((j + 2 * ((int)(j / 4) % 2)) / 2) % 2)) % 12);
+                case 3u : {
+                    ia = (4u + mul_2(5u + i * div_4(i + 2u)) * div_4(i + 3u) - div_4(i)) % 12u;
+                    ib = (9u + 7u * div_4(i + 3u) + mul_2(mul_2(i) + (mod_4(i) / 3u) + mod_2((i + 2u) % 3u)) * div_4(i + 2u)) % 12u;
+                    ic = (5u + 3u * mul_2(i) + 3u * ((i / 3u) + 1u) * div_4(i + 2u) + mul_2(div_4(i + 2u))) % 12u;
                     break;
                 }
             }
@@ -76,9 +77,9 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
 
         const size_t tempIndSize = tempIndices.size();
         for (size_t i = 0ull; i < tempIndSize; i += 3ull) {
-            unsigned int ia = tempIndices[i];
-            unsigned int ib = tempIndices[i + 1ull];
-            unsigned int ic = tempIndices[i + 2ull];
+            const unsigned int ia = tempIndices[i];
+            const unsigned int ib = tempIndices[i + 1ull];
+            const unsigned int ic = tempIndices[i + 2ull];
 
             _indices.push_back(ia);
             _indices.push_back(ib);
@@ -118,9 +119,9 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
     else {
         const size_t tempIndSize = tempIndices.size();
         for (size_t i = 0ull; i < tempIndSize; i += 3ull) {
-            size_t first = i;
-            size_t second = i + 1ull;
-            size_t third = i + 2ull;
+            const size_t first = i;
+            const size_t second = i + 1ull;
+            const size_t third = i + 2ull;
 
             unsigned int ia = tempIndices[first];
             unsigned int ib = tempIndices[second];
@@ -148,23 +149,23 @@ void IcoSphere::_generateIcoSahedron(float mult, bool useFlatShading, bool hasSu
     }
 }
 
-void IcoSphere::_generate(unsigned int subdivisions, ValuesRange range, bool useFlatShading)
+void IcoSphere::_generate(const unsigned int subdivisions, const ValuesRange range, const bool useFlatShading)
 {
     const Config& config = get_config();
 
-    float mult = (range == ValuesRange::HALF_TO_HALF) ? .5f : 1.f;
+    const float mult = (range == ValuesRange::HALF_TO_HALF) ? .5f : 1.f;
     _generateIcoSahedron(mult, useFlatShading, subdivisions != 0u);
 
     for (unsigned int i = 0u; i < subdivisions; ++i) {
         std::vector<unsigned int> newIndices;
         const size_t indSize = _indices.size();
         for (size_t j = 0ull; j < indSize; j += 3ull) {
-            unsigned int a = _indices[j];
-            unsigned int b = _indices[j + 1ull];
-            unsigned int c = _indices[j + 2ull];
-            unsigned int ab = useFlatShading ? _getMiddlePointFlatShading(a, b, mult) : _getMiddlePoint(a, b, mult);
-            unsigned int bc = useFlatShading ? _getMiddlePointFlatShading(b, c, mult) : _getMiddlePoint(b, c, mult);
-            unsigned int ca = useFlatShading ? _getMiddlePointFlatShading(c, a, mult) : _getMiddlePoint(c, a, mult);
+            const unsigned int a = _indices[j];
+            const unsigned int b = _indices[j + 1ull];
+            const unsigned int c = _indices[j + 2ull];
+            const unsigned int ab = useFlatShading ? _getMiddlePointFlatShading(a, b, mult) : _getMiddlePoint(a, b, mult);
+            const unsigned int bc = useFlatShading ? _getMiddlePointFlatShading(b, c, mult) : _getMiddlePoint(b, c, mult);
+            const unsigned int ca = useFlatShading ? _getMiddlePointFlatShading(c, a, mult) : _getMiddlePoint(c, a, mult);
 
             newIndices.push_back(a);
             newIndices.push_back(ab);
@@ -191,9 +192,9 @@ void IcoSphere::_generate(unsigned int subdivisions, ValuesRange range, bool use
     const size_t indSize = _indices.size();
     if (!useFlatShading && config.genTangents) {
         for (size_t i = 0ull; i < indSize; i += 3ull) {
-            unsigned int ia = _indices[i];
-            unsigned int ib = _indices[i + 1ull];
-            unsigned int ic = _indices[i + 2ull];
+            const unsigned int ia = _indices[i];
+            const unsigned int ib = _indices[i + 1ull];
+            const unsigned int ic = _indices[i + 2ull];
 
             TB = _calcTangentBitangent(ia, ib, ic);
 
@@ -224,9 +225,9 @@ void IcoSphere::_generate(unsigned int subdivisions, ValuesRange range, bool use
     }
     else {
         for (size_t i = 0ull; i < indSize; i += 3ull) {
-            unsigned int ia = _indices[i];
-            unsigned int ib = _indices[i + 1ull];
-            unsigned int ic = _indices[i + 2ull];
+            const unsigned int ia = _indices[i];
+            const unsigned int ib = _indices[i + 1ull];
+            const unsigned int ic = _indices[i + 2ull];
 
             glm::vec3 normal = glm::normalize(glm::cross(glm::normalize(_vertices[ib].Position) - glm::normalize(_vertices[ia].Position), glm::normalize(_vertices[ic].Position) - glm::normalize(_vertices[ia].Position)));
 
@@ -245,37 +246,37 @@ void IcoSphere::_generate(unsigned int subdivisions, ValuesRange range, bool use
     }
 }
 
-unsigned int IcoSphere::_getMiddlePoint(unsigned int p1, unsigned int p2, float mult)
+unsigned int IcoSphere::_getMiddlePoint(const unsigned int p1, const unsigned int p2, const float mult)
 {
-    uint64_t key = (static_cast<uint64_t>(std::min(p1, p2)) << 32) | std::max(p1, p2);
+    const uint64_t key = (static_cast<uint64_t>(std::min(p1, p2)) << 32) | std::max(p1, p2);
     if (auto it = _middlePointCache.find(key); it != _middlePointCache.end()) {
         return it->second;
     }
 
-    glm::vec3 middle = glm::normalize((_vertices[p1].Position + _vertices[p2].Position) * 0.5f) * mult;
-    glm::vec3 normal = glm::normalize(middle);
+    const glm::vec3 middle = glm::normalize((_vertices[p1].Position + _vertices[p2].Position) * 0.5f) * mult;
+    const glm::vec3 normal = glm::normalize(middle);
     _middlePointCache[key] = (unsigned int)_vertices.size();
     _vertices.push_back({ middle, _getTexCoord(normal), normal, glm::vec3(0.f), glm::vec3(0.f) });
     return _middlePointCache[key];
 }
 
-unsigned int IcoSphere::_getMiddlePointFlatShading(unsigned int p1, unsigned int p2, float mult)
+unsigned int IcoSphere::_getMiddlePointFlatShading(const unsigned int p1, const unsigned int p2, const float mult)
 {
-    glm::vec3 middle = glm::normalize((_vertices[p1].Position + _vertices[p2].Position) * 0.5f) * mult;
-    glm::vec3 normal = glm::normalize(middle);
-    unsigned int index = (unsigned int)_vertices.size();
+    const glm::vec3 middle = glm::normalize((_vertices[p1].Position + _vertices[p2].Position) * 0.5f) * mult;
+    const glm::vec3 normal = glm::normalize(middle);
+    const unsigned int index = (unsigned int)_vertices.size();
     _vertices.push_back({ middle, _getTexCoord(normal), normal, glm::vec3(0.f), glm::vec3(0.f) });
     return index;
 }
 
-glm::vec2 IcoSphere::_getTexCoord(glm::vec3 normal)
+glm::vec2 IcoSphere::_getTexCoord(const glm::vec3 normal) const
 {
-    float theta = (atan2f(normal.x, normal.z) * .5f) * (float)M_1_PI + .5f;
-    float phi = asinf(-normal.y) * (float)M_1_PI + .5f;
+    const float theta = (atan2f(normal.x, normal.z) * .5f) * (float)M_1_PI + .5f;
+    const float phi = asinf(-normal.y) * (float)M_1_PI + .5f;
     return glm::vec2(theta, phi);
 }
 
-void IcoSphere::_defineTangentBitangentFlatShading(std::pair<glm::vec3, glm::vec3> TB, size_t index)
+void IcoSphere::_defineTangentBitangentFlatShading(const std::pair<glm::vec3, glm::vec3> TB, const size_t index)
 {
     _vertices[index].Tangent = TB.first;
 
@@ -290,7 +291,7 @@ void IcoSphere::_defineTangentBitangentFlatShading(std::pair<glm::vec3, glm::vec
     }
 }
 
-IcoSphere::IcoSphere(unsigned int subdivisions, IcoSphereShading shading, ValuesRange range)
+IcoSphere::IcoSphere(const unsigned int subdivisions, const IcoSphereShading shading, const ValuesRange range)
 {
     _vertices.clear();
     _indices.clear();

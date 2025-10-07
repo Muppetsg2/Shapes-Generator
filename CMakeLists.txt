@@ -4,13 +4,13 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(global_settings)
 include(utils)
 
-shapes_generator_extract_version()
+get_version()
 
-project(Shapes-Generator VERSION ${SHAPES_GENERATOR_VERSION} LANGUAGES CXX)
-message(STATUS "Build Shapes-Generator: ${SHAPES_GENERATOR_VERSION}")
+project(Shapes-Generator VERSION ${APP_VERSION} LANGUAGES CXX)
+message(STATUS "Build ${PROJECT_NAME}: ${APP_VERSION}")
 
 # ---- Dependencies ----
-add_subdirectory(thirdparty)
+add_subdirectory(external)
 
 # ---- Resource's files ----
 add_subdirectory(res)

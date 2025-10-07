@@ -1,6 +1,6 @@
 #include "Hexagon.hpp"
 
-Hexagon::Hexagon(unsigned int segments, ValuesRange range)
+Hexagon::Hexagon(const unsigned int segments, const ValuesRange range)
 {
     _vertices.clear();
     _indices.clear();

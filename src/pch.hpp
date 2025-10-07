@@ -4,6 +4,7 @@
 #include <cctype>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -48,6 +49,12 @@
 #include <termios.h>
 #endif
 
+#if __cplusplus > 201703L
+#include <concepts>
+#else
+#include <type_traits>
+#endif
+
 // FROM VCPKG
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
@@ -70,7 +77,5 @@
 #include <math.h>
 #endif
 
-// VERSION
-#include "version.hpp"
-#include "system_functions.hpp"
+#include "SystemFunctions.hpp"
 #include "Config.hpp"

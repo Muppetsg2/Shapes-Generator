@@ -6,9 +6,9 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.3.0
+// Version: 1.3.1
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 10.05.2025
+// Last Update: 07.10.2025
 
 #include "Sphere.hpp"
 #include "IcoSphere.hpp"
@@ -20,7 +20,7 @@
 #include "Tetrahedron.hpp"
 #include "Pyramid.hpp"
 #include "Torus.hpp"
-#include "templates.hpp"
+#include "Templates.hpp"
 
 Shape* selectedShape = nullptr;
 
@@ -28,8 +28,8 @@ Shape* selectedShape = nullptr;
 void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
 {
     std::string buf;
-    std::size_t pos = 0;
-    std::size_t prevPos;
+    size_t pos = 0;
+    size_t prevPos;
 
     // Reserves rough estimate of final size of string.
     buf.reserve(s.size());
@@ -70,7 +70,7 @@ void printBannerLineColored(std::string text, fmt::color color)
 void displayStartWindow()
 {
     size_t lineLength = std::string("   ____  _                              ____                           _               ").size();
-    std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION_STR);
+    std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION);
     std::string escTxt = std::string("Press ESC to exit the program");
 
     size_t verSpaceCount = (lineLength - versionTxt.size()) / 2ull;

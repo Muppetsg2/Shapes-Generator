@@ -1,20 +1,20 @@
 #include "Sphere.hpp"
 
-glm::vec3 Sphere::_getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3)
+glm::vec3 Sphere::_getAverageNormal(const glm::vec3 n1, const glm::vec3 n2, const glm::vec3 n3) const
 {
-	glm::vec3 average = n1 + n2 + n3;
+	const glm::vec3 average = n1 + n2 + n3;
 	return fabsf(glm::length(average)) >= EPSILON ? glm::normalize(average) : average;
 }
 
-void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool useFlatShading)
+void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesRange range, const bool useFlatShading)
 {
 	const Config& config = get_config();
-	float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
-	float angleYDiff = (float)M_PI / (float)h;
-	float angleXZDiff = 2.f * (float)M_PI / (float)v;
+	const float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
+	const float angleYDiff = (float)M_PI / (float)h;
+	const float angleXZDiff = 2.f * (float)M_PI / (float)v;
 
-	float texHDiff = 1.f / (float)h;
-	float texVDiff = 1.f / (float)v;
+	const float texHDiff = 1.f / (float)h;
+	const float texVDiff = 1.f / (float)v;
 
 	std::vector<unsigned int> trisNum;
 
@@ -26,10 +26,10 @@ void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool u
 	// TOP HALF AND BOTTOM HALF
 	float angleY = angleYDiff;
 	for (unsigned int i = 0u; i < h - 1u; ++i) {
-		float r = sinf(angleY) * mult;
-		float y = cosf(angleY) * mult;
+		const float r = sinf(angleY) * mult;
+		const float y = cosf(angleY) * mult;
 
-		unsigned int startTexV = i * v + 1u;
+		const unsigned int startTexV = i * v + 1u;
 		unsigned int t = 1u;
 
 		if (h == 2u) {
@@ -50,15 +50,15 @@ void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool u
 		// DRAW CIRCLE
 		float angleXZ = 0.f;
 		for (unsigned int j = 0u; j < v; ++j) {
-			float z = r * cosf(angleXZ);
-			float x = r * sinf(angleXZ);
+			const float z = r * cosf(angleXZ);
+			const float x = r * sinf(angleXZ);
 
-			glm::vec3 vert = { x, y, z };
+			const glm::vec3 vert = { x, y, z };
 			_vertices.push_back({ vert, { (float)j * texVDiff, texHDiff * (float)(i + 1u) }, glm::normalize(vert), glm::vec3(0.f), glm::vec3(0.f) });
 			if (config.genTangents) trisNum.push_back(t);
 
 			if (j == v - 1u) {
-				glm::vec3 vertLast = { 0.f, y, r };
+				const glm::vec3 vertLast = { 0.f, y, r };
 				// Add first in the end again for texCoords
 				_vertices.push_back({ vertLast, { 1.f , texHDiff * (float)(i + 1u) }, glm::normalize(vertLast), glm::vec3(0.f), glm::vec3(0.f) });
 				if (config.genTangents) trisNum.push_back(t);
@@ -83,17 +83,17 @@ void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool u
 		// TOP CIRCLE + BOTTOM CIRCLE
 		const size_t verticesNum = tempVertices.size();
 		for (unsigned int i = 0u; i < v; ++i) {
-			size_t start = _vertices.size();
+			const size_t start = _vertices.size();
 			unsigned int first = (unsigned int)start;
 			unsigned int second = (unsigned int)start + 1u;
 			unsigned int third = (unsigned int)start + 2u;
 			for (int s = 0; s < 2; ++s) {
 				// 0 - TOP CIRCLE
 				// 1 - BOTTOM CIRCLE
-				bool isTop = s == 0;
-				unsigned int rightVertex = isTop ? (i + 1u) + 1u : (unsigned int)verticesNum - 2u - v - 1u + (i + 1u) + 1u;
-				unsigned int topVertex = isTop ? 0u : (unsigned int)verticesNum - 1u;
-				unsigned int leftVertex = isTop ? i + 1u : (unsigned int)verticesNum - 2u - v - 1u + i + 1u;
+				const bool isTop = s == 0;
+				const unsigned int rightVertex = isTop ? (i + 1u) + 1u : (unsigned int)verticesNum - 2u - v - 1u + (i + 1u) + 1u;
+				const unsigned int topVertex = isTop ? 0u : (unsigned int)verticesNum - 1u;
+				const unsigned int leftVertex = isTop ? i + 1u : (unsigned int)verticesNum - 2u - v - 1u + i + 1u;
 
 				Vertex v1 = tempVertices[rightVertex];
 				Vertex v2 = tempVertices[topVertex];
@@ -135,19 +135,19 @@ void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool u
 
 		// CENTER CIRCLES
 		for (unsigned int c = 0u; c < h - 2u; ++c) {
-			unsigned int startV = c * (v + 1u) + 1u;
+			const unsigned int startV = c * (v + 1u) + 1u;
 			for (unsigned int i = 0u; i < v; ++i) {
-				unsigned int topLeft = i + startV;
-				unsigned int topRight = (i + 1u) + startV;
-				unsigned int bottomLeft = i + v + 1u + startV;
-				unsigned int bottomRight = (i + 1u) + v + 1u + startV;
-				size_t start = _vertices.size();
+				const unsigned int topLeft = i + startV;
+				const unsigned int topRight = (i + 1u) + startV;
+				const unsigned int bottomLeft = i + v + 1u + startV;
+				const unsigned int bottomRight = (i + 1u) + v + 1u + startV;
+				const size_t start = _vertices.size();
 				unsigned int first = (unsigned int)start;
 				unsigned int second = (unsigned int)start + 1u;
 				unsigned int third = (unsigned int)start + 2u;
 
 				for (int s = 0; s < 2; ++s) {
-					bool isFirst = s == 0;
+					const bool isFirst = s == 0;
 					Vertex v1 = isFirst ? tempVertices[topRight] : tempVertices[bottomRight];
 					Vertex v2 = isFirst ? tempVertices[topLeft] : tempVertices[topRight];
 					Vertex v3 = tempVertices[bottomLeft];
@@ -236,12 +236,12 @@ void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool u
 
 		// CENTER CIRCLES
 		for (unsigned int c = 0u; c < h - 2u; ++c) {
-			unsigned int startV = c * (v + 1u) + 1u;
+			const unsigned int startV = c * (v + 1u) + 1u;
 			for (unsigned int i = 0u; i < v; ++i) {
-				unsigned int topLeft = i + startV;
-				unsigned int topRight = (i + 1u) + startV;
-				unsigned int bottomLeft = i + v + 1u + startV;
-				unsigned int bottomRight = (i + 1u) + v + 1u + startV;
+				const unsigned int topLeft = i + startV;
+				const unsigned int topRight = (i + 1u) + startV;
+				const unsigned int bottomLeft = i + v + 1u + startV;
+				const unsigned int bottomRight = (i + 1u) + v + 1u + startV;
 
 				_indices.push_back(topRight);
 				_indices.push_back(topLeft);
@@ -285,7 +285,7 @@ void Sphere::_generate(unsigned int h, unsigned int v, ValuesRange range, bool u
 	trisNum.clear();
 }
 
-Sphere::Sphere(unsigned int h, unsigned int v, SphereShading shading, ValuesRange range)
+Sphere::Sphere(const unsigned int h, const unsigned int v, const SphereShading shading, const ValuesRange range)
 {
 	_vertices.clear();
 	_indices.clear();

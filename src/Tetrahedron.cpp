@@ -1,26 +1,26 @@
 #include "Tetrahedron.hpp"
 
-void Tetrahedron::_generate(ValuesRange range)
+void Tetrahedron::_generate(const ValuesRange range)
 {
 	const Config& config = get_config();
-	float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
+	const float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
 
-	unsigned int segments = 3u;
-	float h = 2.f / 3.f;
-	float r = (float)M_SQRT3 / 3.f;
+	const unsigned int segments = 3u;
+	const float h = 2.f / 3.f;
+	const float r = (float)M_SQRT3 / 3.f;
 
 	std::vector<unsigned int> trisNum;
 	std::pair<glm::vec3, glm::vec3> TB;
 
-	float angleXZDiff = 2.f * (float)M_PI / (float)segments;
+	const float angleXZDiff = 2.f * (float)M_PI / (float)segments;
 
 	// CIRCLE BOTTOM
 	// VERTICES AND TEX COORDS
-	float y = -h * 0.5f;
+	const float y = -h * 0.5f;
 	float angleXZ = 0.f;
 	for (unsigned int j = 0u; j < segments; ++j) {
-		float z = cosf(angleXZ);
-		float x = sinf(angleXZ);
+		const float z = cosf(angleXZ);
+		const float x = sinf(angleXZ);
 		_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { fabsf(.5f - (float)((int)((float)j * 1.5f)) * .5f), (j == 0u ? 1.f : 0.f) }, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f) });
 		if (config.genTangents) trisNum.push_back(1u);
 		angleXZ += angleXZDiff;
@@ -45,20 +45,20 @@ void Tetrahedron::_generate(ValuesRange range)
 
 	// CONE
 	// VERTICES AND TEX COORDS
-	size_t start = _vertices.size();
+	const size_t start = _vertices.size();
 	angleXZ = 0.f;
-	float cos_cone = r / sqrtf(r * r + h * h);
-	float sin_cone = h / sqrtf(r * r + h * h);
+	const float cos_cone = r / sqrtf(r * r + h * h);
+	const float sin_cone = h / sqrtf(r * r + h * h);
 	for (unsigned int j = 0u; j < segments; ++j) {
-		float x_n = cos_cone * (sinf(angleXZ) + sinf(angleXZ + angleXZDiff)) * .5f;
-		float z_n = cos_cone * (cosf(angleXZ) + cosf(angleXZ + angleXZDiff)) * .5f;
+		const float x_n = cos_cone * (sinf(angleXZ) + sinf(angleXZ + angleXZDiff)) * .5f;
+		const float z_n = cos_cone * (cosf(angleXZ) + cosf(angleXZ + angleXZDiff)) * .5f;
 
-		glm::vec3 norm = glm::normalize(glm::vec3(x_n, sin_cone, z_n));
+		const glm::vec3 norm = glm::normalize(glm::vec3(x_n, sin_cone, z_n));
 
 		for (int i = 0; i < 2; ++i) {
-			float angle = angleXZ + (float)i * angleXZDiff;
-			float z = cosf(angle);
-			float x = sinf(angle);
+			const float angle = angleXZ + (float)i * angleXZDiff;
+			const float z = cosf(angle);
+			const float x = sinf(angle);
 
 			_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { (float)i, 1.f}, norm, glm::vec3(0.f), glm::vec3(0.f) });
 			if (config.genTangents) trisNum.push_back(1u);
@@ -74,9 +74,9 @@ void Tetrahedron::_generate(ValuesRange range)
 
 	// INDICES
 	for (unsigned int i = 0u; i < segments; ++i) {
-		size_t left = start + (size_t)i * 3ull;
-		size_t right = start + (size_t)i * 3ull + 1ull;
-		size_t top = start + (size_t)i * 3ull + 2ull;
+		const size_t left = start + (size_t)i * 3ull;
+		const size_t right = start + (size_t)i * 3ull + 1ull;
+		const size_t top = start + (size_t)i * 3ull + 2ull;
 
 		_indices.push_back((unsigned int)left);
 		_indices.push_back((unsigned int)right);
@@ -101,7 +101,7 @@ void Tetrahedron::_generate(ValuesRange range)
 	trisNum.clear();
 }
 
-Tetrahedron::Tetrahedron(ValuesRange range)
+Tetrahedron::Tetrahedron(const ValuesRange range)
 {
 	_vertices.clear();
 	_indices.clear();

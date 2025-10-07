@@ -13,13 +13,13 @@ private:
 		BACK = 1
 	};
 
-	void _generateCircle(unsigned int segments, float y, CylinderCullFace cullFace, ValuesRange range);
+	void _generateCircle(const unsigned int segments, const float y, const CylinderCullFace cullFace, const ValuesRange range);
 
 protected:
-	void _generate(unsigned int horizontalSegments, unsigned int verticalSegments, ValuesRange range, bool useFlatShading);
+	void _generate(const unsigned int horizontalSegments, const unsigned int verticalSegments, const ValuesRange range, const bool useFlatShading);
 
 public:
-	Cylinder(unsigned int horizontalSegments = 1u, unsigned int verticalSegments = 3u, CylinderShading shading = CylinderShading::FLAT, ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Cylinder(const unsigned int horizontalSegments = 1u, const unsigned int verticalSegments = 3u, const CylinderShading shading = CylinderShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Cylinder();
 
 	static std::string getClassName();

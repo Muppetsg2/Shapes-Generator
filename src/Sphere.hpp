@@ -8,11 +8,11 @@ enum class SphereShading {
 
 class Sphere : public Shape {
 private:
-	glm::vec3 _getAverageNormal(glm::vec3 n1, glm::vec3 n2, glm::vec3 n3);
-	void _generate(unsigned int h, unsigned int v, ValuesRange range, bool useFlatShading);
+	glm::vec3 _getAverageNormal(const glm::vec3 n1, const glm::vec3 n2, const glm::vec3 n3) const;
+	void _generate(const unsigned int h, const unsigned int v, const ValuesRange range, const bool useFlatShading);
 
 public:
-	Sphere(unsigned int h = 2u, unsigned int v = 3u, SphereShading shading = SphereShading::SMOOTH, ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Sphere(const unsigned int h = 2u, const unsigned int v = 3u, const SphereShading shading = SphereShading::SMOOTH, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Sphere();
 
 	static std::string getClassName();

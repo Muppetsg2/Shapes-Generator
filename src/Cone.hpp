@@ -8,9 +8,9 @@ enum class ConeShading {
 
 class Cone : public Shape {
 private:
-	void _generate(unsigned int segments, float height, float radius, ValuesRange range, bool useFlatShading);
+	void _generate(const unsigned int segments, const float height, const float radius, const ValuesRange range, const bool useFlatShading);
 public:
-	Cone(unsigned int segments = 3u, float height = 1.f, float radius = 1.f, ConeShading shading = ConeShading::FLAT, ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Cone(const unsigned int segments = 3u, const float height = 1.f, const float radius = 1.f, const ConeShading shading = ConeShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Cone();
 
 	static std::string getClassName();

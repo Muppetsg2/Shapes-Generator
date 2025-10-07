@@ -24,14 +24,14 @@ protected:
 	std::vector<Vertex> _vertices;
 	std::vector<unsigned int> _indices;
 
-	float _map(float input, float currStart, float currEnd, float expectedStart, float expectedEnd);
+	float _map(const float input, const float currStart, const float currEnd, const float expectedStart, const float expectedEnd) const;
 
-	Vertex _calcTangentBitangent(unsigned int vertexIndex);
-	std::pair<glm::vec3, glm::vec3> _calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3);
+	Vertex _calcTangentBitangent(const unsigned int vertexIndex) const;
+	std::pair<glm::vec3, glm::vec3> _calcTangentBitangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const;
 	// start - inclusive, end - exclusive
-	void _normalizeTangents(const std::vector<unsigned int>& trisNum, size_t start, size_t end);
+	void _normalizeTangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end);
 
-	std::string _getGeneratedHeader(std::string commentSign) const;
+	std::string _getGeneratedHeader(const std::string commentSign) const;
 	std::string _getStructDefinition(bool isC99) const;
 	std::string _formatFloat(float value, bool delRedundantZeros=true) const;
 	std::string _formatVertex(const Vertex& v, bool useFloat) const;

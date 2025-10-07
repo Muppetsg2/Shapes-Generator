@@ -3,7 +3,7 @@
 
 class Hexagon : public Cylinder {
 public:
-	Hexagon(unsigned int segments = 1u, ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Hexagon(const unsigned int segments = 1u, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Hexagon();
 
 	static std::string getClassName();

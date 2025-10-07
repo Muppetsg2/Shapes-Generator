@@ -1,12 +1,12 @@
 #include "Shape.hpp"
 #include "templates.hpp"
 
-float Shape::_map(float input, float currStart, float currEnd, float expectedStart, float expectedEnd)
+float Shape::_map(const float input, const float currStart, const float currEnd, const float expectedStart, const float expectedEnd) const
 {
     return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
 }
 
-Vertex Shape::_calcTangentBitangent(unsigned int vertexIndex)
+Vertex Shape::_calcTangentBitangent(const unsigned int vertexIndex) const
 {
     Vertex v = _vertices[vertexIndex];
 
@@ -17,9 +17,9 @@ Vertex Shape::_calcTangentBitangent(unsigned int vertexIndex)
     // Find the triangles that use v
     //  * Loop over every triangle (i + 3)
     for (size_t i = 0ull; i < _indices.size(); i += 3ull) {
-        unsigned int index0 = _indices[i];
-        unsigned int index1 = _indices[i + 1ull];
-        unsigned int index2 = _indices[i + 2ull];
+        const unsigned int index0 = _indices[i];
+        const unsigned int index1 = _indices[i + 1ull];
+        const unsigned int index2 = _indices[i + 2ull];
 
         // Only perform the calculation if one of the indices
         // matches our vertexIndex
@@ -42,7 +42,7 @@ Vertex Shape::_calcTangentBitangent(unsigned int vertexIndex)
             glm::vec2 delta_uv1 = uv1 - uv0;
             glm::vec2 delta_uv2 = uv2 - uv0;
 
-            float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
+            const float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
 
             tangent += (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
 
@@ -74,29 +74,29 @@ Vertex Shape::_calcTangentBitangent(unsigned int vertexIndex)
     return v;
 }
 
-std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(unsigned int t1, unsigned int t2, unsigned int t3)
+std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const
 {
     std::pair<glm::vec3, glm::vec3> TB;
 
-    Vertex v0 = _vertices[t1];
-    Vertex v1 = _vertices[t2];
-    Vertex v2 = _vertices[t3];
+    const Vertex v0 = _vertices[t1];
+    const Vertex v1 = _vertices[t2];
+    const Vertex v2 = _vertices[t3];
 
-    glm::vec3 pos0 = v0.Position;
-    glm::vec3 pos1 = v1.Position;
-    glm::vec3 pos2 = v2.Position;
+    const glm::vec3 pos0 = v0.Position;
+    const glm::vec3 pos1 = v1.Position;
+    const glm::vec3 pos2 = v2.Position;
 
-    glm::vec2 uv0 = v0.TexCoord;
-    glm::vec2 uv1 = v1.TexCoord;
-    glm::vec2 uv2 = v2.TexCoord;
+    const glm::vec2 uv0 = v0.TexCoord;
+    const glm::vec2 uv1 = v1.TexCoord;
+    const glm::vec2 uv2 = v2.TexCoord;
 
-    glm::vec3 delta_pos1 = pos1 - pos0;
-    glm::vec3 delta_pos2 = pos2 - pos0;
+    const glm::vec3 delta_pos1 = pos1 - pos0;
+    const glm::vec3 delta_pos2 = pos2 - pos0;
 
-    glm::vec2 delta_uv1 = uv1 - uv0;
-    glm::vec2 delta_uv2 = uv2 - uv0;
+    const glm::vec2 delta_uv1 = uv1 - uv0;
+    const glm::vec2 delta_uv2 = uv2 - uv0;
 
-    float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
+    const float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
 
     // Save the results
     TB.first = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
@@ -105,7 +105,7 @@ std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(unsigned int t1, un
     return TB;
 }
 
-void Shape::_normalizeTangents(const std::vector<unsigned int>& trisNum, size_t start, size_t end)
+void Shape::_normalizeTangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end)
 {
     for (size_t i = start; i < end; ++i) {
         _vertices[i].Tangent /= (float)trisNum[i - start];
@@ -122,9 +122,9 @@ void Shape::_normalizeTangents(const std::vector<unsigned int>& trisNum, size_t 
     }
 }
 
-std::string Shape::_getGeneratedHeader(std::string commentSign) const
+std::string Shape::_getGeneratedHeader(const std::string commentSign) const
 {
-    return commentSign + " Shapes Generator " + SHAPES_GENERATOR_VERSION_STR + "\n" + commentSign + " https://github.com/Muppetsg2/Shapes-Generator\n\n";
+    return commentSign + " Shapes Generator " + SHAPES_GENERATOR_VERSION + "\n" + commentSign + " https://github.com/Muppetsg2/Shapes-Generator\n\n";
 }
 
 std::string Shape::_getStructDefinition(bool isC99) const

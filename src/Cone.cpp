@@ -1,28 +1,28 @@
 #include "Cone.hpp"
 
-void Cone::_generate(unsigned int segments, float height, float radius, ValuesRange range, bool useFlatShading)
+void Cone::_generate(const unsigned int segments, const float height, const float radius, const ValuesRange range, const bool useFlatShading)
 {
 	const Config& config = get_config();
 
-	float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
+	const float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
 
-	float h = height < EPSILON ? 1.f : height;
+	const float h = height < EPSILON ? 1.f : height;
 	float r = radius < EPSILON ? 1.f : radius;
 
 	std::vector<unsigned int> trisNum;
 
-	float angleXZDiff = 2.f * (float)M_PI / (float)segments;
+	const float angleXZDiff = 2.f * (float)M_PI / (float)segments;
 
 	// CIRCLE BOTTOM
 	// VERTICES AND TEX COORDS
-	float rToH = r / h;
-	float y = -sqrtf(rToH);
+	const float rToH = r / h;
+	const float y = -sqrtf(rToH);
 	r = sqrtf(rToH);
 
 	float angleXZ = 0.f;
 	for (unsigned int j = 0u; j < segments; ++j) {
-		float z = cosf(angleXZ);
-		float x = sinf(angleXZ);
+		const float z = cosf(angleXZ);
+		const float x = sinf(angleXZ);
 		_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { .5f + x * .5f, .5f + z * .5f }, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f) });
 		if (config.genTangents) trisNum.push_back(2u);
 		angleXZ += angleXZDiff;
@@ -34,7 +34,7 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 	const size_t vertSize = _vertices.size();
 	for (size_t i = 0ull; i < vertSize - 1ull; ++i) {
 
-		size_t right = i + 2ull == vertSize ? 0ull : i + 1ull;
+		const size_t right = i + 2ull == vertSize ? 0ull : i + 1ull;
 
 		_indices.push_back((unsigned int)right);
 		_indices.push_back((unsigned int)i);
@@ -56,26 +56,26 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 
 	// CONE
 	// VERTICES AND TEX COORDS
-	size_t start = _vertices.size();
+	const size_t start = _vertices.size();
 	angleXZ = 0.f;
-	glm::vec3 vr = glm::vec3(r, 0.f, 0.f);
-	glm::vec3 vh = glm::vec3(0.f, -y * 2.f, 0.f);
-	glm::vec3 vp = glm::normalize(glm::cross(vh - vr, glm::cross(vr, vh)));
-	float sin_cone = vp.y;
-	float cos_cone = vp.x;
+	const glm::vec3 vr = glm::vec3(r, 0.f, 0.f);
+	const glm::vec3 vh = glm::vec3(0.f, -y * 2.f, 0.f);
+	const glm::vec3 vp = glm::normalize(glm::cross(vh - vr, glm::cross(vr, vh)));
+	const float sin_cone = vp.y;
+	const float cos_cone = vp.x;
 
-	unsigned int count = segments + (useFlatShading ? 0u : 1u);
+	const unsigned int count = segments + (useFlatShading ? 0u : 1u);
 	for (unsigned int j = 0u; j < count; ++j) {
 		if (useFlatShading) {
-			float x_n = cos_cone * (sinf(angleXZ) + sinf(angleXZ + angleXZDiff)) * .5f;
-			float z_n = cos_cone * (cosf(angleXZ) + cosf(angleXZ + angleXZDiff)) * .5f;
+			const float x_n = cos_cone * (sinf(angleXZ) + sinf(angleXZ + angleXZDiff)) * .5f;
+			const float z_n = cos_cone * (cosf(angleXZ) + cosf(angleXZ + angleXZDiff)) * .5f;
 
-			glm::vec3 norm = glm::normalize(glm::vec3(x_n, sin_cone, z_n));
+			const glm::vec3 norm = glm::normalize(glm::vec3(x_n, sin_cone, z_n));
 
 			for (int i = 0; i < 2; ++i) {
-				float angle = angleXZ + i * angleXZDiff;
-				float z = cosf(angle);
-				float x = sinf(angle);
+				const float angle = angleXZ + i * angleXZDiff;
+				const float z = cosf(angle);
+				const float x = sinf(angle);
 
 				_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { (float)i, 1.f}, norm, glm::vec3(0.f), glm::vec3(0.f) });
 				if (config.genTangents) trisNum.push_back(1u);
@@ -85,10 +85,10 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 			if (config.genTangents) trisNum.push_back(1u);
 		}
 		else {
-			float x = sinf(angleXZ);
-			float z = cosf(angleXZ);
+			const float x = sinf(angleXZ);
+			const float z = cosf(angleXZ);
 
-			glm::vec3 norm = glm::normalize(glm::vec3(cos_cone * x, sin_cone, cos_cone * z));
+			const glm::vec3 norm = glm::normalize(glm::vec3(cos_cone * x, sin_cone, cos_cone * z));
 
 			// Also good aproach
 			//constexpr float uC = .5f;
@@ -104,9 +104,9 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 			constexpr float vC = 0.f;
 			constexpr float radiansUV0 = (float)M_PI_3 * .5f;
 			
-			float radiansUV = _map(angleXZ, 0.f, 2.f * (float)M_PI, 0.f, (float)M_PI_3);
-			float u = uC + sinf(radiansUV - radiansUV0);
-			float v = vC + cosf(radiansUV - radiansUV0);
+			const float radiansUV = _map(angleXZ, 0.f, 2.f * (float)M_PI, 0.f, (float)M_PI_3);
+			const float u = uC + sinf(radiansUV - radiansUV0);
+			const float v = vC + cosf(radiansUV - radiansUV0);
 
 			_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { u, v }, norm, glm::vec3(0.f), glm::vec3(0.f) });
 
@@ -131,11 +131,11 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 	// INDICES
 	for (unsigned int i = 0u; i < segments; ++i) {
 
-		size_t m = useFlatShading ? 3ull : 1ull;
+		const size_t m = useFlatShading ? 3ull : 1ull;
 
-		size_t left = start + (size_t)i * m;
-		size_t right = start + (size_t)i * m + 1ull;
-		size_t top = useFlatShading ? start + (size_t)i * m + 2ull : _vertices.size() - 1ull;
+		const size_t left = start + (size_t)i * m;
+		const size_t right = start + (size_t)i * m + 1ull;
+		const size_t top = useFlatShading ? start + (size_t)i * m + 2ull : _vertices.size() - 1ull;
 
 		_indices.push_back((unsigned int)left);
 		_indices.push_back((unsigned int)right);
@@ -160,7 +160,7 @@ void Cone::_generate(unsigned int segments, float height, float radius, ValuesRa
 	trisNum.clear();
 }
 
-Cone::Cone(unsigned int segments, float height, float radius, ConeShading shading, ValuesRange range)
+Cone::Cone(const unsigned int segments, const float height, const float radius, const ConeShading shading, const ValuesRange range)
 {
 	_vertices.clear();
 	_indices.clear();

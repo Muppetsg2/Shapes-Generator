@@ -3,10 +3,10 @@
 
 class Cube : public Shape {
 private:
-	void _generate(ValuesRange range);
+	void _generate(const ValuesRange range);
 
 public:
-	Cube(ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Cube(const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Cube();
 
 	static std::string getClassName();

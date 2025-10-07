@@ -1,23 +1,23 @@
 #include "Plane.hpp"
 
-void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
+void Plane::_generate(const unsigned int rows, const unsigned int columns, const PlaneNormalDir dir, const ValuesRange range)
 {
     const Config& config = get_config();
 
-    float space = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
-    float minRange = -space * .5f;
-    float maxRange = space * .5f;
+    const float space = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
+    const float minRange = -space * .5f;
+    const float maxRange = space * .5f;
     
-    float diffX = space / (float)(columns - 1u);
-    float diffZ = space / (float)(rows - 1u);
+    const float diffX = space / (float)(columns - 1u);
+    const float diffZ = space / (float)(rows - 1u);
 
     std::vector<unsigned int> trisNum;
 
     for (unsigned int row = 0u; row < rows; ++row) {
-        float z = minRange + (float)row * diffZ;
+        const float z = minRange + (float)row * diffZ;
 
         for (unsigned int col = 0u; col < columns; ++col) {
-            float x = minRange + (float)col * diffX;
+            const float x = minRange + (float)col * diffX;
 
             switch (dir) {
                 case PlaneNormalDir::UP : {
@@ -55,7 +55,7 @@ void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir di
     std::pair<glm::vec3, glm::vec3> TB;
     for (size_t i = 0ull; i < vertSize; ++i) {
 
-        size_t first = i + (size_t)columns;
+        const size_t first = i + (size_t)columns;
         size_t second = i + 1ull;
 
         if (second % (size_t)columns == 0ull) continue;
@@ -109,7 +109,7 @@ void Plane::_generate(unsigned int rows, unsigned int columns, PlaneNormalDir di
     trisNum.clear();
 }
 
-Plane::Plane(unsigned int rows, unsigned int columns, PlaneNormalDir dir, ValuesRange range)
+Plane::Plane(const unsigned int rows, const unsigned int columns, const PlaneNormalDir dir, const ValuesRange range)
 {
     _vertices.clear();
     _indices.clear();
