@@ -1,5 +1,6 @@
 #pragma once
 #include "Shape.hpp"
+#include <string>
 
 enum class ConeShading {
 	FLAT = 0,

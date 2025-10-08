@@ -18,6 +18,12 @@ enum class ValuesRange {
 	ONE_TO_ONE = 1
 };
 
+template<typename T>
+static const T& unmove(T&& x)
+{
+	return x;
+}
+
 class Shape
 {
 protected:

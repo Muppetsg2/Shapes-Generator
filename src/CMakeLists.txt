@@ -6,8 +6,10 @@ set(PCH_FILE ${CMAKE_CURRENT_SOURCE_DIR}/pch.hpp)
 
 set(SUBPROJECT_NAME ${PROJECT_NAME})
 set(SOURCE_FILES main.cpp)
+set(HEADER_FILES ConsoleTemplates.hpp)
 
 source_group("Source Files" FILES ${SOURCE_FILES})
+source_group("Header Files" FILES ${HEADER_FILES})
 source_group("Resources"    FILES ${ASSETS_FILES})
 
 # Define the executable

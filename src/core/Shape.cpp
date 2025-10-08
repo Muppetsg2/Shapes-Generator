@@ -1,5 +1,5 @@
 #include "Shape.hpp"
-#include "templates.hpp"
+#include "Config.hpp"
 
 float Shape::_map(const float input, const float currStart, const float currEnd, const float expectedStart, const float expectedEnd) const
 {

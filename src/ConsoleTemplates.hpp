@@ -1,4 +1,18 @@
 ﻿#pragma once
+#pragma region STD_LIBS
+#include <chrono>
+#include <functional>
+#include <string>
+#pragma endregion
+
+#pragma region FMT_LIB
+#include <fmt/base.h>
+#include <fmt/color.h>
+#pragma endregion
+
+#pragma region MY_FILES
+#include <Shape.hpp>
+#pragma endregion
 
 template<class ShapeType, class... Args>
 static std::chrono::duration<double> generateShape(Shape*& out, const Args&... args) {
@@ -30,10 +44,4 @@ static T getShadingType(const std::string& shapeName, std::function<int(int, int
     } while (dir_choice < 1 || dir_choice > 2);
 
     return static_cast<T>(dir_choice - 1);
-}
-
-template<typename T>
-static const T& unmove(T&& x)
-{
-    return x;
 }

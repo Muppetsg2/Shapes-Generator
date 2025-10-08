@@ -16,7 +16,6 @@
 
 #pragma region STD_LIBS
 #include <chrono>
-#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -35,7 +34,7 @@
 #define NOGDI
 #define NOATOM
 #define NOMINMAX
-#include <Windows.h>
+#include <windows.h>
 #undef near
 #undef far
 #include <consoleapi.h>
@@ -47,21 +46,25 @@
 #endif
 #pragma endregion
 
-#pragma region MY_FILES
-#include "Shape.hpp"
-#include "Sphere.hpp"
-#include "IcoSphere.hpp"
-#include "Plane.hpp"
-#include "Cube.hpp"
-#include "Cylinder.hpp"
-#include "Hexagon.hpp"
-#include "Cone.hpp"
-#include "Tetrahedron.hpp"
-#include "Pyramid.hpp"
-#include "Torus.hpp"
-#include "Templates.hpp"
-#include "Config.hpp"
+#pragma region MY_FILES_CORE_LIB
+#include <Cone.hpp>
+#include <Config.hpp>
+#include <Cube.hpp>
+#include <Cylinder.hpp>
+#include <Hexagon.hpp>
+#include <IcoSphere.hpp>
+#include <Plane.hpp>
+#include <Pyramid.hpp>
+#include <Shape.hpp>
+#include <Sphere.hpp>
+#include <Tetrahedron.hpp>
+#include <Torus.hpp>
 #pragma endregion
+
+#pragma region MY_FILES
+#include "ConsoleTemplates.hpp"
+#pragma endregion
+
 
 Shape* selectedShape = nullptr;
 
