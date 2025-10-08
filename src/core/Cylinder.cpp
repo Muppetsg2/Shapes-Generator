@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "Cylinder.hpp"
 #include "BitMathOperators.hpp"
 #include "Shape.hpp"
@@ -9,7 +10,9 @@
 #include <vector>
 
 #include <glm/fwd.hpp>
-#include <glm/detail/func_geometric.inl>
+#include <glm/geometric.hpp>
+
+using namespace config;
 
 void Cylinder::_generateCircle(const unsigned int segments, const float y, const CylinderCullFace cullFace, const ValuesRange range)
 {

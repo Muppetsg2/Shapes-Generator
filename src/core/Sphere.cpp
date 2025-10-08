@@ -1,4 +1,19 @@
+#include "pch.hpp"
 #include "Sphere.hpp"
+#include "Shape.hpp"
+#include "Config.hpp"
+#include "Constants.hpp"
+#include "Vertex.hpp"
+
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
+
+using namespace config;
 
 glm::vec3 Sphere::_getAverageNormal(const glm::vec3 n1, const glm::vec3 n2, const glm::vec3 n3) const
 {

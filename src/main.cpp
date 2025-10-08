@@ -57,6 +57,7 @@
 #include <Pyramid.hpp>
 #include <Shape.hpp>
 #include <Sphere.hpp>
+#include <SystemFunctions.hpp>
 #include <Tetrahedron.hpp>
 #include <Torus.hpp>
 #pragma endregion
@@ -416,6 +417,9 @@ static FormatType getFormatType()
     return static_cast<FormatType>(arr_choice - 1);
 }
 #pragma endregion
+
+using namespace config;
+using namespace system_functions;
 
 int main(int argc, char** argv)
 {

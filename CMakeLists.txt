@@ -18,6 +18,9 @@ add_subdirectory(res)
 # ---- Main project's files ----
 add_subdirectory(src)
 
+# ---- Tests ----
+add_subdirectory(tests)
+
 set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR})
 
 if(WIN32)

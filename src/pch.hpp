@@ -43,5 +43,6 @@
 #include <Pyramid.hpp>
 #include <Shape.hpp>
 #include <Sphere.hpp>
+#include <SystemFunctions.hpp>
 #include <Tetrahedron.hpp>
 #include <Torus.hpp>

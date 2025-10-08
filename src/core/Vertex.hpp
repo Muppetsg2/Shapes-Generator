@@ -5,8 +5,8 @@
 #include <functional>
 
 #include <glm/fwd.hpp>
-#include <glm/gtc/epsilon.inl>
-#include <glm/detail/func_vector_relational.inl>
+#include <glm/vector_relational.hpp>
+#include <glm/gtc/epsilon.hpp>
 
 struct Vertex
 {

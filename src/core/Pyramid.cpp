@@ -1,5 +1,18 @@
+#include "pch.hpp"
 #include "Pyramid.hpp"
+#include "Shape.hpp"
 #include "BitMathOperators.hpp"
+#include "Config.hpp"
+#include "Constants.hpp"
+
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
+
+using namespace config;
 
 void Pyramid::_generate(const ValuesRange range)
 {

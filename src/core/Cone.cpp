@@ -10,7 +10,9 @@
 #include <vector>
 
 #include <glm/fwd.hpp>
-#include <glm/detail/func_geometric.inl>
+#include <glm/geometric.hpp>
+
+using namespace config;
 
 void Cone::_generate(const unsigned int segments, const float height, const float radius, const ValuesRange range, const bool useFlatShading)
 {

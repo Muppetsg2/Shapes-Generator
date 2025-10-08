@@ -1,5 +1,25 @@
+#include "pch.hpp"
 #include "Shape.hpp"
 #include "Config.hpp"
+#include "Vertex.hpp"
+#include "Constants.hpp"
+
+#include <cmath>
+#include <iomanip>
+#include <ios>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
+
+#include <fmt/base.h>
+#include <fmt/args.h>
+
+using namespace config;
 
 float Shape::_map(const float input, const float currStart, const float currEnd, const float expectedStart, const float expectedEnd) const
 {

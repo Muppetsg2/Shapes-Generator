@@ -1,4 +1,16 @@
+#include "pch.hpp"
 #include "Plane.hpp"
+#include "Shape.hpp"
+#include "Config.hpp"
+
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
+
+using namespace config;
 
 void Plane::_generate(const unsigned int rows, const unsigned int columns, const PlaneNormalDir dir, const ValuesRange range)
 {

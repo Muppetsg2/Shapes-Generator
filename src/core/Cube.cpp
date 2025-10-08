@@ -10,6 +10,8 @@
 
 #include <glm/fwd.hpp>
 
+using namespace config;
+
 void Cube::_generate(const ValuesRange range)
 {
     //https://catonif.github.io/cube/

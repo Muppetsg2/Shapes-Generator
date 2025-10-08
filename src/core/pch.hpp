@@ -2,24 +2,20 @@
 
 // STANDARD LIBS
 #include <algorithm>
-//#include <cctype>
-//#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-//#include <functional>
-//#include <iomanip>
-//#include <iostream>
+#include <iomanip>
+#include <ios>
 #include <istream>
-//#include <map>
-//#include <sstream>
+#include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
-//#include <unordered_map>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -51,12 +47,13 @@
 
 // FROM VCPKG
 #define FMT_HEADER_ONLY
-//#include <fmt/core.h>
 #include <fmt/base.h>
-//#include <fmt/args.h>
+#include <fmt/args.h>
 #include <fmt/color.h>
+#include <fmt/format-inl.h>
 #include <glm/fwd.hpp>
-#include <glm/detail/func_geometric.inl>
+#include <glm/geometric.hpp>
+#include <glm/vector_relational.hpp>
 #include <glm/gtc/epsilon.hpp>
 
 #include "Constants.hpp"

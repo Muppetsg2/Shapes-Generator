@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "SystemFunctions.hpp"
 
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -23,13 +24,13 @@
 #include <unistd.h>
 #endif
 
-static bool check_directory(const char* path)
+bool system_functions::check_directory(const char* path)
 {
 	struct stat info;
 	return stat(path, &info) == 0 && (info.st_mode & S_IFDIR);
 }
 
-static bool create_directory(const char* path)
+bool system_functions::create_directory(const char* path)
 {
 	if (!path || *path == '\0') return false;
 
@@ -52,7 +53,7 @@ static bool create_directory(const char* path)
 	return MKDIR(dir.c_str()) == 0; // Try again after creating parent
 }
 
-static inline std::string get_executable_path()
+std::string system_functions::get_executable_path()
 {
     char buffer[4096] = {};
     uint32_t size = sizeof(buffer);

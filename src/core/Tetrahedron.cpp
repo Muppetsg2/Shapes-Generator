@@ -1,4 +1,17 @@
+#include "pch.hpp"
 #include "Tetrahedron.hpp"
+#include "Shape.hpp"
+#include "Config.hpp"
+#include "Constants.hpp"
+
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
+
+using namespace config;
 
 void Tetrahedron::_generate(const ValuesRange range)
 {

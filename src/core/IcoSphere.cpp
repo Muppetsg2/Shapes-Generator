@@ -1,5 +1,21 @@
+#include "pch.hpp"
 #include "IcoSphere.hpp"
 #include "BitMathOperators.hpp"
+#include "Config.hpp"
+#include "Constants.hpp"
+#include "Vertex.hpp"
+#include "Shape.hpp"
+
+#include <algorithm>
+#include <cstdint>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
+
+using namespace config;
 
 void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading, const bool hasSubdivisions)
 {

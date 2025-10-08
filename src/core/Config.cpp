@@ -9,10 +9,10 @@
 #include <fmt/base.h>
 #include <fmt/color.h>
 
-static Config& get_config(const std::string& exeDirPath = ".")
+config::Config& config::get_config(const std::string& exeDirPath)
 {
     static bool init = false;
-    static Config config;
+    static config::Config config;
 
     if (init) {
         return config;
