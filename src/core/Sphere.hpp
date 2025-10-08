@@ -1,5 +1,7 @@
 #pragma once
 #include "Shape.hpp"
+#include <string>
+#include <glm/fwd.hpp>
 
 enum class SphereShading {
 	FLAT = 0,

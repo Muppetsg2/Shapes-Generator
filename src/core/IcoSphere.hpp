@@ -1,5 +1,9 @@
 #pragma once
 #include "Shape.hpp"
+#include <cstdint>
+#include <string>
+#include <unordered_map>
+#include <glm/fwd.hpp>
 
 enum class IcoSphereShading {
     FLAT = 0,

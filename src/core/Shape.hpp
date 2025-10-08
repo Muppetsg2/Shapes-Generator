@@ -1,5 +1,9 @@
 #pragma once
 #include "Vertex.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+#include <glm/fwd.hpp>
 
 enum class FormatType {
 	VECTOR_INDICES_STRUCT = 0,

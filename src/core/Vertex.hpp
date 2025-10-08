@@ -1,4 +1,12 @@
 #pragma once
+#include "Constants.hpp"
+
+#include <cmath>
+#include <functional>
+
+#include <glm/fwd.hpp>
+#include <glm/gtc/epsilon.inl>
+#include <glm/detail/func_vector_relational.inl>
 
 struct Vertex
 {
@@ -15,7 +23,7 @@ struct Vec3Hash {
         constexpr float epsilon = EPSILON;
 
         auto to_grid = [](float value) -> int {
-            return static_cast<int>(std::round(value / epsilon));
+            return static_cast<int>(round(value / epsilon));
         };
 
         size_t h1 = std::hash<int>{}(to_grid(v.x));
@@ -41,7 +49,7 @@ struct Vec2Hash {
         constexpr float epsilon = EPSILON;
 
         auto to_grid = [](float value) -> int {
-            return static_cast<int>(std::round(value / epsilon));
+            return static_cast<int>(round(value / epsilon));
         };
 
         size_t h1 = std::hash<int>{}(to_grid(v.x));

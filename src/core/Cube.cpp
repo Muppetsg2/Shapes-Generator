@@ -1,5 +1,14 @@
+#include "pch.hpp"
 #include "Cube.hpp"
+#include "Shape.hpp"
+#include "Config.hpp"
 #include "BitMathOperators.hpp"
+
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
 
 void Cube::_generate(const ValuesRange range)
 {

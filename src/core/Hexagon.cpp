@@ -1,4 +1,6 @@
 #include "Hexagon.hpp"
+#include "Shape.hpp"
+#include <string>
 
 Hexagon::Hexagon(const unsigned int segments, const ValuesRange range)
 {

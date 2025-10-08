@@ -1,5 +1,15 @@
 #include "Cylinder.hpp"
 #include "BitMathOperators.hpp"
+#include "Shape.hpp"
+#include "Config.hpp"
+#include "Constants.hpp"
+
+#include <algorithm>
+#include <utility>
+#include <vector>
+
+#include <glm/fwd.hpp>
+#include <glm/detail/func_geometric.inl>
 
 void Cylinder::_generateCircle(const unsigned int segments, const float y, const CylinderCullFace cullFace, const ValuesRange range)
 {

@@ -1,5 +1,6 @@
 #pragma once
 #include "Shape.hpp"
+#include <string>
 
 class Tetrahedron : public Shape {
 private:

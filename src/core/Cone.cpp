@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "Cone.hpp"
 #include "Config.hpp"
+#include "Shape.hpp"
 
 #include <algorithm>
 #include <cmath>
