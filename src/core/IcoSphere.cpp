@@ -51,14 +51,14 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
         }
     }
 
-    for (unsigned int i = 0u; i < 4u; ++i) {
-        for (unsigned int j = 0u; j < 5u; ++j) {
+    for (unsigned int j = 0u; j < 4u; ++j) {
+        for (unsigned int i = 0u; i < 5u; ++i) {
             unsigned int ia, ib, ic;
-            switch (i) {
+            switch (j) {
                 case 0u : {
                     ia = 0u;
                     ib = (11u + 3u * mul_2(i - div_4(i)) + mul_2(div_2(i)) + div_4(i)) % 12u;
-                    ic = (5u + mul_8(div_4(i + 3u)) + 3u * mod_4(i) * div_4(i + 2u) + mul_2(mod_2(div_2(i))) + div_4(i + 2u)) % 12u;
+                    ic = (5u + mul_8(div_4(i + 3u)) + 3u * mod_4(i + 3u) * div_4(i + 2u) + mul_2(mod_2(div_2(i))) + div_4(i + 2u)) % 12u;
                     break;
                 }
                 case 1u : {

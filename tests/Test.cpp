@@ -7,14 +7,14 @@ TEST_CASE("ShapesGenerator.ICOSphere.Calculations") {
     unsigned int bs[] = { 11, 5, 1, 7, 10, 5, 11, 10, 7, 1, 9, 4, 2, 6, 8, 9, 4, 2, 6, 8 };
     unsigned int cs[] = { 5, 1, 7, 10, 11, 9, 4, 2, 6, 8, 4, 2, 6, 8, 9, 5, 11, 10, 7, 1 };
 
-    for (unsigned int i = 0u; i < 4u; ++i) {
-        for (unsigned int j = 0u; j < 5u; ++j) {
+    for (unsigned int j = 0u; j < 4u; ++j) {
+        for (unsigned int i = 0u; i < 5u; ++i) {
             unsigned int ia, ib, ic;
-            switch (i) {
+            switch (j) {
                 case 0u: {
                     ia = 0u;
                     ib = (11u + 3u * mul_2(i - div_4(i)) + mul_2(div_2(i)) + div_4(i)) % 12u;
-                    ic = (5u + mul_8(div_4(i + 3u)) + 3u * mod_4(i) * div_4(i + 2u) + mul_2(mod_2(div_2(i))) + div_4(i + 2u)) % 12u;
+                    ic = (5u + mul_8(div_4(i + 3u)) + 3u * mod_4(i + 3u) * div_4(i + 2u) + mul_2(mod_2(div_2(i))) + div_4(i + 2u)) % 12u;
                     break;
                 }
                 case 1u: {
@@ -37,9 +37,9 @@ TEST_CASE("ShapesGenerator.ICOSphere.Calculations") {
                 }
             }
 
-            CHECK(ia == as[i * 5 + j]);
-            CHECK(ib == bs[i * 5 + j]);
-            CHECK(ic == cs[i * 5 + j]);
+            CHECK(ia == as[j * 5 + i]);
+            CHECK(ib == bs[j * 5 + i]);
+            CHECK(ic == cs[j * 5 + i]);
         }
     }
 }
