@@ -63,7 +63,7 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
                 }
                 case 1u : {
                     ia = (1u + mul_2(2u + 3u * mod_4(i + 3u) * div_4(i + 2)) * div_4(i + 3u) + 3u * ((i / 3u) + div_4(i)) + mul_2(i / 3u)) % 12u;
-                    ib = (5u + 3u * mul_2(i) + 3u * (((i / 3u) + 1u) * div_4(i + 2u)) + mul_2(div_4(i + 2u))) % 12u;
+                    ib = (5u + 3u * mul_2(i) + 3u * ((i / 3u) + 1u) * div_4(i + 2u) + mul_2(div_4(i + 2u))) % 12u;
                     ic = (9u + 7u * div_4(i + 3u) + mul_2(mul_2(i) + (mod_4(i) / 3u) + mod_2((i + 2u) % 3)) * (div_4(i + 2u))) % 12u;
                     break;
                 }
