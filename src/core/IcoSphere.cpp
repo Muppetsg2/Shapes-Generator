@@ -28,8 +28,8 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
 
     for (unsigned int i = 0u; i < 3u; ++i) {
         for (unsigned int j = 0u; j < 4u; ++j) {
-            const float a = t * (float)(1 - mul_2(div_2(j)));
-            const float b = (float)(1 - mul_2(mod_2(j + 1)));
+            const float a = t * (float)(1 - (int)mul_2(div_2(j)));
+            const float b = (float)(1 - (int)mul_2(mod_2(j + 1u)));
             glm::vec3 pos;
             switch(i) {
                 case 0 : {

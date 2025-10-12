@@ -6,9 +6,9 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.3.1
+// Version: 1.3.4
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 08.10.2025
+// Last Update: 12.10.2025
 
 #pragma region PCH
 #include "pch.hpp"
@@ -602,7 +602,7 @@ int main(int argc, char** argv)
 
 #pragma region SHAPE_GENERATED_INFO
     if (!selectedShape) {
-        fmt::print("\n[{}] Error: Failed to generate the shape!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
+        fmt::print("\n[{}] Error: Failed to generate shape!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
         return EXIT_FAILURE;
     }
 
@@ -623,7 +623,7 @@ int main(int argc, char** argv)
         }
     }
 
-    std::string filePath = config.saveDir + DIRSEP + config.fileName + ((format != FormatType::OBJ) ? ".txt" : ".obj");
+    std::string filePath = config.saveDir + DIRSEP + get_resolved_file_name(config, selectedShape->getObjectClassName()) + ((format != FormatType::OBJ) ? ".txt" : ".obj");
 
     fmt::print("\n[{}] Start Saving {} to file...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), selectedShape->getObjectClassName());
     auto start = std::chrono::system_clock::now();

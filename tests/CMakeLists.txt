@@ -87,7 +87,7 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib Catch2::Catch2WithMain)
+target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib Catch2::Catch2WithMain glm::glm)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")

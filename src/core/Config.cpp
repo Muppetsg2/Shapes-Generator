@@ -2,8 +2,12 @@
 #include "Config.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <ctime>
 #include <fstream>
+#include <iomanip>
 #include <istream>
+#include <sstream>
 #include <string>
 
 #include <fmt/base.h>
@@ -22,7 +26,7 @@ config::Config& config::get_config(const std::string& exeDirPath)
     std::ifstream inFile(configFilePath);
     config.genTangents = true;
     config.saveDir = exeDirPath + DIRSEP;
-    config.fileName = "shape";
+    config.fileName = "${TYPE}-%H-%M-%S";
 
     init = true;
 
@@ -68,7 +72,7 @@ config::Config& config::get_config(const std::string& exeDirPath)
                 if (!hasSaveDir)
                     outFile << "saveDir: " << config.saveDir << "\n";
                 if (!hasFileName)
-                    outFile << "fileName: " << config.fileName << "\n";
+                    outFile << "fileName: " << config.fileName;
                 outFile.close();
             }
             else {
@@ -82,7 +86,7 @@ config::Config& config::get_config(const std::string& exeDirPath)
         if (outFile) {
             outFile << "generateTangents: " << (config.genTangents ? "true" : "false") << "\n";
             outFile << "saveDir: " << config.saveDir << "\n";
-            outFile << "fileName: " << config.fileName << "\n";
+            outFile << "fileName: " << config.fileName;
             outFile.close();
         }
         else {
@@ -92,4 +96,38 @@ config::Config& config::get_config(const std::string& exeDirPath)
     }
 
     return config;
+}
+
+std::string config::get_resolved_file_name(const config::Config& cfg, const std::string& typeName) {
+    std::string result = cfg.fileName;
+
+    static const std::string typePlaceholder = "${TYPE}";
+    static const std::string typeToken = "___TYPE_TOKEN___";
+
+    auto replace_all = [](std::string& str, const std::string& from, const std::string& to) {
+        size_t pos = 0;
+            while ((pos = str.find(from, pos)) != std::string::npos) {
+                str.replace(pos, from.length(), to);
+                pos += to.length();
+            }
+        };
+
+    replace_all(result, typePlaceholder, typeToken);
+
+    // Actual Time
+    auto now = std::chrono::system_clock::now();
+    std::time_t t = std::chrono::system_clock::to_time_t(now);
+
+    ::std::ostringstream oss;
+    if (!result.empty()) {
+        oss << ::std::put_time(::std::localtime(&t), result.c_str());
+    }
+    else {
+        oss << ::std::put_time(::std::localtime(&t), "___TYPE_TOKEN___-%H-%M-%S");
+    }
+    result = oss.str();
+
+    replace_all(result, typeToken, typeName);
+
+    return result;
 }

@@ -122,6 +122,14 @@ std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(const unsigned int 
     TB.first = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
     TB.second = (delta_pos2 * delta_uv1.x - delta_pos1 * delta_uv2.x) * r;
 
+    if (fabsf(glm::length(TB.first)) >= EPSILON) {
+        TB.first = glm::normalize(TB.first);
+    }
+
+    if (fabsf(glm::length(TB.second)) >= EPSILON) {
+        TB.second = glm::normalize(TB.second);
+    }
+
     return TB;
 }
 

@@ -3,10 +3,12 @@
 
 namespace config {
 	struct Config {
-		bool genTangents;
 		std::string saveDir;
 		std::string fileName;
+		bool genTangents;
 	};
 
 	Config& get_config(const std::string& exeDirPath = ".");
+
+	std::string get_resolved_file_name(const Config& cfg, const std::string& typeName);
 }

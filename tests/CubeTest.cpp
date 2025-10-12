@@ -1,46 +1,82 @@
 #include "pch.hpp"
 #include "BitMathOperators.hpp"
+#include "Vertex.hpp"
+#include "Shape.hpp"
+#include "Cube.hpp"
 
-TEST_CASE("ShapesGenerator.ICOSphere.Calculations") {
+#include "Helpers.hpp"
 
-    unsigned int as[] = { 0, 0, 0, 0, 0, 1, 5, 11, 10, 7, 3, 3, 3, 3, 3, 4, 2, 6, 8, 9 };
-    unsigned int bs[] = { 11, 5, 1, 7, 10, 5, 11, 10, 7, 1, 9, 4, 2, 6, 8, 9, 4, 2, 6, 8 };
-    unsigned int cs[] = { 5, 1, 7, 10, 11, 9, 4, 2, 6, 8, 4, 2, 6, 8, 9, 5, 11, 10, 7, 1 };
+#include <vector>
 
-    for (unsigned int j = 0u; j < 4u; ++j) {
-        for (unsigned int i = 0u; i < 5u; ++i) {
-            unsigned int ia, ib, ic;
-            switch (j) {
-                case 0u: {
-                    ia = 0u;
-                    ib = (11u + 3u * mul_2(i - div_4(i)) + mul_2(div_2(i)) + div_4(i)) % 12u;
-                    ic = (5u + mul_8(div_4(i + 3u)) + 3u * mod_4(i + 3u) * div_4(i + 2u) + mul_2(mod_2(div_2(i))) + div_4(i + 2u)) % 12u;
-                    break;
-                }
-                case 1u: {
-                    ia = (1u + mul_2(2u + 3u * mod_4(i + 3u) * div_4(i + 2)) * div_4(i + 3u) + 3u * ((i / 3u) + div_4(i)) + mul_2(i / 3u)) % 12u;
-                    ib = (5u + 3u * mul_2(i) + 3u * ((i / 3u) + 1u) * div_4(i + 2u) + mul_2(div_4(i + 2u))) % 12u;
-                    ic = (9u + 7u * div_4(i + 3u) + mul_2(mul_2(i) + (mod_4(i) / 3u) + mod_2((i + 2u) % 3)) * (div_4(i + 2u))) % 12u;
-                    break;
-                }
-                case 2u: {
-                    ia = 3u;
-                    ib = (9u + 7u * div_4(i + 3u) + mul_2(mul_2(i) + (mod_4(i) / 3u) + mod_2((i + 2u) % 3)) * div_4(i + 2u)) % 12u;
-                    ic = (4u + mul_2(5u + i * div_4(i + 2u)) * div_4(i + 3u) - div_4(i)) % 12u;
-                    break;
-                }
-                case 3u: {
-                    ia = (4u + mul_2(5u + i * div_4(i + 2u)) * div_4(i + 3u) - div_4(i)) % 12u;
-                    ib = (9u + 7u * div_4(i + 3u) + mul_2(mul_2(i) + (mod_4(i) / 3u) + mod_2((i + 2u) % 3u)) * div_4(i + 2u)) % 12u;
-                    ic = (5u + 3u * mul_2(i) + 3u * ((i / 3u) + 1u) * div_4(i + 2u) + mul_2(div_4(i + 2u))) % 12u;
-                    break;
-                }
-            }
+class TestableCube : public Cube {
+public:
+    using Cube::Cube;
+    const std::vector<Vertex>& getVertices() const { return _vertices; }
+    const std::vector<unsigned int>& getIndices() const { return _indices; }
+};
 
-            CHECK(ia == as[j * 5 + i]);
-            CHECK(ib == bs[j * 5 + i]);
-            CHECK(ic == cs[j * 5 + i]);
-        }
+TEST_CASE("ShapesGenerator.Cube.Generation") {
+    static const std::vector<Vertex> expectedVertices = {
+        //POSITION						//TEX COORD		//NORMAL					//TANGENT					//BITANGENT
+        { { -1.f, 1.f, 1.f },           { 0.f, 0.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, 1.f, 1.f },            { 1.f, 0.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, 1.f, -1.f },           { 0.f, 0.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, 1.f, -1.f },          { 1.f, 0.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, -1.f, 1.f },          { 0.f, 1.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, -1.f, 1.f },           { 1.f, 1.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, -1.f, -1.f },          { 0.f, 1.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, -1.f, -1.f },         { 1.f, 1.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, 1.f, 1.f },           { 1.f, 0.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, 1.f, 1.f },            { 0.f, 0.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, 1.f, -1.f },           { 1.f, 0.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, 1.f, -1.f },          { 0.f, 0.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, -1.f, 1.f },          { 1.f, 1.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, -1.f, 1.f },           { 0.f, 1.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
+        { { 1.f, -1.f, -1.f },          { 1.f, 1.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, -1.f, -1.f },         { 0.f, 1.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f, 1.f, 1.f },           { 0.f, 1.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+        { { 1.f, 1.f, 1.f },            { 1.f, 1.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+        { { 1.f, 1.f, -1.f },           { 1.f, 0.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+        { { -1.f, 1.f, -1.f },          { 0.f, 0.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+        { { -1.f, -1.f, 1.f },          { 0.f, 0.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
+        { { 1.f, -1.f, 1.f },           { 1.f, 0.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
+        { { 1.f, -1.f, -1.f },          { 1.f, 1.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
+        { { -1.f, -1.f, -1.f },         { 0.f, 1.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } }
+    };
+
+    static const std::vector<unsigned int> expectedIndices = {
+        0, 4, 5,
+        0, 5, 1,
+        2, 6, 7,
+        2, 7, 3,
+        9, 13, 14,
+        9, 14, 10,
+        11, 15, 12,
+        11, 12, 8,
+        19, 16, 17,
+        19, 17, 18,
+        20, 23, 22,
+        20, 22, 21
+    };
+
+    TestableCube* cube = new TestableCube(ValuesRange::ONE_TO_ONE);
+
+    const auto& v = cube->getVertices();
+    const auto& i = cube->getIndices();
+
+    REQUIRE(v.size() == expectedVertices.size());
+    REQUIRE(i.size() == expectedIndices.size());
+
+    for (size_t idx = 0; idx < v.size(); ++idx) {
+        CheckVec3Equal(v[idx].Position, expectedVertices[idx].Position, TEST_EPSILON, "Position");
+        CheckVec2Equal(v[idx].TexCoord, expectedVertices[idx].TexCoord, TEST_EPSILON, "TexCoord");
+        CheckVec3Equal(v[idx].Normal, expectedVertices[idx].Normal, TEST_EPSILON, "Normal");
+        CheckVec3Equal(v[idx].Tangent, expectedVertices[idx].Tangent, TEST_EPSILON, "Tangent");
+        CheckVec3Equal(v[idx].Bitangent, expectedVertices[idx].Bitangent, TEST_EPSILON, "Bitangent");
+    }
+
+    for (size_t idx = 0; idx < i.size(); ++idx) {
+        REQUIRE(i[idx] == expectedIndices[idx]);
     }
 }
 
