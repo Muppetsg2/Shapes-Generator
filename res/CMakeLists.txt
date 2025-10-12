@@ -4,9 +4,15 @@ endif()
 
 # Search for the assets files
 file(GLOB_RECURSE RAW_ASSETS_FILES CONFIGURE_DEPENDS "*.*")
+
+# Normalize all paths to use forward slashes (so regex works cross-platform)
+file(TO_CMAKE_PATH "${RAW_ASSETS_FILES}" RAW_ASSETS_FILES)
+
+# Exclude unwanted files and folders (cross-platform)
 list(FILTER RAW_ASSETS_FILES EXCLUDE REGEX ".*\\.rc$")
 list(FILTER RAW_ASSETS_FILES EXCLUDE REGEX ".*\\.ico$")
 list(FILTER RAW_ASSETS_FILES EXCLUDE REGEX ".*\\.icns$")
+list(FILTER RAW_ASSETS_FILES EXCLUDE REGEX ".*/libs/.*")
 
 set_source_files_properties(${RAW_ASSETS_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 
@@ -15,6 +21,8 @@ if(WIN32)
 	set(ICO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 	set_source_files_properties(${ICO_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
     list(APPEND RAW_ASSETS_FILES ${RC_FILE} ${ICO_FILE})
+	
+	set(DLL_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs PARENT_SCOPE)
 elseif(APPLE)
 	set(MACOSX_BUNDLE_ICON_FILE icon.icns)
 	set(MACOSX_ICON_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${MACOSX_BUNDLE_ICON_FILE} PARENT_SCOPE)

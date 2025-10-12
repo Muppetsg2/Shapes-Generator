@@ -402,3 +402,4 @@ FodyWeavers.xsd
 out/
 [Bb]uild/
 cpm_cache/
+\.vs/

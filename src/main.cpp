@@ -6,30 +6,75 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.3.0
+// Version: 1.3.4
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 10.05.2025
+// Last Update: 12.10.2025
 
-#include "Sphere.hpp"
-#include "IcoSphere.hpp"
-#include "Plane.hpp"
-#include "Cube.hpp"
-#include "Cylinder.hpp"
-#include "Hexagon.hpp"
-#include "Cone.hpp"
-#include "Tetrahedron.hpp"
-#include "Pyramid.hpp"
-#include "Torus.hpp"
-#include "templates.hpp"
+#pragma region PCH
+#include "pch.hpp"
+#pragma endregion
+
+#pragma region STD_LIBS
+#include <chrono>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+#pragma endregion
+
+#pragma region FMT_LIB
+#include <fmt/base.h>
+#include <fmt/color.h>
+#include <fmt/format.h>
+#pragma endregion
+
+#pragma region PLATFORM_LIBS
+#if defined(_WIN32)
+#define NOGDI
+#define NOATOM
+#define NOMINMAX
+#include <windows.h>
+#undef near
+#undef far
+#include <consoleapi.h>
+#include <processenv.h>
+#include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <Cone.hpp>
+#include <Config.hpp>
+#include <Cube.hpp>
+#include <Cylinder.hpp>
+#include <Hexagon.hpp>
+#include <IcoSphere.hpp>
+#include <Plane.hpp>
+#include <Pyramid.hpp>
+#include <Shape.hpp>
+#include <Sphere.hpp>
+#include <SystemFunctions.hpp>
+#include <Tetrahedron.hpp>
+#include <Torus.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "ConsoleTemplates.hpp"
+#pragma endregion
+
 
 Shape* selectedShape = nullptr;
 
 #pragma region STRING_OPERATORS
-void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
+static void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith)
 {
     std::string buf;
-    std::size_t pos = 0;
-    std::size_t prevPos;
+    size_t pos = 0;
+    size_t prevPos;
 
     // Reserves rough estimate of final size of string.
     buf.reserve(s.size());
@@ -60,17 +105,17 @@ static std::string getInputPrompt(int firstOptionNum, int lastOptionNum)
     return fmt::format("Enter your choice ({} - {}): ", firstOptionNum, lastOptionNum);
 }
 
-void printBannerLineColored(std::string text, fmt::color color)
+static void printBannerLineColored(std::string text, fmt::color color)
 {
     fmt::print("│");
     fmt::print("{}", fmt::styled(text, fmt::fg(color)));
     fmt::print("│\n");
 }
 
-void displayStartWindow()
+static void displayStartWindow()
 {
     size_t lineLength = std::string("   ____  _                              ____                           _               ").size();
-    std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION_STR);
+    std::string versionTxt = std::string("Version: ").append(SHAPES_GENERATOR_VERSION);
     std::string escTxt = std::string("Press ESC to exit the program");
 
     size_t verSpaceCount = (lineLength - versionTxt.size()) / 2ull;
@@ -303,14 +348,14 @@ static void waitForEnter(const std::string& prompt)
     }
 }
 
-int intChooseInput(int min, int max)
+static int intChooseInput(int min, int max)
 {
     return getIntInput(getInputPrompt(min, max));
 }
 #pragma endregion
 
 #pragma region SHAPE_FUNCTIONS
-PlaneNormalDir getPlaneDirection()
+static PlaneNormalDir getPlaneDirection()
 {
     int dir_choice;
     do {
@@ -324,7 +369,7 @@ PlaneNormalDir getPlaneDirection()
     return static_cast<PlaneNormalDir>(dir_choice - 1);
 }
 
-ValuesRange getValuesRange()
+static ValuesRange getValuesRange()
 {
     int dir_choice;
     do {
@@ -338,7 +383,7 @@ ValuesRange getValuesRange()
     return static_cast<ValuesRange>(dir_choice - 1);
 }
 
-FormatType getFormatType()
+static FormatType getFormatType()
 {
     static const std::vector<std::string> options{
         "std::vector  - Vertices & Indices (struct)",
@@ -373,10 +418,13 @@ FormatType getFormatType()
 }
 #pragma endregion
 
+using namespace config;
+using namespace system_functions;
+
 int main(int argc, char** argv)
 {
 #pragma region INIT
-#ifdef _WIN32
+#if defined(_WIN32)
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
     GetConsoleMode(hOut, &dwMode);
@@ -554,7 +602,7 @@ int main(int argc, char** argv)
 
 #pragma region SHAPE_GENERATED_INFO
     if (!selectedShape) {
-        fmt::print("\n[{}] Error: Failed to generate the shape!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
+        fmt::print("\n[{}] Error: Failed to generate shape!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
         return EXIT_FAILURE;
     }
 
@@ -575,7 +623,7 @@ int main(int argc, char** argv)
         }
     }
 
-    std::string filePath = config.saveDir + DIRSEP + config.fileName + ((format != FormatType::OBJ) ? ".txt" : ".obj");
+    std::string filePath = config.saveDir + DIRSEP + get_resolved_file_name(config, selectedShape->getObjectClassName()) + ((format != FormatType::OBJ) ? ".txt" : ".obj");
 
     fmt::print("\n[{}] Start Saving {} to file...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), selectedShape->getObjectClassName());
     auto start = std::chrono::system_clock::now();
