@@ -35,7 +35,7 @@ struct Vec3Hash {
 };
 
 struct Vec3Equal {
-    bool operator()(const glm::vec3& a, const glm::vec3& b) const
+    inline bool operator()(const glm::vec3& a, const glm::vec3& b) const
     {
         constexpr float epsilon = EPSILON;
 
@@ -60,7 +60,7 @@ struct Vec2Hash {
 };
 
 struct Vec2Equal {
-    bool operator()(const glm::vec2& a, const glm::vec2& b) const
+    inline bool operator()(const glm::vec2& a, const glm::vec2& b) const
     {
         constexpr float epsilon = EPSILON;
 

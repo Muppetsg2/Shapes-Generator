@@ -8,6 +8,8 @@
 
 #include <vector>
 
+#include <catch2/catch_test_macros.hpp>
+
 class TestableCube : public Cube {
 public:
     using Cube::Cube;

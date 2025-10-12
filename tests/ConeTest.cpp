@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "BitMathOperators.hpp"
 #include "Vertex.hpp"
 #include "Shape.hpp"
 #include "Cone.hpp"
@@ -7,6 +6,8 @@
 #include "Helpers.hpp"
 
 #include <vector>
+
+#include <catch2/catch_test_macros.hpp>
 
 class TestableCone : public Cone {
 public:

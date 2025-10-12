@@ -1,17 +1,26 @@
 #pragma once
 #include <cmath>
 
+#include <catch2/catch_message.hpp>
+#include <catch2/catch_test_macros.hpp>
+
+#include <glm/fwd.hpp>
+#include <glm/gtc/epsilon.hpp>
+#include <glm/vector_relational.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 static inline bool epsilon_equal(float a, float b, float eps) { return fabsf(a - b) < eps; }
 
 struct Vec3EqualForTests {
-	inline constexpr bool operator()(const glm::vec3& a, const glm::vec3& b, const float eps) const
+	inline bool operator()(const glm::vec3& a, const glm::vec3& b, const float eps) const
 	{
 		return glm::all(glm::epsilonEqual(a, b, eps));
 	}
 };
 
 struct Vec2EqualForTests {
-	inline constexpr bool operator()(const glm::vec2& a, const glm::vec2& b, const float eps) const
+	inline bool operator()(const glm::vec2& a, const glm::vec2& b, const float eps) const
 	{
 		return glm::all(glm::epsilonEqual(a, b, eps));
 	}

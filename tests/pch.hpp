@@ -3,9 +3,12 @@
 #include <cmath>
 #include <vector>
 
-#include <catch2/catch_all.hpp>
+#include <catch2/catch_message.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <glm/fwd.hpp>
+#include <glm/gtc/epsilon.hpp>
+#include <glm/vector_relational.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 

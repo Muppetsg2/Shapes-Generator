@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include <catch2/catch_test_macros.hpp>
+
 class TestableIcoSphere : public IcoSphere {
 public:
     using IcoSphere::IcoSphere;
