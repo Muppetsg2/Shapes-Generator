@@ -38,7 +38,7 @@ void Cylinder::_generateCircle(const unsigned int segments, const float y, const
 
     // INDICES
     const size_t vertSize = _vertices.size();
-    std::pair<glm::vec3, glm::vec3> TB;
+    glm::vec3 tangent;
     for (size_t i = start; i < vertSize - 1ull; ++i) {
         const size_t right = i + 2ull == vertSize ? start : i + 1ull;
 
@@ -48,24 +48,19 @@ void Cylinder::_generateCircle(const unsigned int segments, const float y, const
 
         if (config.genTangents) {
             if (cullFace == CylinderCullFace::FRONT) {
-                TB = _calcTangentBitangent((unsigned int)i, (unsigned int)right, (unsigned int)vertSize - 1u);
+                tangent = _calcTangent((unsigned int)i, (unsigned int)right, (unsigned int)vertSize - 1u);
             }
             else {
-                TB = _calcTangentBitangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
+                tangent = _calcTangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
             }
 
-            _vertices[i].Tangent += TB.first;
-            _vertices[i].Bitangent += TB.second;
-
-            _vertices[right].Tangent += TB.first;
-            _vertices[right].Bitangent += TB.second;
-
-            _vertices[vertSize - 1ull].Tangent += TB.first;
-            _vertices[vertSize - 1ull].Bitangent += TB.second;
+            _vertices[i].Tangent += tangent;
+            _vertices[right].Tangent += tangent;
+            _vertices[vertSize - 1ull].Tangent += tangent;
         }
     }
 
-    if (config.genTangents) _normalizeTangents(trisNum, start, _vertices.size());
+    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, start, _vertices.size());
 
     trisNum.clear();
 }
@@ -135,7 +130,7 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
     }
 
     // INDICES
-    std::pair<glm::vec3, glm::vec3> TB;
+    glm::vec3 tangent;
     for (unsigned int i = 0u; i < horizontalSegments; ++i) {
         for (unsigned int j = 0u; j < verticalSegments; ++j) {
             const size_t f = (useFlatShading ? 1ull : 0ull);
@@ -152,16 +147,11 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
             _indices.push_back((unsigned int)right);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent((unsigned int)left, (unsigned int)dt, (unsigned int)right);
+                tangent = _calcTangent((unsigned int)left, (unsigned int)dt, (unsigned int)right);
 
-                _vertices[left].Tangent += TB.first;
-                _vertices[left].Bitangent += TB.second;
-
-                _vertices[dt].Tangent += TB.first;
-                _vertices[dt].Bitangent += TB.second;
-
-                _vertices[right].Tangent += TB.first;
-                _vertices[right].Bitangent += TB.second;
+                _vertices[left].Tangent += tangent;
+                _vertices[dt].Tangent += tangent;
+                _vertices[right].Tangent += tangent;
             }
 
             std::swap(dt, right);
@@ -173,21 +163,16 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
             _indices.push_back((unsigned int)right);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent((unsigned int)dt, (unsigned int)left, (unsigned int)right);
+                tangent = _calcTangent((unsigned int)dt, (unsigned int)left, (unsigned int)right);
 
-                _vertices[dt].Tangent += TB.first;
-                _vertices[dt].Bitangent += TB.second;
-
-                _vertices[left].Tangent += TB.first;
-                _vertices[left].Bitangent += TB.second;
-
-                _vertices[right].Tangent += TB.first;
-                _vertices[right].Bitangent += TB.second;
+                _vertices[dt].Tangent += tangent;
+                _vertices[left].Tangent += tangent;
+                _vertices[right].Tangent += tangent;
             }
         }
     }
 
-    if (config.genTangents) _normalizeTangents(trisNum, start, _vertices.size());
+    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, start, _vertices.size());
 
     trisNum.clear();
 

@@ -58,7 +58,7 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
 
     if (useFlatShading) {
         /* inner ring */
-        std::pair<glm::vec3, glm::vec3> TB;
+        glm::vec3 tangent;
         std::vector<Vertex> tempVertices(_vertices);
         _vertices.clear();
         for (unsigned int i = 0u; i < cs_segments; ++i) {
@@ -98,16 +98,16 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
                     _indices.push_back(t);
 
                     if (config.genTangents) {
-                        TB = _calcTangentBitangent(f, s, t);
+                        tangent = _calcTangent(f, s, t);
 
-                        _vertices[f].Tangent = TB.first;
-                        _vertices[f].Bitangent = TB.second;
+                        _vertices[f].Tangent = tangent;
+                        _normalizeTangentAndGenerateBitangent(f);
 
-                        _vertices[s].Tangent = TB.first;
-                        _vertices[s].Bitangent = TB.second;
+                        _vertices[s].Tangent = tangent;
+                        _normalizeTangentAndGenerateBitangent(s);
 
-                        _vertices[t].Tangent = TB.first;
-                        _vertices[t].Bitangent = TB.second;
+                        _vertices[t].Tangent = tangent;
+                        _normalizeTangentAndGenerateBitangent(t);
                     }
 
                     f += 3u;
@@ -119,7 +119,7 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
     }
     else {
         /* inner ring */
-        std::pair<glm::vec3, glm::vec3> TB;
+        glm::vec3 tangent;
         for (unsigned int i = 0u; i < cs_segments; ++i) {
             const unsigned int nextrow = segments + 1u;
 
@@ -130,38 +130,30 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
                 const unsigned int third = i * nextrow + j + nextrow;
                 const unsigned int fourth = i * nextrow + j + nextrow + 1u;
 
+                // first triangle
                 _indices.push_back(third);
                 _indices.push_back(second);
                 _indices.push_back(first);
 
-                if (config.genTangents) {
-                    TB = _calcTangentBitangent(third, second, first);
-
-                    _vertices[third].Tangent += TB.first;
-                    _vertices[third].Bitangent += TB.second;
-
-                    _vertices[second].Tangent += TB.first;
-                    _vertices[second].Bitangent += TB.second;
-
-                    _vertices[first].Tangent += TB.first;
-                    _vertices[first].Bitangent += TB.second;
-                }
-
+                // second triangle
                 _indices.push_back(second);
                 _indices.push_back(third);
                 _indices.push_back(fourth);
 
                 if (config.genTangents) {
-                    TB = _calcTangentBitangent(second, third, fourth);
+                    // first triangle
+                    tangent = _calcTangent(third, second, first);
 
-                    _vertices[second].Tangent += TB.first;
-                    _vertices[second].Bitangent += TB.second;
+                    _vertices[third].Tangent += tangent;
+                    _vertices[second].Tangent += tangent;
+                    _vertices[first].Tangent += tangent;
 
-                    _vertices[third].Tangent += TB.first;
-                    _vertices[third].Bitangent += TB.second;
+                    // second triangle
+                    tangent = _calcTangent(second, third, fourth);
 
-                    _vertices[fourth].Tangent += TB.first;
-                    _vertices[fourth].Bitangent += TB.second;
+                    _vertices[second].Tangent += tangent;
+                    _vertices[third].Tangent += tangent;
+                    _vertices[fourth].Tangent += tangent;
                 }
             }
         }
@@ -174,7 +166,7 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
                 ++trisNum[_indices[i]];
             }
 
-            _normalizeTangents(trisNum, 0ull, _vertices.size());
+            _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
             trisNum.clear();
         }
     }

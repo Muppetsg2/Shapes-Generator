@@ -6,9 +6,9 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.3.4
+// Version: 1.3.5
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 12.10.2025
+// Last Update: 01.02.2025
 
 #pragma region PCH
 #include "pch.hpp"
@@ -630,7 +630,7 @@ int main(int argc, char** argv)
 
     std::ofstream file(filePath, std::ios::out | std::ios::trunc | std::ios::binary);
 
-    if (file) {
+    if (file.is_open()) {
         std::string text = selectedShape->toString(format);
         file.write(text.data(), text.size());
         file.close();
@@ -649,6 +649,16 @@ int main(int argc, char** argv)
             fmt::styled("SAVED", fmt::fg(fmt::color::green)),
             elapsed_seconds.count(),
             fmt::styled("PATH", fmt::fg(fmt::color::white)), filePath);
+
+        if (config.openDirOnSave)
+        {
+            bool res = open_in_file_explorer(filePath.c_str());
+
+            if (!res)
+            {
+                fmt::print("[{}] Error: Could not open file explorer!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));
+            }
+        }
     }
     else {
         fmt::print("[{}] Error: Could not save the file!\n", fmt::styled("ERROR", fmt::fg(fmt::color::red)));

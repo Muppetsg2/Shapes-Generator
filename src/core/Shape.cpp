@@ -66,25 +66,21 @@ Vertex Shape::_calcTangentBitangent(const unsigned int vertexIndex) const
 
             tangent += (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
 
-            bitangent += (delta_pos2 * delta_uv1.x - delta_pos1 * delta_uv2.x) * r;
+            //bitangent += (delta_pos2 * delta_uv1.x - delta_pos1 * delta_uv2.x) * r;
 
             trianglesIncluded += 1u;
         }
     }
 
     // Average the tangent and bitangents
-    if (trianglesIncluded > 0u) {
-        tangent /= trianglesIncluded;
+    float inv_trisInc = trianglesIncluded < 2 ? 1.0f : 1.0f / (float)trianglesIncluded;
+    tangent *= inv_trisInc;
 
-        if (fabsf(glm::length(tangent)) >= EPSILON) {
-            tangent = glm::normalize(tangent);
-        }
+    if (fabsf(glm::length(tangent)) >= EPSILON) {
+        tangent = glm::normalize(tangent);
 
-        bitangent /= trianglesIncluded;
-
-        if (fabsf(glm::length(bitangent)) >= EPSILON) {
-            bitangent = glm::normalize(bitangent);
-        }
+        bitangent = glm::cross(v.Normal, tangent);
+        tangent = glm::cross(bitangent, v.Normal);
     }
 
     // Save the results
@@ -116,7 +112,8 @@ std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(const unsigned int 
     const glm::vec2 delta_uv1 = uv1 - uv0;
     const glm::vec2 delta_uv2 = uv2 - uv0;
 
-    const float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
+    const float inv_r = delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x;
+    const float r = (fabsf(inv_r) >= EPSILON) ? 1.0f / inv_r : 1.0f;
 
     // Save the results
     TB.first = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
@@ -133,20 +130,80 @@ std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(const unsigned int 
     return TB;
 }
 
-void Shape::_normalizeTangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end)
+glm::vec3 Shape::_calcTangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const
+{
+    const Vertex v0 = _vertices[t1];
+    const Vertex v1 = _vertices[t2];
+    const Vertex v2 = _vertices[t3];
+
+    const glm::vec3 pos0 = v0.Position;
+    const glm::vec3 pos1 = v1.Position;
+    const glm::vec3 pos2 = v2.Position;
+
+    const glm::vec2 uv0 = v0.TexCoord;
+    const glm::vec2 uv1 = v1.TexCoord;
+    const glm::vec2 uv2 = v2.TexCoord;
+
+    const glm::vec3 delta_pos1 = pos1 - pos0;
+    const glm::vec3 delta_pos2 = pos2 - pos0;
+
+    const glm::vec2 delta_uv1 = uv1 - uv0;
+    const glm::vec2 delta_uv2 = uv2 - uv0;
+
+    const float inv_r = delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x;
+    const float r = (fabsf(inv_r) >= EPSILON) ? 1.0f / inv_r : 1.0f;
+
+    // Save the results
+    glm::vec3 tangent = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
+
+    if (fabsf(glm::length(tangent)) >= EPSILON) {
+        tangent = glm::normalize(tangent);
+    }
+
+    return tangent;
+}
+
+void Shape::_normalizeTangentAndGenerateBitangent(const unsigned int vertIdx, const unsigned int trisNum)
+{
+    if (vertIdx < 0 || vertIdx >= _vertices.size())
+        return;
+
+    Vertex& vert = _vertices[vertIdx];
+    float inv_trisNum = trisNum < 2 ? 1.0f : 1.0f / (float)trisNum;
+    vert.Tangent *= inv_trisNum;
+
+    if (fabsf(glm::length(vert.Tangent)) >= EPSILON) {
+        vert.Tangent = glm::normalize(vert.Tangent);
+
+        vert.Bitangent = glm::cross(vert.Normal, vert.Tangent);
+        vert.Tangent = glm::cross(vert.Bitangent, vert.Normal);
+    }
+}
+
+void Shape::_normalizeTangentBitangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end)
 {
     for (size_t i = start; i < end; ++i) {
-        _vertices[i].Tangent /= (float)trisNum[i - start];
+        Vertex& vert = _vertices[i];
 
-        if (fabsf(glm::length(_vertices[i].Tangent)) >= EPSILON) {
-            _vertices[i].Tangent = glm::normalize(_vertices[i].Tangent);
+        float inv_trisNum = trisNum[i - start] < 2 ? 1.0f : 1.0f / (float)trisNum[i - start];
+        vert.Tangent *= inv_trisNum;
+
+        if (fabsf(glm::length(vert.Tangent)) >= EPSILON) {
+            vert.Tangent = glm::normalize(vert.Tangent);
         }
 
-        _vertices[i].Bitangent /= (float)trisNum[i - start];
+        vert.Bitangent *= inv_trisNum;
 
-        if (fabsf(glm::length(_vertices[i].Bitangent)) >= EPSILON) {
-            _vertices[i].Bitangent = glm::normalize(_vertices[i].Bitangent);
+        if (fabsf(glm::length(vert.Bitangent)) >= EPSILON) {
+            vert.Bitangent = glm::normalize(vert.Bitangent);
         }
+    }
+}
+
+void Shape::_normalizeTangentsAndGenerateBitangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end)
+{
+    for (size_t i = start; i < end; ++i) {
+        _normalizeTangentAndGenerateBitangent(i, trisNum[i - start]);
     }
 }
 

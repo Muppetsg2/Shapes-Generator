@@ -23,7 +23,7 @@ void Tetrahedron::_generate(const ValuesRange range)
 	const float r = (float)M_SQRT3 / 3.f;
 
 	std::vector<unsigned int> trisNum;
-	std::pair<glm::vec3, glm::vec3> TB;
+	glm::vec3 tangent;
 
 	const float angleXZDiff = 2.f * (float)M_PI / (float)segments;
 
@@ -44,16 +44,11 @@ void Tetrahedron::_generate(const ValuesRange range)
 	_indices.push_back(1u);
 
 	if (config.genTangents) {
-		TB = _calcTangentBitangent(0u, 2u, 1u);
+		tangent = _calcTangent(0u, 2u, 1u);
 
-		_vertices[0ull].Tangent += TB.first;
-		_vertices[0ull].Bitangent += TB.second;
-
-		_vertices[2ull].Tangent += TB.first;
-		_vertices[2ull].Bitangent += TB.second;
-
-		_vertices[1ull].Tangent += TB.first;
-		_vertices[1ull].Bitangent += TB.second;
+		_vertices[0ull].Tangent += tangent;
+		_vertices[2ull].Tangent += tangent;
+		_vertices[1ull].Tangent += tangent;
 	}
 
 	// CONE
@@ -96,20 +91,15 @@ void Tetrahedron::_generate(const ValuesRange range)
 		_indices.push_back((unsigned int)top);
 
 		if (config.genTangents) {
-			TB = _calcTangentBitangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
+			tangent = _calcTangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
 
-			_vertices[left].Tangent += TB.first;
-			_vertices[left].Bitangent += TB.second;
-
-			_vertices[right].Tangent += TB.first;
-			_vertices[right].Bitangent += TB.second;
-
-			_vertices[top].Tangent += TB.first;
-			_vertices[top].Bitangent += TB.second;
+			_vertices[left].Tangent += tangent;
+			_vertices[right].Tangent += tangent;
+			_vertices[top].Tangent += tangent;
 		}
 	}
 
-	if (config.genTangents) _normalizeTangents(trisNum, 0ull, _vertices.size());
+	if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
 
 	trisNum.clear();
 }

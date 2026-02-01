@@ -89,7 +89,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 	if (config.genTangents) trisNum.push_back(v);
 
 	// INDICIES, TANGENTS AND BITANGENTS
-	std::pair<glm::vec3, glm::vec3> TB;
+	glm::vec3 tangent;
 
 	if (useFlatShading) {
 		std::vector<Vertex> tempVertices(_vertices);
@@ -130,16 +130,16 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 				_indices.push_back(third);
 
 				if (config.genTangents) {
-					TB = _calcTangentBitangent(first, second, third);
+					tangent = _calcTangent(first, second, third);
 
-					_vertices[first].Tangent = TB.first;
-					_vertices[first].Bitangent = TB.second;
+					_vertices[first].Tangent = tangent;
+					_normalizeTangentAndGenerateBitangent(first);
 
-					_vertices[second].Tangent = TB.first;
-					_vertices[second].Bitangent = TB.second;
+					_vertices[second].Tangent = tangent;
+					_normalizeTangentAndGenerateBitangent(second);
 
-					_vertices[third].Tangent = TB.first;
-					_vertices[third].Bitangent = TB.second;
+					_vertices[third].Tangent = tangent;
+					_normalizeTangentAndGenerateBitangent(third);
 				}
 
 				first += 3u;
@@ -181,16 +181,16 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 					_indices.push_back(third);
 
 					if (config.genTangents) {
-						TB = _calcTangentBitangent(first, second, third);
+						tangent = _calcTangent(first, second, third);
 
-						_vertices[first].Tangent = TB.first;
-						_vertices[first].Bitangent = TB.second;
+						_vertices[first].Tangent = tangent;
+						_normalizeTangentAndGenerateBitangent(first);
 
-						_vertices[second].Tangent = TB.first;
-						_vertices[second].Bitangent = TB.second;
+						_vertices[second].Tangent = tangent;
+						_normalizeTangentAndGenerateBitangent(second);
 
-						_vertices[third].Tangent = TB.first;
-						_vertices[third].Bitangent = TB.second;
+						_vertices[third].Tangent = tangent;
+						_normalizeTangentAndGenerateBitangent(third);
 					}
 
 					first += 3u;
@@ -214,16 +214,11 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 			_indices.push_back(leftVertex);
 
 			if (config.genTangents) {
-				TB = _calcTangentBitangent(rightVertex, topVertex, leftVertex);
+				tangent = _calcTangent(rightVertex, topVertex, leftVertex);
 
-				_vertices[rightVertex].Tangent += TB.first;
-				_vertices[rightVertex].Bitangent += TB.second;
-
-				_vertices[topVertex].Tangent += TB.first;
-				_vertices[topVertex].Bitangent += TB.second;
-
-				_vertices[leftVertex].Tangent += TB.first;
-				_vertices[leftVertex].Bitangent += TB.second;
+				_vertices[rightVertex].Tangent += tangent;
+				_vertices[topVertex].Tangent += tangent;
+				_vertices[leftVertex].Tangent += tangent;
 			}
 
 			// BOTTOM CIRCLE
@@ -236,16 +231,11 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 			_indices.push_back(topVertex);
 
 			if (config.genTangents) {
-				TB = _calcTangentBitangent(rightVertex, leftVertex, topVertex);
+				tangent = _calcTangent(rightVertex, leftVertex, topVertex);
 
-				_vertices[rightVertex].Tangent += TB.first;
-				_vertices[rightVertex].Bitangent += TB.second;
-
-				_vertices[leftVertex].Tangent += TB.first;
-				_vertices[leftVertex].Bitangent += TB.second;
-
-				_vertices[topVertex].Tangent += TB.first;
-				_vertices[topVertex].Bitangent += TB.second;
+				_vertices[rightVertex].Tangent += tangent;
+				_vertices[leftVertex].Tangent += tangent;
+				_vertices[topVertex].Tangent += tangent;
 			}
 		}
 
@@ -258,43 +248,35 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 				const unsigned int bottomLeft = i + v + 1u + startV;
 				const unsigned int bottomRight = (i + 1u) + v + 1u + startV;
 
+				// first triangle
 				_indices.push_back(topRight);
 				_indices.push_back(topLeft);
 				_indices.push_back(bottomLeft);
 
-				if (config.genTangents) {
-					TB = _calcTangentBitangent(topRight, topLeft, bottomLeft);
-
-					_vertices[topRight].Tangent += TB.first;
-					_vertices[topRight].Bitangent += TB.second;
-
-					_vertices[topLeft].Tangent += TB.first;
-					_vertices[topLeft].Bitangent += TB.second;
-
-					_vertices[bottomLeft].Tangent += TB.first;
-					_vertices[bottomLeft].Bitangent += TB.second;
-				}
-
+				// second triangle
 				_indices.push_back(bottomRight);
 				_indices.push_back(topRight);
 				_indices.push_back(bottomLeft);
 
 				if (config.genTangents) {
-					TB = _calcTangentBitangent(bottomRight, topRight, bottomLeft);
+					// first triangle
+					tangent = _calcTangent(topRight, topLeft, bottomLeft);
 
-					_vertices[bottomRight].Tangent += TB.first;
-					_vertices[bottomRight].Bitangent += TB.second;
+					_vertices[topRight].Tangent += tangent;
+					_vertices[topLeft].Tangent += tangent;
+					_vertices[bottomLeft].Tangent += tangent;
 
-					_vertices[topRight].Tangent += TB.first;
-					_vertices[topRight].Bitangent += TB.second;
+					// second triangle
+					tangent = _calcTangent(bottomRight, topRight, bottomLeft);
 
-					_vertices[bottomLeft].Tangent += TB.first;
-					_vertices[bottomLeft].Bitangent += TB.second;
+					_vertices[bottomRight].Tangent += tangent;
+					_vertices[topRight].Tangent += tangent;
+					_vertices[bottomLeft].Tangent += tangent;
 				}
 			}
 		}
 
-		if (config.genTangents) _normalizeTangents(trisNum, 0ull, verticesNum);
+		if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, verticesNum);
 	}
 
 	trisNum.clear();

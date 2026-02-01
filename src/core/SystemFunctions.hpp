@@ -7,4 +7,6 @@ namespace system_functions {
 	bool create_directory(const char* path);
 
 	std::string get_executable_path();
+
+	bool open_in_file_explorer(const char* path);
 }

@@ -27,14 +27,16 @@ config::Config& config::get_config(const std::string& exeDirPath)
     config.genTangents = true;
     config.saveDir = exeDirPath + DIRSEP;
     config.fileName = "${TYPE}-%H-%M-%S";
+    config.openDirOnSave = true;
 
     init = true;
 
     bool hasGenTangents = false;
     bool hasSaveDir = false;
     bool hasFileName = false;
+    bool hasOpenDirOnSave = false;
 
-    if (inFile) {
+    if (inFile.is_open()) {
         std::string line;
         while (std::getline(inFile, line)) {
             auto colonPos = line.find(':');
@@ -61,18 +63,28 @@ config::Config& config::get_config(const std::string& exeDirPath)
                 config.fileName = value;
                 hasFileName = true;
             }
+            else if (key == "openDirOnSave") {
+                std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c)
+                    {
+                        return std::tolower(c);
+                    });
+                config.openDirOnSave = (value == "true" || value == "1");
+                hasOpenDirOnSave = true;
+            }
         }
         inFile.close();
 
-        if (!hasGenTangents || !hasSaveDir || !hasFileName) {
+        if (!hasGenTangents || !hasSaveDir || !hasFileName || !hasOpenDirOnSave) {
             std::ofstream outFile(configFilePath, std::ios::app);
-            if (outFile) {
+            if (outFile.is_open()) {
                 if (!hasGenTangents)
-                    outFile << "generateTangents: " << (config.genTangents ? "true" : "false") << "\n";
+                    outFile << "\ngenerateTangents: " << (config.genTangents ? "true" : "false") << "\n";
                 if (!hasSaveDir)
-                    outFile << "saveDir: " << config.saveDir << "\n";
+                    outFile << "\nsaveDir: " << config.saveDir << "\n";
                 if (!hasFileName)
-                    outFile << "fileName: " << config.fileName;
+                    outFile << "\nfileName: " << config.fileName << "\n";
+                if (!hasOpenDirOnSave)
+                    outFile << "\nopenDirOnSave: " << (config.openDirOnSave ? "true" : "false") << "\n";
                 outFile.close();
             }
             else {
@@ -83,10 +95,11 @@ config::Config& config::get_config(const std::string& exeDirPath)
     }
     else {
         std::ofstream outFile(configFilePath);
-        if (outFile) {
+        if (outFile.is_open()) {
             outFile << "generateTangents: " << (config.genTangents ? "true" : "false") << "\n";
             outFile << "saveDir: " << config.saveDir << "\n";
-            outFile << "fileName: " << config.fileName;
+            outFile << "fileName: " << config.fileName << "\n";
+            outFile << "openDirOnSave: " << (config.openDirOnSave ? "true" : "false") << "\n";
             outFile.close();
         }
         else {

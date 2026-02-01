@@ -6,6 +6,7 @@ namespace config {
 		std::string saveDir;
 		std::string fileName;
 		bool genTangents;
+		bool openDirOnSave;
 	};
 
 	Config& get_config(const std::string& exeDirPath = ".");

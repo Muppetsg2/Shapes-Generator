@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.3.4</h1>
+        <h1>Shapes Generator 1.3.5</h1>
       </summary>
     </ul>
   </div>
@@ -160,6 +160,7 @@ The application allows you to configure the default output path and filename usi
    generateTangents: true
    saveDir: C:\my\custom\output\
    fileName: my_${TYPE}-%H-%M-%S
+   openDirOnSave: true
    ```
 
 - **generateTangents**: Tells the generator whether to compute and include tangent and bitangent \

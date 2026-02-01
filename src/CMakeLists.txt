@@ -26,7 +26,7 @@ set_target_properties(${SUBPROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 if(MSVC)
     # Antivirusdetect this program, which is statically linked with the MSVC runtime, as a virus.
-    # set_property(TARGET ${SUBPROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET ${SUBPROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     target_compile_definitions(${SUBPROJECT_NAME} PUBLIC NOMINMAX)
 endif()
 
@@ -83,12 +83,12 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib fmt::fmt)
+target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib fmt::fmt-header-only)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")
 endif()
 
 if(WIN32)
-	copy_dlls_to_target(${SUBPROJECT_NAME} ${DLL_DIRECTORY})
+	# copy_dlls_to_target(${SUBPROJECT_NAME} ${DLL_DIRECTORY})
 endif()

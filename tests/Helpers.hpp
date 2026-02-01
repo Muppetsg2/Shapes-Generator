@@ -32,8 +32,20 @@ static void CheckVec3Equal(const glm::vec3& value, const glm::vec3& expected, fl
 	REQUIRE(Vec3EqualForTests{}(value, expected, eps));
 }
 
+static void CheckVec3Equal(const glm::vec3& value, const glm::vec3& expected, float eps, const std::string& label, const size_t idx) {
+	INFO("with values:\n\t" << label << "[" << idx << "] : = " << glm::to_string(value)
+		<< "\n\texpected := " << glm::to_string(expected));
+	REQUIRE(Vec3EqualForTests{}(value, expected, eps));
+}
+
 static void CheckVec2Equal(const glm::vec2& value, const glm::vec2& expected, float eps, const std::string& label) {
 	INFO("with values:\n\t" << label << " := " << glm::to_string(value)
+		<< "\n\texpected := " << glm::to_string(expected));
+	REQUIRE(Vec2EqualForTests{}(value, expected, eps));
+}
+
+static void CheckVec2Equal(const glm::vec2& value, const glm::vec2& expected, float eps, const std::string& label, const size_t idx) {
+	INFO("with values:\n\t" << label << "[" << idx << "] : = " << glm::to_string(value)
 		<< "\n\texpected := " << glm::to_string(expected));
 	REQUIRE(Vec2EqualForTests{}(value, expected, eps));
 }

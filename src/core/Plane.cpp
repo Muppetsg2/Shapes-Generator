@@ -64,7 +64,7 @@ void Plane::_generate(const unsigned int rows, const unsigned int columns, const
     }
 
     const size_t vertSize = _vertices.size();
-    std::pair<glm::vec3, glm::vec3> TB;
+    glm::vec3 tangent;
     for (size_t i = 0ull; i < vertSize; ++i) {
 
         const size_t first = i + (size_t)columns;
@@ -82,16 +82,11 @@ void Plane::_generate(const unsigned int rows, const unsigned int columns, const
         _indices.push_back((unsigned int)third);
 
         if (config.genTangents) {
-            TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
+            tangent = _calcTangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
-            _vertices[first].Tangent += TB.first;
-            _vertices[first].Bitangent += TB.second;
-
-            _vertices[second].Tangent += TB.first;
-            _vertices[second].Bitangent += TB.second;
-
-            _vertices[third].Tangent += TB.first;
-            _vertices[third].Bitangent += TB.second;
+            _vertices[first].Tangent += tangent;
+            _vertices[second].Tangent += tangent;
+            _vertices[third].Tangent += tangent;
         }
 
         // Second Triangle
@@ -103,20 +98,15 @@ void Plane::_generate(const unsigned int rows, const unsigned int columns, const
         _indices.push_back((unsigned int)third);
 
         if (config.genTangents) {
-            TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
+            tangent = _calcTangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
-            _vertices[first].Tangent += TB.first;
-            _vertices[first].Bitangent += TB.second;
-
-            _vertices[second].Tangent += TB.first;
-            _vertices[second].Bitangent += TB.second;
-
-            _vertices[third].Tangent += TB.first;
-            _vertices[third].Bitangent += TB.second;
+            _vertices[first].Tangent += tangent;
+            _vertices[second].Tangent += tangent;
+            _vertices[third].Tangent += tangent;
         }
     }
 
-    if (config.genTangents) _normalizeTangents(trisNum, 0ull, vertSize);
+    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, vertSize);
 
     trisNum.clear();
 }

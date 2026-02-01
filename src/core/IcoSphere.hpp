@@ -20,7 +20,7 @@ private:
     
     glm::vec2 _getTexCoord(const glm::vec3 normal) const;
 
-    void _defineTangentBitangentFlatShading(const std::pair<glm::vec3, glm::vec3> TB, const size_t index);
+    void _defineTangentBitangentFlatShading(const glm::vec3 tangent, const size_t index);
 
     std::unordered_map<uint64_t, unsigned int> _middlePointCache;
 

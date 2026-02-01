@@ -46,6 +46,7 @@ void Cone::_generate(const unsigned int segments, const float height, const floa
 
 	// INDICES
 	const size_t vertSize = _vertices.size();
+	glm::vec3 tangent;
 	for (size_t i = 0ull; i < vertSize - 1ull; ++i) {
 
 		const size_t right = i + 2ull == vertSize ? 0ull : i + 1ull;
@@ -55,16 +56,11 @@ void Cone::_generate(const unsigned int segments, const float height, const floa
 		_indices.push_back((unsigned int)vertSize - 1u);
 
 		if (config.genTangents) {
-			std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
+			tangent = _calcTangent((unsigned int)right, (unsigned int)i, (unsigned int)vertSize - 1u);
 
-			_vertices[right].Tangent += TB.first;
-			_vertices[right].Bitangent += TB.second;
-
-			_vertices[i].Tangent += TB.first;
-			_vertices[i].Bitangent += TB.second;
-
-			_vertices[vertSize - 1ull].Tangent += TB.first;
-			_vertices[vertSize - 1ull].Bitangent += TB.second;
+			_vertices[right].Tangent += tangent;
+			_vertices[i].Tangent += tangent;
+			_vertices[vertSize - 1ull].Tangent += tangent;
 		}
 	}
 
@@ -156,20 +152,15 @@ void Cone::_generate(const unsigned int segments, const float height, const floa
 		_indices.push_back((unsigned int)top);
 
 		if (config.genTangents) {
-			std::pair<glm::vec3, glm::vec3> TB = _calcTangentBitangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
+			tangent = _calcTangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
 
-			_vertices[left].Tangent += TB.first;
-			_vertices[left].Bitangent += TB.second;
-
-			_vertices[right].Tangent += TB.first;
-			_vertices[right].Bitangent += TB.second;
-
-			_vertices[top].Tangent += TB.first;
-			_vertices[top].Bitangent += TB.second;
+			_vertices[left].Tangent += tangent;
+			_vertices[right].Tangent += tangent;
+			_vertices[top].Tangent += tangent;
 		}
 	}
 
-	if (config.genTangents) _normalizeTangents(trisNum, 0ull, _vertices.size());
+	if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
 
 	trisNum.clear();
 }

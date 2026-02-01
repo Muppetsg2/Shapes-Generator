@@ -87,7 +87,7 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
         }
     }
 
-    std::pair<glm::vec3, glm::vec3> TB;
+    glm::vec3 tangent;
     if (!useFlatShading) {
         _vertices.insert(_vertices.end(), tempVertices.begin(), tempVertices.end());
 
@@ -102,34 +102,17 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
             _indices.push_back(ic);
 
             if (!hasSubdivisions && config.genTangents) {
-                TB = _calcTangentBitangent(ia, ib, ic);
+                tangent = _calcTangent(ia, ib, ic);
 
-                _vertices[ia].Tangent += TB.first;
-                _vertices[ia].Bitangent += TB.second;
-
-                _vertices[ib].Tangent += TB.first;
-                _vertices[ib].Bitangent += TB.second;
-
-                _vertices[ic].Tangent += TB.first;
-                _vertices[ic].Bitangent += TB.second;
+                _vertices[ia].Tangent += tangent;
+                _vertices[ib].Tangent += tangent;
+                _vertices[ic].Tangent += tangent;
             }
         }
 
         if (!hasSubdivisions && config.genTangents) {
-            const size_t vertSize = _vertices.size();
-            for (size_t i = 0ull; i < vertSize; ++i) {
-                _vertices[i].Tangent *= .2f;
-
-                if (fabsf(glm::length(_vertices[i].Tangent)) >= EPSILON) {
-                    _vertices[i].Tangent = glm::normalize(_vertices[i].Tangent);
-                }
-
-                _vertices[i].Bitangent *= .2f;
-
-                if (fabsf(glm::length(_vertices[i].Bitangent)) >= EPSILON) {
-                    _vertices[i].Bitangent = glm::normalize(_vertices[i].Bitangent);
-                }
-            }
+            std::vector<unsigned int> trisNum(_vertices.size(), 5);
+            _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
         }
     }
     else {
@@ -155,11 +138,11 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
             _vertices.push_back({ tempVertices[ic].Position, tempVertices[ic].TexCoord, normal, glm::vec3(0.f), glm::vec3(0.f) });
 
             if (!hasSubdivisions && config.genTangents) {
-                TB = _calcTangentBitangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
+                tangent = _calcTangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
-                _defineTangentBitangentFlatShading(TB, first);
-                _defineTangentBitangentFlatShading(TB, second);
-                _defineTangentBitangentFlatShading(TB, third);
+                _defineTangentBitangentFlatShading(tangent, first);
+                _defineTangentBitangentFlatShading(tangent, second);
+                _defineTangentBitangentFlatShading(tangent, third);
             }
         }
     }
@@ -204,7 +187,7 @@ void IcoSphere::_generate(const unsigned int subdivisions, const ValuesRange ran
         _indices.insert(_indices.end(), newIndices.begin(), newIndices.end());
     }
 
-    std::pair<glm::vec3, glm::vec3> TB;
+    glm::vec3 tangent;
     const size_t indSize = _indices.size();
     if (!useFlatShading && config.genTangents) {
         for (size_t i = 0ull; i < indSize; i += 3ull) {
@@ -212,32 +195,15 @@ void IcoSphere::_generate(const unsigned int subdivisions, const ValuesRange ran
             const unsigned int ib = _indices[i + 1ull];
             const unsigned int ic = _indices[i + 2ull];
 
-            TB = _calcTangentBitangent(ia, ib, ic);
+            tangent = _calcTangent(ia, ib, ic);
 
-            _vertices[ia].Tangent += TB.first;
-            _vertices[ia].Bitangent += TB.second;
-
-            _vertices[ib].Tangent += TB.first;
-            _vertices[ib].Bitangent += TB.second;
-
-            _vertices[ic].Tangent += TB.first;
-            _vertices[ic].Bitangent += TB.second;
+            _vertices[ia].Tangent += tangent;
+            _vertices[ib].Tangent += tangent;
+            _vertices[ic].Tangent += tangent;
         }
 
-        const size_t vertSize = _vertices.size();
-        for (size_t i = 0ull; i < vertSize; ++i) {
-            _vertices[i].Tangent *= .2f;
-
-            if (fabsf(glm::length(_vertices[i].Tangent)) >= EPSILON) {
-                _vertices[i].Tangent = glm::normalize(_vertices[i].Tangent);
-            }
-
-            _vertices[i].Bitangent *= .2f;
-
-            if (fabsf(glm::length(_vertices[i].Bitangent)) >= EPSILON) {
-                _vertices[i].Bitangent = glm::normalize(_vertices[i].Bitangent);
-            }
-        }
+        std::vector<unsigned int> trisNum(_vertices.size(), 5);
+        _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
     }
     else {
         for (size_t i = 0ull; i < indSize; i += 3ull) {
@@ -252,11 +218,11 @@ void IcoSphere::_generate(const unsigned int subdivisions, const ValuesRange ran
             _vertices[ic].Normal = normal;
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(ia, ib, ic);
+                tangent = _calcTangent(ia, ib, ic);
 
-                _defineTangentBitangentFlatShading(TB, ia);
-                _defineTangentBitangentFlatShading(TB, ib);
-                _defineTangentBitangentFlatShading(TB, ic);
+                _defineTangentBitangentFlatShading(tangent, ia);
+                _defineTangentBitangentFlatShading(tangent, ib);
+                _defineTangentBitangentFlatShading(tangent, ic);
             }
         }
     }
@@ -292,19 +258,10 @@ glm::vec2 IcoSphere::_getTexCoord(const glm::vec3 normal) const
     return glm::vec2(theta, phi);
 }
 
-void IcoSphere::_defineTangentBitangentFlatShading(const std::pair<glm::vec3, glm::vec3> TB, const size_t index)
+void IcoSphere::_defineTangentBitangentFlatShading(const glm::vec3 tangent, const size_t index)
 {
-    _vertices[index].Tangent = TB.first;
-
-    if (fabsf(glm::length(_vertices[index].Tangent)) >= EPSILON) {
-        _vertices[index].Tangent = glm::normalize(_vertices[index].Tangent);
-    }
-
-    _vertices[index].Bitangent = TB.second;
-
-    if (fabsf(glm::length(_vertices[index].Bitangent)) >= EPSILON) {
-        _vertices[index].Bitangent = glm::normalize(_vertices[index].Bitangent);
-    }
+    _vertices[index].Tangent = tangent;
+    _normalizeTangentAndGenerateBitangent(index);
 }
 
 IcoSphere::IcoSphere(const unsigned int subdivisions, const IcoSphereShading shading, const ValuesRange range)

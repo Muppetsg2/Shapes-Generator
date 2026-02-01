@@ -41,7 +41,7 @@ void Pyramid::_generate(const ValuesRange range)
 		}
 	}
 
-	std::pair<glm::vec3, glm::vec3> TB;
+	glm::vec3 tangent;
 	for (unsigned int i = 0u; i < 2u; ++i) {
 		const unsigned int f = i;
 		const unsigned int s = 2u;
@@ -52,16 +52,11 @@ void Pyramid::_generate(const ValuesRange range)
 		_indices.push_back(t);
 
 		if (config.genTangents) {
-			TB = _calcTangentBitangent(f, s, t);
+			tangent = _calcTangent(f, s, t);
 
-			_vertices[(size_t)f].Tangent += TB.first;
-			_vertices[(size_t)f].Bitangent += TB.second;
-
-			_vertices[(size_t)s].Tangent += TB.first;
-			_vertices[(size_t)s].Bitangent += TB.second;
-
-			_vertices[(size_t)t].Tangent += TB.first;
-			_vertices[(size_t)t].Bitangent += TB.second;
+			_vertices[(size_t)f].Tangent += tangent;
+			_vertices[(size_t)s].Tangent += tangent;
+			_vertices[(size_t)t].Tangent += tangent;
 		}
 	}
 
@@ -85,13 +80,15 @@ void Pyramid::_generate(const ValuesRange range)
 		glm::vec3 norm = glm::normalize(glm::vec3(x_n, sin_cone, z_n));
 
 		_vertices.push_back({ { x * mult, -h * 0.5f, z * mult }, { 0.f, 1.f }, norm, glm::vec3(0.f), glm::vec3(0.f) });
-		if (config.genTangents) trisNum.push_back(1u);
-
 		_vertices.push_back({ { (x + cos_angle) * mult, -h * 0.5f, (z + sin_angle_pi) * mult }, { 1.f, 1.f }, norm, glm::vec3(0.f), glm::vec3(0.f) });
-		if (config.genTangents) trisNum.push_back(1u);
-
 		_vertices.push_back({ { 0.f, h * 0.5f, 0.f }, { .5f, 0.f }, norm, glm::vec3(0.f), glm::vec3(0.f) });
-		if (config.genTangents) trisNum.push_back(1u);
+
+		if (config.genTangents)
+		{
+			trisNum.push_back(1u);
+			trisNum.push_back(1u);
+			trisNum.push_back(1u);
+		}
 
 		x += cos_angle;
 		z += sin_angle_pi;
@@ -107,20 +104,15 @@ void Pyramid::_generate(const ValuesRange range)
 		_indices.push_back((unsigned int)top);
 
 		if (config.genTangents) {
-			TB = _calcTangentBitangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
+			tangent = _calcTangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
 
-			_vertices[left].Tangent += TB.first;
-			_vertices[left].Bitangent += TB.second;
-
-			_vertices[right].Tangent += TB.first;
-			_vertices[right].Bitangent += TB.second;
-
-			_vertices[top].Tangent += TB.first;
-			_vertices[top].Bitangent += TB.second;
+			_vertices[left].Tangent += tangent;
+			_vertices[right].Tangent += tangent;
+			_vertices[top].Tangent += tangent;
 		}
 	}
 
-	if (config.genTangents) _normalizeTangents(trisNum, 0ull, _vertices.size());
+	if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
 
 	trisNum.clear();
 }

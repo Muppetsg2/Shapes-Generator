@@ -161,7 +161,7 @@ void Cube::_generate(const ValuesRange range)
         }
     }
 
-    std::pair<glm::vec3, glm::vec3> TB;
+    glm::vec3 tangent;
     for (unsigned int p = 0u; p < 3u; ++p) {
         const unsigned int t1 = p + mul_8(p) + div_2(p);
         const unsigned int t2 = p + 2u + mul_8(p);
@@ -181,16 +181,11 @@ void Cube::_generate(const ValuesRange range)
                 _indices.push_back(t);
 
                 if (config.genTangents) {
-                    TB = _calcTangentBitangent(f, s, t);
+                    tangent = _calcTangent(f, s, t);
 
-                    _vertices[f].Tangent += TB.first;
-                    _vertices[f].Bitangent += TB.second;
-
-                    _vertices[s].Tangent += TB.first;
-                    _vertices[s].Bitangent += TB.second;
-
-                    _vertices[t].Tangent += TB.first;
-                    _vertices[t].Bitangent += TB.second;
+                    _vertices[f].Tangent += tangent;
+                    _vertices[s].Tangent += tangent;
+                    _vertices[t].Tangent += tangent;
                 }
 
                 // Second Triangle
@@ -202,16 +197,11 @@ void Cube::_generate(const ValuesRange range)
                 _indices.push_back(t);
 
                 if (config.genTangents) {
-                    TB = _calcTangentBitangent(f, s, t);
+                    tangent = _calcTangent(f, s, t);
 
-                    _vertices[f].Tangent += TB.first;
-                    _vertices[f].Bitangent += TB.second;
-
-                    _vertices[s].Tangent += TB.first;
-                    _vertices[s].Bitangent += TB.second;
-
-                    _vertices[t].Tangent += TB.first;
-                    _vertices[t].Bitangent += TB.second;
+                    _vertices[f].Tangent += tangent;
+                    _vertices[s].Tangent += tangent;
+                    _vertices[t].Tangent += tangent;
                 }
             }
         }
@@ -227,16 +217,11 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
 
             // Second Triangle
@@ -248,16 +233,11 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
 
             // LEFT
@@ -271,16 +251,11 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
 
             // Second Triangle
@@ -292,16 +267,11 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
         }
         else if (p == 2u) {
@@ -316,16 +286,11 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
 
             // Second Triangle
@@ -337,16 +302,11 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
 
             // BOTTOM
@@ -360,16 +320,11 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
 
             // Second Triangle
@@ -381,21 +336,16 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(t);
 
             if (config.genTangents) {
-                TB = _calcTangentBitangent(f, s, t);
+                tangent = _calcTangent(f, s, t);
 
-                _vertices[f].Tangent += TB.first;
-                _vertices[f].Bitangent += TB.second;
-
-                _vertices[s].Tangent += TB.first;
-                _vertices[s].Bitangent += TB.second;
-
-                _vertices[t].Tangent += TB.first;
-                _vertices[t].Bitangent += TB.second;
+                _vertices[f].Tangent += tangent;
+                _vertices[s].Tangent += tangent;
+                _vertices[t].Tangent += tangent;
             }
         }
     }
 
-    if (config.genTangents) _normalizeTangents(trisNum, 0ull, _vertices.size());
+    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
 
     trisNum.clear();
 }

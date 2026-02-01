@@ -24,7 +24,7 @@ target_include_directories(${SUBPROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 
 if(MSVC)
     # Antivirus detect this program, which is statically linked with the MSVC runtime, as a virus.
-    # set_property(TARGET ${SUBPROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET ${SUBPROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     target_compile_definitions(${SUBPROJECT_NAME} PUBLIC NOMINMAX)
 endif()
 
@@ -81,7 +81,7 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm fmt::fmt)
+target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm fmt::fmt-header-only)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")

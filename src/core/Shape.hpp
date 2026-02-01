@@ -38,8 +38,11 @@ protected:
 
 	Vertex _calcTangentBitangent(const unsigned int vertexIndex) const;
 	std::pair<glm::vec3, glm::vec3> _calcTangentBitangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const;
+	glm::vec3 _calcTangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const;
+	void _normalizeTangentAndGenerateBitangent(const unsigned int vertIdx, const unsigned int trisNum = 1);
 	// start - inclusive, end - exclusive
-	void _normalizeTangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end);
+	void _normalizeTangentBitangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end);
+	void _normalizeTangentsAndGenerateBitangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end);
 
 	std::string _getGeneratedHeader(const std::string commentSign) const;
 	std::string _getStructDefinition(bool isC99) const;

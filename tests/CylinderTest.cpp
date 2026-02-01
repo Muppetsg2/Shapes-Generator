@@ -19,7 +19,7 @@ public:
 TEST_CASE("ShapesGenerator.Cylinder.Generation(V3H1FLAT)") {
     static const std::vector<Vertex> expectedVertices = {
         //POSITION						//TEX COORD		//NORMAL					//TANGENT					//BITANGENT
-        { { 0.f, 1.f, 1.f }, { 0.5f, 1.f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+        { { 0.f, 1.f, 1.f }, { 0.5f, 1.f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
         { { 0.866025f, 1.f, -0.5f }, { 0.933013f, 0.25f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
         { { -0.866025f, 1.f, -0.5f }, { 0.066987f, 0.25f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
         { { 0.f, 1.f, 0.f }, { 0.5f, 0.5f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
@@ -65,11 +65,11 @@ TEST_CASE("ShapesGenerator.Cylinder.Generation(V3H1FLAT)") {
     REQUIRE(i.size() == expectedIndices.size());
 
     for (size_t idx = 0; idx < v.size(); ++idx) {
-        CheckVec3Equal(v[idx].Position, expectedVertices[idx].Position, TEST_EPSILON, "Position");
-        CheckVec2Equal(v[idx].TexCoord, expectedVertices[idx].TexCoord, TEST_EPSILON, "TexCoord");
-        CheckVec3Equal(v[idx].Normal, expectedVertices[idx].Normal, TEST_EPSILON, "Normal");
-        CheckVec3Equal(v[idx].Tangent, expectedVertices[idx].Tangent, TEST_EPSILON, "Tangent");
-        CheckVec3Equal(v[idx].Bitangent, expectedVertices[idx].Bitangent, TEST_EPSILON, "Bitangent");
+        CheckVec3Equal(v[idx].Position, expectedVertices[idx].Position, TEST_EPSILON, "Position", idx);
+        CheckVec2Equal(v[idx].TexCoord, expectedVertices[idx].TexCoord, TEST_EPSILON, "TexCoord", idx);
+        CheckVec3Equal(v[idx].Normal, expectedVertices[idx].Normal, TEST_EPSILON, "Normal", idx);
+        CheckVec3Equal(v[idx].Tangent, expectedVertices[idx].Tangent, TEST_EPSILON, "Tangent", idx);
+        CheckVec3Equal(v[idx].Bitangent, expectedVertices[idx].Bitangent, TEST_EPSILON, "Bitangent", idx);
     }
 
     for (size_t idx = 0; idx < i.size(); ++idx) {
@@ -165,11 +165,11 @@ TEST_CASE("ShapesGenerator.Cylinder.Generation(V6H2SMOOTH)") {
     REQUIRE(i.size() == expectedIndices.size());
 
     for (size_t idx = 0; idx < v.size(); ++idx) {
-        CheckVec3Equal(v[idx].Position, expectedVertices[idx].Position, TEST_EPSILON, "Position");
-        CheckVec2Equal(v[idx].TexCoord, expectedVertices[idx].TexCoord, TEST_EPSILON, "TexCoord");
-        CheckVec3Equal(v[idx].Normal, expectedVertices[idx].Normal, TEST_EPSILON, "Normal");
-        CheckVec3Equal(v[idx].Tangent, expectedVertices[idx].Tangent, TEST_EPSILON, "Tangent");
-        CheckVec3Equal(v[idx].Bitangent, expectedVertices[idx].Bitangent, TEST_EPSILON, "Bitangent");
+        CheckVec3Equal(v[idx].Position, expectedVertices[idx].Position, TEST_EPSILON, "Position", idx);
+        CheckVec2Equal(v[idx].TexCoord, expectedVertices[idx].TexCoord, TEST_EPSILON, "TexCoord", idx);
+        CheckVec3Equal(v[idx].Normal, expectedVertices[idx].Normal, TEST_EPSILON, "Normal", idx);
+        CheckVec3Equal(v[idx].Tangent, expectedVertices[idx].Tangent, TEST_EPSILON, "Tangent", idx);
+        CheckVec3Equal(v[idx].Bitangent, expectedVertices[idx].Bitangent, TEST_EPSILON, "Bitangent", idx);
     }
 
     for (size_t idx = 0; idx < i.size(); ++idx) {
