@@ -5,8 +5,8 @@ add_subdirectory(core)
 set(PCH_FILE ${CMAKE_CURRENT_SOURCE_DIR}/pch.hpp)
 
 set(SUBPROJECT_NAME ${PROJECT_NAME})
-set(SOURCE_FILES main.cpp)
-set(HEADER_FILES ConsoleTemplates.hpp)
+set(SOURCE_FILES main.cpp Config.cpp)
+set(HEADER_FILES Config.hpp ConsoleTemplates.hpp)
 
 source_group("Source Files" FILES ${SOURCE_FILES})
 source_group("Header Files" FILES ${HEADER_FILES})

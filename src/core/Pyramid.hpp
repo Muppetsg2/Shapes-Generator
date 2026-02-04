@@ -7,7 +7,7 @@ private:
 	void _generate(const ValuesRange range);
 
 public:
-	Pyramid(const ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Pyramid(const ShapeConfig& config, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Pyramid();
 
 	static std::string getClassName();

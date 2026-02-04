@@ -25,6 +25,8 @@ config::Config& config::get_config(const std::string& exeDirPath)
     const std::string configFilePath = exeDirPath + DIRSEP + "shapes.config";
     std::ifstream inFile(configFilePath);
     config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
     config.saveDir = exeDirPath + DIRSEP;
     config.fileName = "${TYPE}-%H-%M-%S";
     config.openDirOnSave = true;
@@ -32,9 +34,19 @@ config::Config& config::get_config(const std::string& exeDirPath)
     init = true;
 
     bool hasGenTangents = false;
+    bool hasCalcBitangents = false;
+    bool hasTangentHandedness = false;
     bool hasSaveDir = false;
     bool hasFileName = false;
     bool hasOpenDirOnSave = false;
+
+    auto parseBool = [](const std::string& str) -> bool {
+        std::string value = str;
+        std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
+            return std::tolower(c);
+        });
+        return (value == "true" || value == "1");
+    };
 
     if (inFile.is_open()) {
         std::string line;
@@ -48,12 +60,16 @@ config::Config& config::get_config(const std::string& exeDirPath)
             value.erase(value.find_last_not_of(" \t\r\n") + 1);
 
             if (key == "generateTangents") {
-                std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c)
-                    {
-                        return std::tolower(c);
-                    });
-                config.genTangents = (value == "true" || value == "1");
+                config.genTangents = parseBool(value);
                 hasGenTangents = true;
+            }
+            else if (key == "calculateBitangents") {
+                config.calcBitangents = parseBool(value);
+                hasCalcBitangents = true;
+            }
+            else if (key == "tangentHandednessPositive") {
+                config.tangentHandednessPositive = parseBool(value);
+                hasTangentHandedness = true;
             }
             else if (key == "saveDir") {
                 config.saveDir = value;
@@ -64,21 +80,21 @@ config::Config& config::get_config(const std::string& exeDirPath)
                 hasFileName = true;
             }
             else if (key == "openDirOnSave") {
-                std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c)
-                    {
-                        return std::tolower(c);
-                    });
-                config.openDirOnSave = (value == "true" || value == "1");
+                config.openDirOnSave = parseBool(value);
                 hasOpenDirOnSave = true;
             }
         }
         inFile.close();
 
-        if (!hasGenTangents || !hasSaveDir || !hasFileName || !hasOpenDirOnSave) {
+        if (!hasGenTangents || !hasCalcBitangents || !hasTangentHandedness || !hasSaveDir || !hasFileName || !hasOpenDirOnSave) {
             std::ofstream outFile(configFilePath, std::ios::app);
             if (outFile.is_open()) {
                 if (!hasGenTangents)
                     outFile << "\ngenerateTangents: " << (config.genTangents ? "true" : "false") << "\n";
+                if (!hasCalcBitangents)
+                    outFile << "\ncalculateBitangents: " << (config.calcBitangents ? "true" : "false") << "\n";
+                if (!hasTangentHandedness)
+                    outFile << "\ntangentHandednessPositive: " << (config.tangentHandednessPositive ? "true" : "false") << "\n";
                 if (!hasSaveDir)
                     outFile << "\nsaveDir: " << config.saveDir << "\n";
                 if (!hasFileName)
@@ -97,6 +113,8 @@ config::Config& config::get_config(const std::string& exeDirPath)
         std::ofstream outFile(configFilePath);
         if (outFile.is_open()) {
             outFile << "generateTangents: " << (config.genTangents ? "true" : "false") << "\n";
+            outFile << "calculateBitangents: " << (config.calcBitangents ? "true" : "false") << "\n";
+            outFile << "tangentHandednessPositive: " << (config.tangentHandednessPositive ? "true" : "false") << "\n";
             outFile << "saveDir: " << config.saveDir << "\n";
             outFile << "fileName: " << config.fileName << "\n";
             outFile << "openDirOnSave: " << (config.openDirOnSave ? "true" : "false") << "\n";

@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "Sphere.hpp"
 #include "Shape.hpp"
-#include "Config.hpp"
 #include "Constants.hpp"
 #include "Vertex.hpp"
 
@@ -13,8 +12,6 @@
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 
-using namespace config;
-
 glm::vec3 Sphere::_getAverageNormal(const glm::vec3 n1, const glm::vec3 n2, const glm::vec3 n3) const
 {
 	const glm::vec3 average = n1 + n2 + n3;
@@ -23,7 +20,6 @@ glm::vec3 Sphere::_getAverageNormal(const glm::vec3 n1, const glm::vec3 n2, cons
 
 void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesRange range, const bool useFlatShading)
 {
-	const Config& config = get_config();
 	const float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
 	const float angleYDiff = (float)M_PI / (float)h;
 	const float angleXZDiff = 2.f * (float)M_PI / (float)v;
@@ -36,7 +32,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 	// VERTICIES AND NUMBER OF TRIANGLES
 	// TOP VERTEX
 	_vertices.push_back({ { 0.f, 1.f * mult, 0.f }, { .5f, 0.f }, { 0.f, 1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
-	if (config.genTangents) trisNum.push_back(v);
+	if (_shapeConfig.genTangents) trisNum.push_back(v);
 
 	// TOP HALF AND BOTTOM HALF
 	float angleY = angleYDiff;
@@ -70,13 +66,13 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 
 			const glm::vec3 vert = { x, y, z };
 			_vertices.push_back({ vert, { (float)j * texVDiff, texHDiff * (float)(i + 1u) }, glm::normalize(vert), glm::vec3(0.f), glm::vec3(0.f) });
-			if (config.genTangents) trisNum.push_back(t);
+			if (_shapeConfig.genTangents) trisNum.push_back(t);
 
 			if (j == v - 1u) {
 				const glm::vec3 vertLast = { 0.f, y, r };
 				// Add first in the end again for texCoords
 				_vertices.push_back({ vertLast, { 1.f , texHDiff * (float)(i + 1u) }, glm::normalize(vertLast), glm::vec3(0.f), glm::vec3(0.f) });
-				if (config.genTangents) trisNum.push_back(t);
+				if (_shapeConfig.genTangents) trisNum.push_back(t);
 			}
 
 			angleXZ += angleXZDiff;
@@ -86,7 +82,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 
 	// BOTTOM VERTEX
 	_vertices.push_back({ { 0.f, -1.f * mult, 0.f }, { .5f, 1.f }, { 0.f, -1.f, 0.f }, glm::vec3(0.f), glm::vec3(0.f) });
-	if (config.genTangents) trisNum.push_back(v);
+	if (_shapeConfig.genTangents) trisNum.push_back(v);
 
 	// INDICIES, TANGENTS AND BITANGENTS
 	glm::vec3 tangent;
@@ -129,7 +125,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 				_indices.push_back(second);
 				_indices.push_back(third);
 
-				if (config.genTangents) {
+				if (_shapeConfig.genTangents) {
 					tangent = _calcTangent(first, second, third);
 
 					_vertices[first].Tangent = tangent;
@@ -180,7 +176,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 					_indices.push_back(second);
 					_indices.push_back(third);
 
-					if (config.genTangents) {
+					if (_shapeConfig.genTangents) {
 						tangent = _calcTangent(first, second, third);
 
 						_vertices[first].Tangent = tangent;
@@ -213,7 +209,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 			_indices.push_back(topVertex);
 			_indices.push_back(leftVertex);
 
-			if (config.genTangents) {
+			if (_shapeConfig.genTangents) {
 				tangent = _calcTangent(rightVertex, topVertex, leftVertex);
 
 				_vertices[rightVertex].Tangent += tangent;
@@ -230,7 +226,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 			_indices.push_back(leftVertex);
 			_indices.push_back(topVertex);
 
-			if (config.genTangents) {
+			if (_shapeConfig.genTangents) {
 				tangent = _calcTangent(rightVertex, leftVertex, topVertex);
 
 				_vertices[rightVertex].Tangent += tangent;
@@ -258,7 +254,7 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 				_indices.push_back(topRight);
 				_indices.push_back(bottomLeft);
 
-				if (config.genTangents) {
+				if (_shapeConfig.genTangents) {
 					// first triangle
 					tangent = _calcTangent(topRight, topLeft, bottomLeft);
 
@@ -276,14 +272,15 @@ void Sphere::_generate(const unsigned int h, const unsigned int v, const ValuesR
 			}
 		}
 
-		if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, verticesNum);
+		if (_shapeConfig.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, verticesNum);
 	}
 
 	trisNum.clear();
 }
 
-Sphere::Sphere(const unsigned int h, const unsigned int v, const SphereShading shading, const ValuesRange range)
+Sphere::Sphere(const ShapeConfig& config, const unsigned int h, const unsigned int v, const SphereShading shading, const ValuesRange range)
 {
+	_shapeConfig = config;
 	_vertices.clear();
 	_indices.clear();
 	_generate(std::max(2u, h), std::max(3u, v), range, shading == SphereShading::FLAT);

@@ -7,7 +7,7 @@ private:
 	void _generate(const ValuesRange range);
 
 public:
-	Tetrahedron(const ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Tetrahedron(const ShapeConfig& config, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Tetrahedron();
 
 	static std::string getClassName();

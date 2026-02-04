@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "Cube.hpp"
 #include "Shape.hpp"
-#include "Config.hpp"
 #include "BitMathOperators.hpp"
 
 #include <string>
@@ -9,8 +8,6 @@
 #include <vector>
 
 #include <glm/fwd.hpp>
-
-using namespace config;
 
 void Cube::_generate(const ValuesRange range)
 {
@@ -88,7 +85,6 @@ void Cube::_generate(const ValuesRange range)
     20, 20 + 2, 20 + 1
     */
 
-    const Config& config = get_config();
     std::vector<unsigned int> trisNum;
 
     for (unsigned int p = 0u; p < 3u; ++p) {
@@ -157,7 +153,7 @@ void Cube::_generate(const ValuesRange range)
             }
 
             _vertices.push_back({ pos, tex, norm, glm::vec3(0.f), glm::vec3(0.f) });
-            if (config.genTangents) trisNum.push_back(tris);
+            if (_shapeConfig.genTangents) trisNum.push_back(tris);
         }
     }
 
@@ -180,7 +176,7 @@ void Cube::_generate(const ValuesRange range)
                 _indices.push_back(s);
                 _indices.push_back(t);
 
-                if (config.genTangents) {
+                if (_shapeConfig.genTangents) {
                     tangent = _calcTangent(f, s, t);
 
                     _vertices[f].Tangent += tangent;
@@ -196,7 +192,7 @@ void Cube::_generate(const ValuesRange range)
                 _indices.push_back(s);
                 _indices.push_back(t);
 
-                if (config.genTangents) {
+                if (_shapeConfig.genTangents) {
                     tangent = _calcTangent(f, s, t);
 
                     _vertices[f].Tangent += tangent;
@@ -216,7 +212,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -232,7 +228,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -250,7 +246,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -266,7 +262,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -285,7 +281,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -301,7 +297,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -319,7 +315,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -335,7 +331,7 @@ void Cube::_generate(const ValuesRange range)
             _indices.push_back(s);
             _indices.push_back(t);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(f, s, t);
 
                 _vertices[f].Tangent += tangent;
@@ -345,13 +341,14 @@ void Cube::_generate(const ValuesRange range)
         }
     }
 
-    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
+    if (_shapeConfig.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
 
     trisNum.clear();
 }
 
-Cube::Cube(const ValuesRange range)
+Cube::Cube(const ShapeConfig& config, const ValuesRange range)
 {
+    _shapeConfig = config;
     _vertices.clear();
     _indices.clear();
     _generate(range);

@@ -1,6 +1,5 @@
 #include "pch.hpp"
 #include "Shape.hpp"
-#include "Config.hpp"
 #include "Vertex.hpp"
 #include "Constants.hpp"
 
@@ -19,115 +18,11 @@
 #include <fmt/base.h>
 #include <fmt/args.h>
 
-using namespace config;
+#include <nlohmann/json.hpp>
 
 float Shape::_map(const float input, const float currStart, const float currEnd, const float expectedStart, const float expectedEnd) const
 {
     return expectedStart + ((expectedEnd - expectedStart) / (currEnd - currStart)) * (input - currStart);
-}
-
-Vertex Shape::_calcTangentBitangent(const unsigned int vertexIndex) const
-{
-    Vertex v = _vertices[vertexIndex];
-
-    glm::vec3 tangent = glm::vec3(0.f);
-    glm::vec3 bitangent = glm::vec3(0.f);
-    unsigned int trianglesIncluded = 0u;
-
-    // Find the triangles that use v
-    //  * Loop over every triangle (i + 3)
-    for (size_t i = 0ull; i < _indices.size(); i += 3ull) {
-        const unsigned int index0 = _indices[i];
-        const unsigned int index1 = _indices[i + 1ull];
-        const unsigned int index2 = _indices[i + 2ull];
-
-        // Only perform the calculation if one of the indices
-        // matches our vertexIndex
-        if (index0 == vertexIndex || index1 == vertexIndex || index2 == vertexIndex) {
-            Vertex v0 = _vertices[index0];
-            Vertex v1 = _vertices[index1];
-            Vertex v2 = _vertices[index2];
-
-            glm::vec3 pos0 = v0.Position;
-            glm::vec3 pos1 = v1.Position;
-            glm::vec3 pos2 = v2.Position;
-
-            glm::vec2 uv0 = v0.TexCoord;
-            glm::vec2 uv1 = v1.TexCoord;
-            glm::vec2 uv2 = v2.TexCoord;
-
-            glm::vec3 delta_pos1 = pos1 - pos0;
-            glm::vec3 delta_pos2 = pos2 - pos0;
-
-            glm::vec2 delta_uv1 = uv1 - uv0;
-            glm::vec2 delta_uv2 = uv2 - uv0;
-
-            const float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
-
-            tangent += (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
-
-            //bitangent += (delta_pos2 * delta_uv1.x - delta_pos1 * delta_uv2.x) * r;
-
-            trianglesIncluded += 1u;
-        }
-    }
-
-    // Average the tangent and bitangents
-    float inv_trisInc = trianglesIncluded < 2 ? 1.0f : 1.0f / (float)trianglesIncluded;
-    tangent *= inv_trisInc;
-
-    if (fabsf(glm::length(tangent)) >= EPSILON) {
-        tangent = glm::normalize(tangent);
-
-        bitangent = glm::cross(v.Normal, tangent);
-        tangent = glm::cross(bitangent, v.Normal);
-    }
-
-    // Save the results
-    v.Tangent = tangent;
-    v.Bitangent = bitangent;
-
-    return v;
-}
-
-std::pair<glm::vec3, glm::vec3> Shape::_calcTangentBitangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const
-{
-    std::pair<glm::vec3, glm::vec3> TB;
-
-    const Vertex v0 = _vertices[t1];
-    const Vertex v1 = _vertices[t2];
-    const Vertex v2 = _vertices[t3];
-
-    const glm::vec3 pos0 = v0.Position;
-    const glm::vec3 pos1 = v1.Position;
-    const glm::vec3 pos2 = v2.Position;
-
-    const glm::vec2 uv0 = v0.TexCoord;
-    const glm::vec2 uv1 = v1.TexCoord;
-    const glm::vec2 uv2 = v2.TexCoord;
-
-    const glm::vec3 delta_pos1 = pos1 - pos0;
-    const glm::vec3 delta_pos2 = pos2 - pos0;
-
-    const glm::vec2 delta_uv1 = uv1 - uv0;
-    const glm::vec2 delta_uv2 = uv2 - uv0;
-
-    const float inv_r = delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x;
-    const float r = (fabsf(inv_r) >= EPSILON) ? 1.0f / inv_r : 1.0f;
-
-    // Save the results
-    TB.first = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
-    TB.second = (delta_pos2 * delta_uv1.x - delta_pos1 * delta_uv2.x) * r;
-
-    if (fabsf(glm::length(TB.first)) >= EPSILON) {
-        TB.first = glm::normalize(TB.first);
-    }
-
-    if (fabsf(glm::length(TB.second)) >= EPSILON) {
-        TB.second = glm::normalize(TB.second);
-    }
-
-    return TB;
 }
 
 glm::vec3 Shape::_calcTangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const
@@ -175,27 +70,13 @@ void Shape::_normalizeTangentAndGenerateBitangent(const unsigned int vertIdx, co
     if (fabsf(glm::length(vert.Tangent)) >= EPSILON) {
         vert.Tangent = glm::normalize(vert.Tangent);
 
-        vert.Bitangent = glm::cross(vert.Normal, vert.Tangent);
-        vert.Tangent = glm::cross(vert.Bitangent, vert.Normal);
-    }
-}
+        if (_shapeConfig.calcBitangents) {
+            vert.Bitangent = glm::cross(vert.Normal, vert.Tangent);
+            vert.Tangent = glm::cross(vert.Bitangent, vert.Normal);
 
-void Shape::_normalizeTangentBitangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end)
-{
-    for (size_t i = start; i < end; ++i) {
-        Vertex& vert = _vertices[i];
-
-        float inv_trisNum = trisNum[i - start] < 2 ? 1.0f : 1.0f / (float)trisNum[i - start];
-        vert.Tangent *= inv_trisNum;
-
-        if (fabsf(glm::length(vert.Tangent)) >= EPSILON) {
-            vert.Tangent = glm::normalize(vert.Tangent);
-        }
-
-        vert.Bitangent *= inv_trisNum;
-
-        if (fabsf(glm::length(vert.Bitangent)) >= EPSILON) {
-            vert.Bitangent = glm::normalize(vert.Bitangent);
+            if (!_shapeConfig.tangentHandednessPositive) {
+                vert.Bitangent *= -1.0f;
+            }
         }
     }
 }
@@ -214,20 +95,27 @@ std::string Shape::_getGeneratedHeader(const std::string commentSign) const
 
 std::string Shape::_getStructDefinition(bool isC99) const
 {
-    const Config& config = get_config();
-
     std::string tangentBlock = "";
-    if (config.genTangents) {
-        tangentBlock = "\tvec3 Tangent;\n\tvec3 Bitangent;\n";
+    std::string vec4Struct = "";
+    if (_shapeConfig.genTangents) {
+        if (_shapeConfig.calcBitangents)
+        {
+            tangentBlock = "\tvec3 Tangent;\n\tvec3 Bitangent;\n";
+        }
+        else
+        {
+            vec4Struct = isC99 ? "typedef struct {\n\tfloat x, y, z, w;\n} vec4;\n\n" : "struct vec4\n{\n\tfloat x, y, z, w;\n};\n\n";
+            tangentBlock = "\tvec4 Tangent;\n";
+        }
     }
 
     if (isC99) {
-        return  "typedef struct {\n\tfloat x, y, z;\n} vec3;\n\n"
+        return  vec4Struct + "typedef struct {\n\tfloat x, y, z;\n} vec3;\n\n"
                 "typedef struct {\n\tfloat x, y;\n} vec2;\n\n"
                 "typedef struct {\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n" + tangentBlock + "} Vertex;\n\n";
     }
     else {
-        return  "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
+        return  vec4Struct + "struct vec3\n{\n\tfloat x, y, z;\n};\n\n"
                 "struct vec2\n{\n\tfloat x, y;\n};\n\n"
                 "struct Vertex\n{\n\tvec3 Position;\n\tvec2 TexCoord;\n\tvec3 Normal;\n" + tangentBlock + "};\n\n";
     }
@@ -242,7 +130,6 @@ std::string Shape::_formatFloat(float value, bool delRedundantZeros) const
 
     if (delRedundantZeros && str.find('.') != std::string::npos) {
         str = str.substr(0, str.find_last_not_of('0') + 1);
-
         //if (str.find('.') == str.size() - 1) str = str.substr(0, str.size() - 1);
     }
 
@@ -251,8 +138,6 @@ std::string Shape::_formatFloat(float value, bool delRedundantZeros) const
 
 std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
 {
-    const Config& config = get_config();
-
     std::string formatStr;
     std::vector<std::string> args;
     if (useFloat) {
@@ -263,12 +148,23 @@ std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
             unmove(_formatFloat(v.Normal.x)),   unmove(_formatFloat(v.Normal.y)),   unmove(_formatFloat(v.Normal.z))
         };
 
-        if (config.genTangents) {
-            formatStr += ",\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f";
-            args.insert(args.end(), {
-                unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
-                unmove(_formatFloat(v.Bitangent.x)), unmove(_formatFloat(v.Bitangent.y)), unmove(_formatFloat(v.Bitangent.z))
-            });
+        if (_shapeConfig.genTangents) {
+            if (_shapeConfig.calcBitangents)
+            {
+                formatStr += ",\t\t\t\t{}f, {}f, {}f,\t\t\t\t{}f, {}f, {}f";
+                args.insert(args.end(), {
+                    unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
+                    unmove(_formatFloat(v.Bitangent.x)), unmove(_formatFloat(v.Bitangent.y)), unmove(_formatFloat(v.Bitangent.z))
+                });
+            }
+            else
+            {
+                formatStr += ",\t\t\t\t{}f, {}f, {}f, {}f";
+                args.insert(args.end(), {
+                    unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
+                    unmove(_formatFloat(_shapeConfig.tangentHandednessPositive ? 1.0f : -1.0f))
+                });
+            }
         }
     }
     else {
@@ -283,16 +179,29 @@ std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
             " }"
         };
 
-        if (config.genTangents) {
-            formatStr += ", {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}";
-            args.insert(args.end(), {
-                "{ ",
-                unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
-                " }",
-                "{ ",
-                unmove(_formatFloat(v.Bitangent.x)), unmove(_formatFloat(v.Bitangent.y)), unmove(_formatFloat(v.Bitangent.z)),
-                " }", "}"
-            });
+        if (_shapeConfig.genTangents) {
+            if (_shapeConfig.calcBitangents)
+            {
+                formatStr += ", {}{}f, {}f, {}f{}, {}{}f, {}f, {}f{} {}";
+                args.insert(args.end(), {
+                    "{ ",
+                    unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
+                    " }",
+                    "{ ",
+                    unmove(_formatFloat(v.Bitangent.x)), unmove(_formatFloat(v.Bitangent.y)), unmove(_formatFloat(v.Bitangent.z)),
+                    " }", "}"
+                });
+            }
+            else
+            {
+                formatStr += ", {}{}f, {}f, {}f, {}f{} {}";
+                args.insert(args.end(), {
+                    "{ ",
+                    unmove(_formatFloat(v.Tangent.x)),   unmove(_formatFloat(v.Tangent.y)),   unmove(_formatFloat(v.Tangent.z)),
+                    unmove(_formatFloat(_shapeConfig.tangentHandednessPositive ? 1.0f : -1.0f)),
+                    " }", "}"
+                });
+            }
         }
         else {
             formatStr += " {}";
@@ -310,8 +219,6 @@ std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
 
 std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFloat) const
 {
-    const Config& config = get_config();
-
     std::string result;
     std::string type = useFloat ? "float" : "Vertex";
     std::string header = useArray
@@ -321,7 +228,7 @@ std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFlo
     result += header;
 
     std::string indent = useFloat ? "\t\t\t\t" : "\t\t\t\t\t";
-    std::string tangentBlock = config.genTangents ? indent + "//TANGENT" + indent + "//BITANGENT" : "";
+    std::string tangentBlock = _shapeConfig.genTangents ? indent + "//TANGENT" + (_shapeConfig.calcBitangents ? indent + "//BITANGENT" : "") : "";
 
     if (useFloat) result += "\t//POSITION\t\t\t\t\t//TEX COORD\t//NORMAL" + tangentBlock + "\n";
     else result += "\t//POSITION\t\t\t\t\t\t//TEX COORD\t\t//NORMAL" + tangentBlock + "\n";
@@ -358,6 +265,38 @@ std::string Shape::_formatIndices(bool useArray) const
 
     result += "};";
     return result;
+}
+
+std::string Shape::_toJSON(bool onlyVertices) const
+{
+    nlohmann::json j;
+
+    j["type"] = getObjectClassName();
+    j["format"] = onlyVertices ? "unindexed" : "indexed";
+    j["positiveHandedness"] = _shapeConfig.tangentHandednessPositive;
+    j["hasBitangents"] = _shapeConfig.calcBitangents;
+    j["vertexCount"] = onlyVertices ? _indices.size() : _vertices.size();
+    j["indexCount"] = onlyVertices ? 0 : _indices.size();
+
+    if (onlyVertices)
+    {
+        std::vector<Vertex> expanded;
+        expanded.reserve(_indices.size());
+
+        for (unsigned int idx : _indices) {
+            expanded.push_back(_vertices[idx]);
+        }
+
+        j["vertices"] = nlohmann::vertex_vector_to_json(expanded, _shapeConfig.genTangents, _shapeConfig.calcBitangents, _shapeConfig.tangentHandednessPositive);
+        j["indices"] = nlohmann::json::array();
+    }
+    else
+    {
+        j["vertices"] = nlohmann::vertex_vector_to_json(_vertices, _shapeConfig.genTangents, _shapeConfig.calcBitangents, _shapeConfig.tangentHandednessPositive);
+        j["indices"] = _indices;
+    }
+
+    return j.dump(2);
 }
 
 std::string Shape::_toOBJ() const
@@ -496,6 +435,12 @@ std::string Shape::toString(FormatType type) const
         case FormatType::ARRAY_VERTICES_FLOAT: {
             return _getGeneratedHeader("//") +
                    _formatVertices(true, true, true);
+        }
+        case FormatType::JSON_INDICES: {
+            return _toJSON(false);
+        }
+        case FormatType::JSON_VERTICES: {
+            return _toJSON(true);
         }
         case FormatType::OBJ: {
             return _toOBJ();

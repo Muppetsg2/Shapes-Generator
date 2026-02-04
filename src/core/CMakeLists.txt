@@ -81,7 +81,7 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm fmt::fmt-header-only)
+target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm fmt::fmt-header-only nlohmann_json)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")

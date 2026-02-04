@@ -14,7 +14,7 @@ private:
 	void _generate(const unsigned int h, const unsigned int v, const ValuesRange range, const bool useFlatShading);
 
 public:
-	Sphere(const unsigned int h = 2u, const unsigned int v = 3u, const SphereShading shading = SphereShading::SMOOTH, const ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Sphere(const ShapeConfig& config, const unsigned int h = 2u, const unsigned int v = 3u, const SphereShading shading = SphereShading::SMOOTH, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Sphere();
 
 	static std::string getClassName();

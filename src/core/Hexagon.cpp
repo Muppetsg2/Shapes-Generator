@@ -4,8 +4,9 @@
 
 #include <string>
 
-Hexagon::Hexagon(const unsigned int segments, const ValuesRange range)
+Hexagon::Hexagon(const ShapeConfig& config, const unsigned int segments, const ValuesRange range)
 {
+    _shapeConfig = config;
     _vertices.clear();
     _indices.clear();
     _generate(segments, 6u, range, true);

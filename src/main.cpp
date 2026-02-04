@@ -6,9 +6,9 @@
 //  |____/|_| |_|\__,_| .__/ \___||___/  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
 //                    |_|                                                                
 //
-// Version: 1.3.5
+// Version: 1.4.0
 // Author: Marceli Antosik (Muppetsg2)
-// Last Update: 01.02.2025
+// Last Update: 04.02.2025
 
 #pragma region PCH
 #include "pch.hpp"
@@ -48,7 +48,6 @@
 
 #pragma region MY_FILES_CORE_LIB
 #include <Cone.hpp>
-#include <Config.hpp>
 #include <Cube.hpp>
 #include <Cylinder.hpp>
 #include <Hexagon.hpp>
@@ -64,8 +63,8 @@
 
 #pragma region MY_FILES
 #include "ConsoleTemplates.hpp"
+#include "Config.hpp"
 #pragma endregion
-
 
 Shape* selectedShape = nullptr;
 
@@ -385,16 +384,20 @@ static ValuesRange getValuesRange()
 
 static FormatType getFormatType()
 {
-    static const std::vector<std::string> options{
-        "std::vector  - Vertices & Indices (struct)",
-        "C array      - Vertices & Indices (struct)",
-        "std::vector  - Only Vertices (struct)",
-        "C array      - Only Vertices (struct)",
-        "std::vector  - Vertices & Indices (float)",
-        "C array      - Vertices & Indices (float)",
-        "std::vector  - Only Vertices (float)",
-        "C array      - Only Vertices (float)",
-        "Save as OBJ file"
+    static const std::vector<std::string> options {
+        "std::vector — Vertices & Indices (struct)",
+        "C array     — Vertices & Indices (struct)",
+        "std::vector — Vertices only (struct)",
+        "C array     — Vertices only (struct)",
+
+        "std::vector — Vertices & Indices (float)",
+        "C array     — Vertices & Indices (float)",
+        "std::vector — Vertices only (float)",
+        "C array     — Vertices only (float)",
+
+        "Export — JSON — Vertices & Indices",
+        "Export — JSON — Vertices only",
+        "Export — OBJ"
     };
 
     static const size_t optSize = options.size();
@@ -415,6 +418,24 @@ static FormatType getFormatType()
     } while (arr_choice < 1 || arr_choice > static_cast<int>(optSize));
 
     return static_cast<FormatType>(arr_choice - 1);
+}
+#pragma endregion
+
+#pragma region FILE_FUNCTIONS
+static std::string getFormatFileExtension(const FormatType& format)
+{
+    std::string ext = ".txt";
+
+    if (format == FormatType::OBJ)
+    {
+        ext = ".obj";
+    }
+    else if (format == FormatType::JSON_INDICES || format == FormatType::JSON_VERTICES)
+    {
+        ext = ".json";
+    }
+
+    return ext;
 }
 #pragma endregion
 
@@ -453,6 +474,12 @@ int main(int argc, char** argv)
 #pragma region SHAPE_GENERATION
     range = getValuesRange();
     std::chrono::duration<double> elapsed_seconds;
+    ShapeConfig shapeConfig = {
+        config.genTangents,
+        config.calcBitangents,
+        config.tangentHandednessPositive
+    };
+
     switch (choice) {
         case 1: {
             fmt::print("\n> Enter sphere parameters:\n");
@@ -470,7 +497,7 @@ int main(int argc, char** argv)
 
             SphereShading shade = getShadingType<SphereShading>("sphere", intChooseInput, printInvalidOption);
 
-            elapsed_seconds = generateShape<Sphere>(selectedShape, horizontal, vertical, shade, range);
+            elapsed_seconds = generateShape<Sphere>(selectedShape, shapeConfig, horizontal, vertical, shade, range);
             break;
         }
         case 2: {
@@ -487,7 +514,7 @@ int main(int argc, char** argv)
 
             IcoSphereShading shade = getShadingType<IcoSphereShading>("icoSphere", intChooseInput, printInvalidOption);
 
-            elapsed_seconds = generateShape<IcoSphere>(selectedShape, subs, shade, range);
+            elapsed_seconds = generateShape<IcoSphere>(selectedShape, shapeConfig, subs, shade, range);
             break;
         }
         case 3: {
@@ -506,10 +533,10 @@ int main(int argc, char** argv)
 
             PlaneNormalDir dir = getPlaneDirection();
 
-            elapsed_seconds = generateShape<Plane>(selectedShape, rows, columns, dir, range);
+            elapsed_seconds = generateShape<Plane>(selectedShape, shapeConfig, rows, columns, dir, range);
             break;
         }
-        case 4: elapsed_seconds = generateShape<Cube>(selectedShape, range); break;
+        case 4: elapsed_seconds = generateShape<Cube>(selectedShape, shapeConfig, range); break;
         case 5: {
             fmt::print("\n> Enter cylinder parameters:\n");
             int verticalSegments = getIntInput("   - Number of vertical segments (min: 3): ");
@@ -525,7 +552,7 @@ int main(int argc, char** argv)
 
             CylinderShading shade = getShadingType<CylinderShading>("cylinder", intChooseInput, printInvalidOption);
 
-            elapsed_seconds = generateShape<Cylinder>(selectedShape, horizontalSegments, verticalSegments, shade, range);
+            elapsed_seconds = generateShape<Cylinder>(selectedShape, shapeConfig, horizontalSegments, verticalSegments, shade, range);
             break;
         }
         case 6: {
@@ -536,7 +563,7 @@ int main(int argc, char** argv)
                 horizontalSegments = 1;
             }
 
-            elapsed_seconds = generateShape<Hexagon>(selectedShape, horizontalSegments, range);
+            elapsed_seconds = generateShape<Hexagon>(selectedShape, shapeConfig, horizontalSegments, range);
             break;
         }
         case 7: {
@@ -561,11 +588,11 @@ int main(int argc, char** argv)
 
             ConeShading shade = getShadingType<ConeShading>("cone", intChooseInput, printInvalidOption);
 
-            elapsed_seconds = generateShape<Cone>(selectedShape, segments, height, radius, shade, range);
+            elapsed_seconds = generateShape<Cone>(selectedShape, shapeConfig, segments, height, radius, shade, range);
             break;
         }
-        case 8: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, range); break;
-        case 9: elapsed_seconds = generateShape<Pyramid>(selectedShape, range); break;
+        case 8: elapsed_seconds = generateShape<Tetrahedron>(selectedShape, shapeConfig, range); break;
+        case 9: elapsed_seconds = generateShape<Pyramid>(selectedShape, shapeConfig, range); break;
         case 10: {
             fmt::print("\n> Enter torus parameters:\n");
             int segments = getIntInput("   - Number of segments for the main axis of the circle (min: 3): ");
@@ -594,7 +621,7 @@ int main(int argc, char** argv)
 
             TorusShading shade = getShadingType<TorusShading>("torus", intChooseInput, printInvalidOption);
 
-            elapsed_seconds = generateShape<Torus>(selectedShape, segments, cs_segments, radius, cs_radius, shade, range);
+            elapsed_seconds = generateShape<Torus>(selectedShape, shapeConfig, segments, cs_segments, radius, cs_radius, shade, range);
             break;
         }
     }
@@ -623,7 +650,7 @@ int main(int argc, char** argv)
         }
     }
 
-    std::string filePath = config.saveDir + DIRSEP + get_resolved_file_name(config, selectedShape->getObjectClassName()) + ((format != FormatType::OBJ) ? ".txt" : ".obj");
+    std::string filePath = config.saveDir + DIRSEP + get_resolved_file_name(config, selectedShape->getObjectClassName()) + getFormatFileExtension(format);
 
     fmt::print("\n[{}] Start Saving {} to file...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), selectedShape->getObjectClassName());
     auto start = std::chrono::system_clock::now();
@@ -639,11 +666,8 @@ int main(int argc, char** argv)
 
         elapsed_seconds = (end - start);
 
-#if defined(_WIN32)
-        replace_all(filePath, "\\\\", "\\");
-#else
-        replace_all(filePath, "//", "/");
-#endif
+        std::string separator = std::string(1, DIRSEP);
+        replace_all(filePath, separator + separator, separator);
 
         fmt::print("[{}] Shape saved successfully in {}s!\n[{}] File path: {}\n",
             fmt::styled("SAVED", fmt::fg(fmt::color::green)),

@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "Plane.hpp"
 #include "Shape.hpp"
-#include "Config.hpp"
 
 #include <algorithm>
 #include <string>
@@ -10,12 +9,8 @@
 
 #include <glm/fwd.hpp>
 
-using namespace config;
-
 void Plane::_generate(const unsigned int rows, const unsigned int columns, const PlaneNormalDir dir, const ValuesRange range)
 {
-    const Config& config = get_config();
-
     const float space = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
     const float minRange = -space * .5f;
     const float maxRange = space * .5f;
@@ -46,7 +41,7 @@ void Plane::_generate(const unsigned int rows, const unsigned int columns, const
                 }
             }
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 if (row * columns + col == 0u || row * columns + col == rows * columns - 1u) {
                     trisNum.push_back(1u);
                 }
@@ -81,7 +76,7 @@ void Plane::_generate(const unsigned int rows, const unsigned int columns, const
         _indices.push_back((unsigned int)second);
         _indices.push_back((unsigned int)third);
 
-        if (config.genTangents) {
+        if (_shapeConfig.genTangents) {
             tangent = _calcTangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
             _vertices[first].Tangent += tangent;
@@ -97,7 +92,7 @@ void Plane::_generate(const unsigned int rows, const unsigned int columns, const
         _indices.push_back((unsigned int)second);
         _indices.push_back((unsigned int)third);
 
-        if (config.genTangents) {
+        if (_shapeConfig.genTangents) {
             tangent = _calcTangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
             _vertices[first].Tangent += tangent;
@@ -106,13 +101,14 @@ void Plane::_generate(const unsigned int rows, const unsigned int columns, const
         }
     }
 
-    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, vertSize);
+    if (_shapeConfig.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, vertSize);
 
     trisNum.clear();
 }
 
-Plane::Plane(const unsigned int rows, const unsigned int columns, const PlaneNormalDir dir, const ValuesRange range)
+Plane::Plane(const ShapeConfig& config, const unsigned int rows, const unsigned int columns, const PlaneNormalDir dir, const ValuesRange range)
 {
+    _shapeConfig = config;
     _vertices.clear();
     _indices.clear();
     _generate(std::max(2u, rows), std::max(2u, columns), dir, range);

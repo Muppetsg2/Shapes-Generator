@@ -20,7 +20,8 @@ protected:
 	void _generate(const unsigned int horizontalSegments, const unsigned int verticalSegments, const ValuesRange range, const bool useFlatShading);
 
 public:
-	Cylinder(const unsigned int horizontalSegments = 1u, const unsigned int verticalSegments = 3u, const CylinderShading shading = CylinderShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Cylinder() = default;
+	Cylinder(const ShapeConfig& config, const unsigned int horizontalSegments = 1u, const unsigned int verticalSegments = 3u, const CylinderShading shading = CylinderShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
 	virtual ~Cylinder();
 
 	static std::string getClassName();

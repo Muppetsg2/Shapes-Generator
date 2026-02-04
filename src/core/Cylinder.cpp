@@ -2,7 +2,6 @@
 #include "Cylinder.hpp"
 #include "BitMathOperators.hpp"
 #include "Shape.hpp"
-#include "Config.hpp"
 #include "Constants.hpp"
 
 #include <algorithm>
@@ -12,11 +11,8 @@
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 
-using namespace config;
-
 void Cylinder::_generateCircle(const unsigned int segments, const float y, const CylinderCullFace cullFace, const ValuesRange range)
 {
-    const Config& config = get_config();
     std::vector<unsigned int> trisNum;
 
     const float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
@@ -30,11 +26,11 @@ void Cylinder::_generateCircle(const unsigned int segments, const float y, const
         const float z = cosf(angleXZ);
         const float x = sinf(angleXZ);
         _vertices.push_back({ { x * mult, y, z * mult }, { .5f + x * .5f, .5f + z * .5f }, (cullFace == CylinderCullFace::FRONT ? glm::vec3(0.f, 1.f, 0.f) : glm::vec3(0.f, -1.f, 0.f)), glm::vec3(0.f), glm::vec3(0.f) });
-        if (config.genTangents) trisNum.push_back(2u);
+        if (_shapeConfig.genTangents) trisNum.push_back(2u);
         angleXZ += angleXZDiff;
     }
     _vertices.push_back({ { 0.f, y, 0.f }, { .5f, .5f }, (cullFace == CylinderCullFace::FRONT ? glm::vec3(0.f, 1.f, 0.f) : glm::vec3(0.f, -1.f, 0.f)), glm::vec3(0.f), glm::vec3(0.f) });
-    if (config.genTangents) trisNum.push_back(segments);
+    if (_shapeConfig.genTangents) trisNum.push_back(segments);
 
     // INDICES
     const size_t vertSize = _vertices.size();
@@ -46,7 +42,7 @@ void Cylinder::_generateCircle(const unsigned int segments, const float y, const
         _indices.push_back((unsigned int)(cullFace == CylinderCullFace::FRONT ? right : i));
         _indices.push_back((unsigned int)vertSize - 1u);
 
-        if (config.genTangents) {
+        if (_shapeConfig.genTangents) {
             if (cullFace == CylinderCullFace::FRONT) {
                 tangent = _calcTangent((unsigned int)i, (unsigned int)right, (unsigned int)vertSize - 1u);
             }
@@ -60,14 +56,13 @@ void Cylinder::_generateCircle(const unsigned int segments, const float y, const
         }
     }
 
-    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, start, _vertices.size());
+    if (_shapeConfig.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, start, _vertices.size());
 
     trisNum.clear();
 }
 
 void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned int verticalSegments, const ValuesRange range, const bool useFlatShading)
 {
-    const Config& config = get_config();
     const float mult = range == ValuesRange::HALF_TO_HALF ? 0.5f : 1.0f;
     const float h = 2.f * mult;
 
@@ -100,7 +95,7 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
                     const float x = sinf(angleXZF) * mult;
 
                     _vertices.push_back({ { x, y, z }, { (float)f, yDiff / h }, norm, glm::vec3(0.f), glm::vec3(0.f) });
-                    if (config.genTangents) trisNum.push_back(1u + mod_2(i + f));
+                    if (_shapeConfig.genTangents) trisNum.push_back(1u + mod_2(i + f));
                 }
             }
             else {
@@ -109,7 +104,7 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
 
                 _vertices.push_back({ { x_n * mult, y, z_n * mult }, { (float)angleXZ * 0.5f * M_1_PI, yDiff / h }, glm::normalize(glm::vec3(x_n, 0.f, z_n)), glm::vec3(0.f), glm::vec3(0.f) });
 
-                if (config.genTangents) {
+                if (_shapeConfig.genTangents) {
                     const unsigned int count =
                         (j == 0u || j == verticalSegments
                             ? (i == 0u || i == horizontalSegments
@@ -146,7 +141,7 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
             _indices.push_back((unsigned int)dt);
             _indices.push_back((unsigned int)right);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent((unsigned int)left, (unsigned int)dt, (unsigned int)right);
 
                 _vertices[left].Tangent += tangent;
@@ -162,7 +157,7 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
             _indices.push_back((unsigned int)left);
             _indices.push_back((unsigned int)right);
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent((unsigned int)dt, (unsigned int)left, (unsigned int)right);
 
                 _vertices[dt].Tangent += tangent;
@@ -172,15 +167,16 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
         }
     }
 
-    if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, start, _vertices.size());
+    if (_shapeConfig.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, start, _vertices.size());
 
     trisNum.clear();
 
     _generateCircle(verticalSegments, -h * 0.5f, CylinderCullFace::BACK, range);
 }
 
-Cylinder::Cylinder(const unsigned int horizontalSegments, const unsigned int verticalSegments, const CylinderShading shading, const ValuesRange range)
+Cylinder::Cylinder(const ShapeConfig& config, const unsigned int horizontalSegments, const unsigned int verticalSegments, const CylinderShading shading, const ValuesRange range)
 {
+    _shapeConfig = config;
     _vertices.clear();
     _indices.clear();
     _generate(std::max(1u, horizontalSegments), std::max(3u, verticalSegments), range, shading == CylinderShading::FLAT);

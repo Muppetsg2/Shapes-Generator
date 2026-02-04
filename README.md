@@ -4,7 +4,7 @@
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.3.5</h1>
+        <h1>Shapes Generator 1.4.0</h1>
       </summary>
     </ul>
   </div>
@@ -22,8 +22,9 @@ The program dynamically generates the shape based on user input and exports the 
 > 🔺 Note: Each shape is constructed using triangles.
 
 🛠 **Technologies used:**
-- **GLM** (OpenGL Mathematics) for vector operations
-- **FMT** for formatted output
+- [**GLM**](https://github.com/g-truc/glm) (OpenGL Mathematics) for vector operations
+- [**FMT**](https://github.com/fmtlib/fmt) for formatted output
+- [**JSON**](https://github.com/nlohmann/json) for exporting in json format
 
 ## 📋 Table of Contents
 
@@ -58,16 +59,17 @@ The program dynamically generates the shape based on user input and exports the 
 
 ✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
 <br/>
-✅ **File Output**: Generated shapes are saved in `shape.txt` or `shape.obj` for later use.
+✅ **File Output**: Generated shapes are saved in `shape.txt`, `shape.obj` or `shape.json` for later use.
 <br/>
 ✅ **Error Handling**: Provides feedback for invalid inputs and applies sensible defaults.
 
 ## 📦 Dependencies
 
 - **C++20** or later
-- **CMake 3.21** or later
-- **GLM** Library (OpenGL Mathematics)
-- **FMT** Library (Formatted console output)
+- **CMake 3.26** or later
+- [**GLM**](https://github.com/g-truc/glm) Library (OpenGL Mathematics)
+- [**FMT**](https://github.com/fmtlib/fmt) Library (Formatted console output)
+- [**JSON**](https://github.com/nlohmann/json) Library (Exporting in JSON format)
 
 ## ⚙️ How to Build
 
@@ -148,7 +150,8 @@ The program dynamically generates the shape based on user input and exports the 
 4. **The shape is generated**.
 5. **Select the file format** for saving.
 6. **The file path** will be displayed in the console.
-7. **Exit anytime** by pressing the **ESC** key.
+7. *(Optionaly)* **File explorer** will pop up with file location.
+8. **Exit anytime** by pressing the **ESC** key.
 
 ## 🧾 Configuration
 
@@ -158,17 +161,22 @@ The application allows you to configure the default output path and filename usi
 
    ```bash
    generateTangents: true
+   calculateBitangents: true
+   tangentHandednessPositive: true
    saveDir: C:\my\custom\output\
    fileName: my_${TYPE}-%H-%M-%S
    openDirOnSave: true
    ```
 
-- **generateTangents**: Tells the generator whether to compute and include tangent and bitangent \
-vectors for each vertex (useful for normal mapping and advanced shading).
+- **generateTangents**: Tells the generator whether to compute and include tangent vectors for each vertex (useful for normal mapping and advanced shading). \
+If `calculateBitangents` is enabled, bitangent vectors will also be generated for each vertex.
+- **calculateBitangents**: Determines whether bitangent vectors should be calculated and included in the saved file.
+- **tangentHandednessPositive**: Defines which handedness convention should be used when calculating bitangents or when saving tangents to the file.
 - **saveDir**: Sets the directory where shape files will be saved.
 - **fileName**: Defines the pattern for the output file name. You can use **standard time format markers**
 compatible with the C++ function **strftime**, as well as a custom placeholder `${TYPE}`, 
 which will be replaced with the name of the generated 3D object (e.g., `"Cube"`, `"Cone"`, `"Sphere"`).
+- **openDirOnSave**: If enabled, instructs the application to open the system file explorer at the location of the saved file after generation.
 
 ### 🧩 Custom markers
 
@@ -191,17 +199,19 @@ When generating a **Sphere**, the output will look like this:
 
 ──────────────────────────────────────────────────
 [FILE] Select the save format:
- 1) std::vector  - Vertices & Indices (struct)
- 2) C array      - Vertices & Indices (struct)
- 3) std::vector  - Only Vertices (struct)
- 4) C array      - Only Vertices (struct)
- 5) std::vector  - Vertices & Indices (float)
- 6) C array      - Vertices & Indices (float)
- 7) std::vector  - Only Vertices (float)
- 8) C array      - Only Vertices (float)
- 9) Save as OBJ file
+ 1) std::vector — Vertices & Indices (struct)
+ 2) C array     — Vertices & Indices (struct)
+ 3) std::vector — Vertices only (struct)
+ 4) C array     — Vertices only (struct)
+ 5) std::vector — Vertices & Indices (float)
+ 6) C array     — Vertices & Indices (float)
+ 7) std::vector — Vertices only (float)
+ 8) C array     — Vertices only (float)
+ 9) Export — JSON — Vertices & Indices
+ 10) Export — JSON — Vertices only
+ 11) Export — OBJ
  ──────────────────────────────────────────────────
-Enter your choice (1 - 9): 1
+Enter your choice (1 - 11): 1
 
 [OK] Start Saving Sphere to file...
 [SAVED] Shape saved successfully in 0.0013585s!

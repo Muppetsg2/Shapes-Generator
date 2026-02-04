@@ -25,7 +25,7 @@ private:
     std::unordered_map<uint64_t, unsigned int> _middlePointCache;
 
 public:
-    IcoSphere(const unsigned int subdivisions = 0u, const IcoSphereShading shading = IcoSphereShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
+    IcoSphere(const ShapeConfig& config, const unsigned int subdivisions = 0u, const IcoSphereShading shading = IcoSphereShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
     virtual ~IcoSphere();
 
     static std::string getClassName();

@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "Tetrahedron.hpp"
 #include "Shape.hpp"
-#include "Config.hpp"
 #include "Constants.hpp"
 
 #include <string>
@@ -11,11 +10,8 @@
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 
-using namespace config;
-
 void Tetrahedron::_generate(const ValuesRange range)
 {
-	const Config& config = get_config();
 	const float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
 
 	const unsigned int segments = 3u;
@@ -35,7 +31,7 @@ void Tetrahedron::_generate(const ValuesRange range)
 		const float z = cosf(angleXZ);
 		const float x = sinf(angleXZ);
 		_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { fabsf(.5f - (float)((int)((float)j * 1.5f)) * .5f), (j == 0u ? 1.f : 0.f) }, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f) });
-		if (config.genTangents) trisNum.push_back(1u);
+		if (_shapeConfig.genTangents) trisNum.push_back(1u);
 		angleXZ += angleXZDiff;
 	}
 
@@ -43,7 +39,7 @@ void Tetrahedron::_generate(const ValuesRange range)
 	_indices.push_back(2u);
 	_indices.push_back(1u);
 
-	if (config.genTangents) {
+	if (_shapeConfig.genTangents) {
 		tangent = _calcTangent(0u, 2u, 1u);
 
 		_vertices[0ull].Tangent += tangent;
@@ -69,13 +65,13 @@ void Tetrahedron::_generate(const ValuesRange range)
 			const float x = sinf(angle);
 
 			_vertices.push_back({ glm::normalize(glm::vec3(x * r, y, z * r)) * mult, { (float)i, 1.f}, norm, glm::vec3(0.f), glm::vec3(0.f) });
-			if (config.genTangents) trisNum.push_back(1u);
+			if (_shapeConfig.genTangents) trisNum.push_back(1u);
 		}
 
 		// sqrt_3 * sqrtf(2) * .5f - .5f it came out from previous normalization of vertices.
 		// In shortcut it is height of Tetrahedron minus y value of normalized vertex
 		_vertices.push_back({ glm::vec3(0.f, (M_SQRT3 * M_SQRT2 * .5f) - .5f, 0.f) * mult, {.5f, 0.f}, norm, glm::vec3(0.f), glm::vec3(0.f) });
-		if (config.genTangents) trisNum.push_back(1u);
+		if (_shapeConfig.genTangents) trisNum.push_back(1u);
 
 		angleXZ += angleXZDiff;
 	}
@@ -90,7 +86,7 @@ void Tetrahedron::_generate(const ValuesRange range)
 		_indices.push_back((unsigned int)right);
 		_indices.push_back((unsigned int)top);
 
-		if (config.genTangents) {
+		if (_shapeConfig.genTangents) {
 			tangent = _calcTangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
 
 			_vertices[left].Tangent += tangent;
@@ -99,13 +95,14 @@ void Tetrahedron::_generate(const ValuesRange range)
 		}
 	}
 
-	if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
+	if (_shapeConfig.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
 
 	trisNum.clear();
 }
 
-Tetrahedron::Tetrahedron(const ValuesRange range)
+Tetrahedron::Tetrahedron(const ShapeConfig& config, const ValuesRange range)
 {
+	_shapeConfig = config;
 	_vertices.clear();
 	_indices.clear();
 	_generate(range);

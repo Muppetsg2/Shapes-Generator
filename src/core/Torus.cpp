@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "Torus.hpp"
 #include "Shape.hpp"
-#include "Config.hpp"
 #include "Constants.hpp"
 #include "Vertex.hpp"
 
@@ -12,8 +11,6 @@
 
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
-
-using namespace config;
 
 glm::vec3 Torus::_getAverageNormal(const glm::vec3 n1, const glm::vec3 n2, const glm::vec3 n3) const
 {
@@ -26,7 +23,6 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
     // Helpful 
     // https://gamedev.stackexchange.com/questions/16845/how-do-i-generate-a-torus-mesh
 
-    const Config& config = get_config();
     const float mult = range == ValuesRange::HALF_TO_HALF ? .5f : 1.f;
 
     const float angleincs = 2.f * (float)M_PI / (float)segments;
@@ -97,7 +93,7 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
                     _indices.push_back(s);
                     _indices.push_back(t);
 
-                    if (config.genTangents) {
+                    if (_shapeConfig.genTangents) {
                         tangent = _calcTangent(f, s, t);
 
                         _vertices[f].Tangent = tangent;
@@ -140,7 +136,7 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
                 _indices.push_back(third);
                 _indices.push_back(fourth);
 
-                if (config.genTangents) {
+                if (_shapeConfig.genTangents) {
                     // first triangle
                     tangent = _calcTangent(third, second, first);
 
@@ -158,7 +154,7 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
             }
         }
 
-        if (config.genTangents) {
+        if (_shapeConfig.genTangents) {
             std::vector<unsigned int> trisNum(_vertices.size(), 0u);
 
             const size_t indexCount = _indices.size();
@@ -172,8 +168,9 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
     }
 }
 
-Torus::Torus(const unsigned int segments, const unsigned int cs_segments, const float radius, const float cs_radius, const TorusShading shading, const ValuesRange range)
+Torus::Torus(const ShapeConfig& config, const unsigned int segments, const unsigned int cs_segments, const float radius, const float cs_radius, const TorusShading shading, const ValuesRange range)
 {
+    _shapeConfig = config;
 	_vertices.clear();
 	_indices.clear();
     _generate(std::max(3u, segments), std::max(3u, cs_segments), std::max(EPSILON, radius), std::max(EPSILON, cs_radius), range, shading == TorusShading::FLAT);

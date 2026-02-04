@@ -6,6 +6,8 @@ namespace config {
 		std::string saveDir;
 		std::string fileName;
 		bool genTangents;
+		bool calcBitangents;
+		bool tangentHandednessPositive;
 		bool openDirOnSave;
 	};
 

@@ -2,17 +2,14 @@
 
 // STANDARD LIBS
 #include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <ctime>
 #include <filesystem>
-#include <fstream>
+#include <functional>
 #include <iomanip>
 #include <ios>
-#include <istream>
 #include <sstream>
 #include <string>
 #include <sys/stat.h>
@@ -30,15 +27,16 @@
 #undef near
 #undef far
 #include <direct.h>
+#include <shellapi.h>
 #define MKDIR(path) _mkdir(path)
-#define DIRSEP "\\"
+#define DIRSEP '\\'
 #else
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
 #endif
 #include <unistd.h>
 #define MKDIR(path) mkdir(path, 0777)
-#define DIRSEP "/"
+#define DIRSEP '/'
 #endif
 
 #if __cplusplus > 201703L
@@ -47,15 +45,15 @@
 #include <type_traits>
 #endif
 
-// FROM VCPKG
+// FROM CPM
 #define FMT_HEADER_ONLY
-#include <fmt/base.h>
 #include <fmt/args.h>
-#include <fmt/color.h>
-#include <fmt/format-inl.h>
+#include <fmt/base.h>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
-#include <glm/vector_relational.hpp>
 #include <glm/gtc/epsilon.hpp>
+#include <glm/vector_relational.hpp>
+#include <nlohmann/json.hpp>
 
 #include "Constants.hpp"
+#include "BitMathOperators.hpp"

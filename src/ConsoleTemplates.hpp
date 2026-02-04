@@ -15,14 +15,14 @@
 #pragma endregion
 
 template<class ShapeType, class... Args>
-static std::chrono::duration<double> generateShape(Shape*& out, const Args&... args) {
+static std::chrono::duration<double> generateShape(Shape*& out, const ShapeConfig& config, const Args&... args) {
     
     fmt::print("\n[{}] Start Generating {}...\n", fmt::styled("OK", fmt::fg(fmt::color::green)), ShapeType::getClassName());
 
     auto start = std::chrono::system_clock::now();
 
     // Shape Creation
-    out = new ShapeType(args...);
+    out = new ShapeType(config, args...);
 
     auto end = std::chrono::system_clock::now();
 
@@ -36,7 +36,6 @@ static T getShadingType(const std::string& shapeName, std::function<int(int, int
     int dir_choice;
     do {
         fmt::print("\n> Select the {} shading type:\n1) FLAT\n2) SMOOTH\n", shapeName);
-        //dir_choice = getIntInput(getInputPrompt(1, 2));
         dir_choice = intInputFunc(1, 2);
         if (dir_choice < 1 || dir_choice > 2) {
             errorMsgFunc(1, 2);

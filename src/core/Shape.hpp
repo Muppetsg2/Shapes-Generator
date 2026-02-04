@@ -14,7 +14,9 @@ enum class FormatType {
 	ARRAY_INDICES_FLOAT = 5,
 	VECTOR_VERTICES_FLOAT = 6,
 	ARRAY_VERTICES_FLOAT = 7,
-	OBJ = 8
+	JSON_INDICES = 8,
+	JSON_VERTICES = 9,
+	OBJ = 10
 };
 
 enum class ValuesRange {
@@ -28,20 +30,25 @@ static const T& unmove(T&& x)
 	return x;
 }
 
+struct ShapeConfig
+{
+	bool genTangents = true;
+	bool calcBitangents = true;
+	bool tangentHandednessPositive = true;
+};
+
 class Shape
 {
 protected:
+	ShapeConfig _shapeConfig;
 	std::vector<Vertex> _vertices;
 	std::vector<unsigned int> _indices;
 
 	float _map(const float input, const float currStart, const float currEnd, const float expectedStart, const float expectedEnd) const;
 
-	Vertex _calcTangentBitangent(const unsigned int vertexIndex) const;
-	std::pair<glm::vec3, glm::vec3> _calcTangentBitangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const;
 	glm::vec3 _calcTangent(const unsigned int t1, const unsigned int t2, const unsigned int t3) const;
 	void _normalizeTangentAndGenerateBitangent(const unsigned int vertIdx, const unsigned int trisNum = 1);
 	// start - inclusive, end - exclusive
-	void _normalizeTangentBitangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end);
 	void _normalizeTangentsAndGenerateBitangents(const std::vector<unsigned int>& trisNum, const size_t start, const size_t end);
 
 	std::string _getGeneratedHeader(const std::string commentSign) const;
@@ -50,6 +57,7 @@ protected:
 	std::string _formatVertex(const Vertex& v, bool useFloat) const;
 	std::string _formatVertices(bool onlyVertices, bool useArray, bool useFloat) const;
 	std::string _formatIndices(bool useArray) const;
+	std::string _toJSON(bool onlyVertices) const;
 	std::string _toOBJ() const;
 
 public:

@@ -16,6 +16,12 @@ if(MSVC)
 	set_property(TARGET fmt-header-only PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
+# json https://github.com/nlohmann/json
+CPMAddPackage("gh:nlohmann/json#v3.12.0")
+if(MSVC)
+	set_property(TARGET nlohmann_json PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 # Catch2 https://github.com/catchorg/Catch2
 CPMAddPackage("gh:catchorg/Catch2@3.12.0")
 if(MSVC)

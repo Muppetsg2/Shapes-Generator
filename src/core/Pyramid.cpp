@@ -2,7 +2,6 @@
 #include "Pyramid.hpp"
 #include "Shape.hpp"
 #include "BitMathOperators.hpp"
-#include "Config.hpp"
 #include "Constants.hpp"
 
 #include <string>
@@ -12,12 +11,8 @@
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 
-using namespace config;
-
 void Pyramid::_generate(const ValuesRange range)
 {
-	const Config& config = get_config();
-
 	const float mult = range == ValuesRange::HALF_TO_HALF ? 1.f : 2.f;
 
 	const float sqrt_2 = (float)M_SQRT2 * mult;
@@ -31,7 +26,7 @@ void Pyramid::_generate(const ValuesRange range)
 		float z = (.5f - (float)(div_2(i))) * mult;
 		_vertices.push_back({ { x, -h * 0.5f, z }, { (float)(mod_2(i)), (float)(div_2(i)) }, glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.f) });
 
-		if (config.genTangents) {
+		if (_shapeConfig.genTangents) {
 			if (i < 2u) {
 				trisNum.push_back(1u + (unsigned int)i);
 			}
@@ -51,7 +46,7 @@ void Pyramid::_generate(const ValuesRange range)
 		_indices.push_back(s);
 		_indices.push_back(t);
 
-		if (config.genTangents) {
+		if (_shapeConfig.genTangents) {
 			tangent = _calcTangent(f, s, t);
 
 			_vertices[(size_t)f].Tangent += tangent;
@@ -83,7 +78,7 @@ void Pyramid::_generate(const ValuesRange range)
 		_vertices.push_back({ { (x + cos_angle) * mult, -h * 0.5f, (z + sin_angle_pi) * mult }, { 1.f, 1.f }, norm, glm::vec3(0.f), glm::vec3(0.f) });
 		_vertices.push_back({ { 0.f, h * 0.5f, 0.f }, { .5f, 0.f }, norm, glm::vec3(0.f), glm::vec3(0.f) });
 
-		if (config.genTangents)
+		if (_shapeConfig.genTangents)
 		{
 			trisNum.push_back(1u);
 			trisNum.push_back(1u);
@@ -103,7 +98,7 @@ void Pyramid::_generate(const ValuesRange range)
 		_indices.push_back((unsigned int)right);
 		_indices.push_back((unsigned int)top);
 
-		if (config.genTangents) {
+		if (_shapeConfig.genTangents) {
 			tangent = _calcTangent((unsigned int)left, (unsigned int)right, (unsigned int)top);
 
 			_vertices[left].Tangent += tangent;
@@ -112,13 +107,14 @@ void Pyramid::_generate(const ValuesRange range)
 		}
 	}
 
-	if (config.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
+	if (_shapeConfig.genTangents) _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
 
 	trisNum.clear();
 }
 
-Pyramid::Pyramid(const ValuesRange range)
+Pyramid::Pyramid(const ShapeConfig& config, const ValuesRange range)
 {
+	_shapeConfig = config;
 	_vertices.clear();
 	_indices.clear();
 	_generate(range);

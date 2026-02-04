@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "IcoSphere.hpp"
 #include "BitMathOperators.hpp"
-#include "Config.hpp"
 #include "Constants.hpp"
 #include "Vertex.hpp"
 #include "Shape.hpp"
@@ -15,12 +14,8 @@
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 
-using namespace config;
-
 void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading, const bool hasSubdivisions)
 {
-    const Config& config = get_config();
-
     std::vector<Vertex> tempVertices;
     std::vector<unsigned int> tempIndices;
 
@@ -101,7 +96,7 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
             _indices.push_back(ib);
             _indices.push_back(ic);
 
-            if (!hasSubdivisions && config.genTangents) {
+            if (!hasSubdivisions && _shapeConfig.genTangents) {
                 tangent = _calcTangent(ia, ib, ic);
 
                 _vertices[ia].Tangent += tangent;
@@ -110,7 +105,7 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
             }
         }
 
-        if (!hasSubdivisions && config.genTangents) {
+        if (!hasSubdivisions && _shapeConfig.genTangents) {
             std::vector<unsigned int> trisNum(_vertices.size(), 5);
             _normalizeTangentsAndGenerateBitangents(trisNum, 0ull, _vertices.size());
         }
@@ -137,7 +132,7 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
             _indices.push_back((unsigned int)third);
             _vertices.push_back({ tempVertices[ic].Position, tempVertices[ic].TexCoord, normal, glm::vec3(0.f), glm::vec3(0.f) });
 
-            if (!hasSubdivisions && config.genTangents) {
+            if (!hasSubdivisions && _shapeConfig.genTangents) {
                 tangent = _calcTangent((unsigned int)first, (unsigned int)second, (unsigned int)third);
 
                 _defineTangentBitangentFlatShading(tangent, first);
@@ -150,8 +145,6 @@ void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading
 
 void IcoSphere::_generate(const unsigned int subdivisions, const ValuesRange range, const bool useFlatShading)
 {
-    const Config& config = get_config();
-
     const float mult = (range == ValuesRange::HALF_TO_HALF) ? .5f : 1.f;
     _generateIcoSahedron(mult, useFlatShading, subdivisions != 0u);
 
@@ -189,7 +182,7 @@ void IcoSphere::_generate(const unsigned int subdivisions, const ValuesRange ran
 
     glm::vec3 tangent;
     const size_t indSize = _indices.size();
-    if (!useFlatShading && config.genTangents) {
+    if (!useFlatShading && _shapeConfig.genTangents) {
         for (size_t i = 0ull; i < indSize; i += 3ull) {
             const unsigned int ia = _indices[i];
             const unsigned int ib = _indices[i + 1ull];
@@ -217,7 +210,7 @@ void IcoSphere::_generate(const unsigned int subdivisions, const ValuesRange ran
             _vertices[ib].Normal = normal;
             _vertices[ic].Normal = normal;
 
-            if (config.genTangents) {
+            if (_shapeConfig.genTangents) {
                 tangent = _calcTangent(ia, ib, ic);
 
                 _defineTangentBitangentFlatShading(tangent, ia);
@@ -264,8 +257,9 @@ void IcoSphere::_defineTangentBitangentFlatShading(const glm::vec3 tangent, cons
     _normalizeTangentAndGenerateBitangent(index);
 }
 
-IcoSphere::IcoSphere(const unsigned int subdivisions, const IcoSphereShading shading, const ValuesRange range)
+IcoSphere::IcoSphere(const ShapeConfig& config, const unsigned int subdivisions, const IcoSphereShading shading, const ValuesRange range)
 {
+    _shapeConfig = config;
     _vertices.clear();
     _indices.clear();
     _middlePointCache.clear();
