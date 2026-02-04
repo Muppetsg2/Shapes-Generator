@@ -168,7 +168,7 @@ The application allows you to configure the default output path and filename usi
    openDirOnSave: true
    ```
 
-- **generateTangents**: Tells the generator whether to compute and include tangent vectors for each vertex (useful for normal mapping and advanced shading). \
+- **generateTangents**: Tells the generator whether to compute and include tangent vectors for each vertex (useful for normal mapping and advanced shading).
 If `calculateBitangents` is enabled, bitangent vectors will also be generated for each vertex.
 - **calculateBitangents**: Determines whether bitangent vectors should be calculated and included in the saved file.
 - **tangentHandednessPositive**: Defines which handedness convention should be used when calculating bitangents or when saving tangents to the file.
