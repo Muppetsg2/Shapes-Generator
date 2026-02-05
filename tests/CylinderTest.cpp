@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 class TestableCylinder : public Cylinder {
 public:
@@ -16,50 +17,211 @@ public:
     const std::vector<unsigned int>& getIndices() const { return _indices; }
 };
 
-TEST_CASE("ShapesGenerator.Cylinder.Generation(V3H1FLAT)") { // TODO: Fix formation and bitangents
+TEST_CASE("ShapesGenerator.Cylinder.Minimal.Valid") {
+    ShapeConfig config{};
+    TestableCylinder cylinder(
+        config,
+        1u,  // height segments
+        3u,  // radial segments (minimum)
+        CylinderShading::SMOOTH,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    const auto& v = cylinder.getVertices();
+    const auto& i = cylinder.getIndices();
+
+    REQUIRE_FALSE(v.empty());
+    REQUIRE_FALSE(i.empty());
+
+    for (unsigned idx : i) {
+        REQUIRE(idx < v.size());
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.NoTangents") {
+    ShapeConfig config{};
+    config.genTangents = false;
+
+    TestableCylinder cylinder(
+        config,
+        2u,
+        8u,
+        CylinderShading::SMOOTH,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    for (const auto& v : cylinder.getVertices()) {
+        CHECK(v.Tangent == glm::vec3(0.f));
+        CHECK(v.Bitangent == glm::vec3(0.f));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.NoBitangents") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = false;
+
+    TestableCylinder cylinder(
+        config,
+        2u,
+        8u,
+        CylinderShading::SMOOTH,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    for (const auto& v : cylinder.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent == glm::vec3(0.f));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.PositiveHandedness") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
+
+    TestableCylinder cylinder(
+        config,
+        2u,
+        8u,
+        CylinderShading::SMOOTH,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    for (const auto& v : cylinder.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent != glm::vec3(0.f));
+
+        glm::vec3 bitangent = glm::normalize(glm::cross(v.Normal, v.Tangent));
+        CheckVec3Equal(v.Bitangent, bitangent, TEST_EPSILON, "Bitangent");
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.NegativeHandedness") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = false;
+
+    TestableCylinder cylinder(
+        config,
+        2u,
+        8u,
+        CylinderShading::SMOOTH,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    for (const auto& v : cylinder.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent != glm::vec3(0.f));
+
+        glm::vec3 bitangent = glm::normalize(glm::cross(v.Normal, v.Tangent)) * -1.0f;
+        CheckVec3Equal(v.Bitangent, bitangent, TEST_EPSILON, "Bitangent");
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.Normals.UnitLength") {
+    ShapeConfig config{};
+    TestableCylinder cylinder(
+        config,
+        3u,
+        16u,
+        CylinderShading::SMOOTH,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    for (const auto& v : cylinder.getVertices()) {
+        float len = glm::length(v.Normal);
+        REQUIRE(len == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.TexCoord.Range") {
+    ShapeConfig config{};
+    TestableCylinder cylinder01(config,
+        1u, 8u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE
+    );
+
+    for (const auto& v : cylinder01.getVertices()) {
+        REQUIRE(v.TexCoord.x >= 0.f);
+        REQUIRE(v.TexCoord.x <= 1.f);
+        REQUIRE(v.TexCoord.y >= 0.f);
+        REQUIRE(v.TexCoord.y <= 1.f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.IndexCount") {
+    constexpr unsigned h = 4;
+    constexpr unsigned r = 12;
+
+    ShapeConfig config{};
+    TestableCylinder cylinder(
+        config,
+        h,
+        r,
+        CylinderShading::SMOOTH,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    // cylinder:
+    // - top cap:    r triangles
+    // - bottom cap: r triangles
+    // - side:       h * r * 2 triangles
+    const unsigned expectedTriangles = r * 2 + h * r * 2;
+
+    REQUIRE(cylinder.getIndices().size() == expectedTriangles * 3);
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.Generation(V3H1.FLAT.TBP)") {
     static const std::vector<Vertex> expectedVertices = {
-        //POSITION						//TEX COORD		//NORMAL					//TANGENT					//BITANGENT
-        { { 0.f, 1.f, 1.f }, { 0.5f, 1.f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
-        { { 0.866025f, 1.f, -0.5f }, { 0.933013f, 0.25f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
-        { { -0.866025f, 1.f, -0.5f }, { 0.066987f, 0.25f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
-        { { 0.f, 1.f, 0.f }, { 0.5f, 0.5f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
-        { { 0.f, 1.f, 1.f }, { 0.f, 0.f }, { 0.866026f, 0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f, 1.f, 0.f } },
-        { { 0.866025f, 1.f, -0.5f }, { 1.f, 0.f }, { 0.866026f, 0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f, 1.f, 0.f } },
-        { { 0.866025f, 1.f, -0.5f }, { 0.f, 0.f }, { 0.f, 0.f, -1.f }, { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, 1.f, -0.5f }, { 1.f, 0.f }, { -0.f, 0.f, -1.f }, { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, 1.f, -0.5f }, { 0.f, 0.f }, { -0.866025f, 0.f, 0.5f }, { 0.5f, 0.f, 0.866025f }, { 0.f, 1.f, 0.f } },
-        { { 0.f, 1.f, 1.f }, { 1.f, 0.f }, { -0.866025f, 0.f, 0.5f }, { 0.5f, 0.f, 0.866025f }, { 0.f, 1.f, 0.f } },
-        { { 0.f, -1.f, 1.f }, { 0.f, 1.f }, { 0.866026f, 0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f, 1.f, 0.f } },
-        { { 0.866025f, -1.f, -0.5f }, { 1.f, 1.f }, { 0.866026f, 0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f, 1.f, 0.f } },
-        { { 0.866025f, -1.f, -0.5f }, { 0.f, 1.f }, { -0.f, 0.f, -1.f }, { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, -1.f, -0.5f }, { 1.f, 1.f }, { -0.f, 0.f, -1.f }, { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, -1.f, -0.5f }, { 0.f, 1.f }, { -0.866025f, 0.f, 0.5f }, { 0.5f, 0.f, 0.866025f }, { 0.f, -1.f, 0.f } },
-        { { 0.f, -1.f, 1.f }, { 1.f, 1.f }, { -0.866025f, 0.f, 0.5f }, { 0.5f, 0.f, 0.866025f }, { 0.f, -1.f, 0.f } },
-        { { 0.f, -1.f, 1.f }, { 0.5f, 1.f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.866025f, -1.f, -0.5f }, { 0.933013f, 0.25f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -0.866025f, -1.f, -0.5f }, { 0.066987f, 0.25f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.f, -1.f, 0.f }, { 0.5f, 0.5f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } }
+        // POSITION                     // TEX COORD          // NORMAL                   // TANGENT                 // BITANGENT
+        { {        0.f,  1.f,   1.f }, {      0.5f,   1.f }, {        0.f,  1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f, -1.f } },
+        { {  0.866025f,  1.f, -0.5f }, { 0.933013f, 0.25f }, {        0.f,  1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f, -1.f } },
+        { { -0.866025f,  1.f, -0.5f }, { 0.066987f, 0.25f }, {        0.f,  1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f, -1.f } },
+        { {        0.f,  1.f,   0.f }, {      0.5f,  0.5f }, {        0.f,  1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f, -1.f } },
+        { {        0.f,  1.f,   1.f }, {       0.f,   0.f }, {  0.866026f,  0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f,  1.f,  0.f } },
+        { {  0.866025f,  1.f, -0.5f }, {       1.f,   0.f }, {  0.866026f,  0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f,  1.f,  0.f } },
+        { {  0.866025f,  1.f, -0.5f }, {       0.f,   0.f }, {        0.f,  0.f, -1.f }, { -1.f, 0.f,        0.f }, { 0.f,  1.f,  0.f } },
+        { { -0.866025f,  1.f, -0.5f }, {       1.f,   0.f }, {       -0.f,  0.f, -1.f }, { -1.f, 0.f,        0.f }, { 0.f,  1.f,  0.f } },
+        { { -0.866025f,  1.f, -0.5f }, {       0.f,   0.f }, { -0.866025f,  0.f, 0.5f }, { 0.5f, 0.f,  0.866025f }, { 0.f,  1.f,  0.f } },
+        { {        0.f,  1.f,   1.f }, {       1.f,   0.f }, { -0.866025f,  0.f, 0.5f }, { 0.5f, 0.f,  0.866025f }, { 0.f,  1.f,  0.f } },
+        { {        0.f, -1.f,   1.f }, {       0.f,   1.f }, {  0.866026f,  0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f,  1.f,  0.f } },
+        { {  0.866025f, -1.f, -0.5f }, {       1.f,   1.f }, {  0.866026f,  0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f,  1.f,  0.f } },
+        { {  0.866025f, -1.f, -0.5f }, {       0.f,   1.f }, {       -0.f,  0.f, -1.f }, { -1.f, 0.f,        0.f }, { 0.f,  1.f,  0.f } },
+        { { -0.866025f, -1.f, -0.5f }, {       1.f,   1.f }, {       -0.f,  0.f, -1.f }, { -1.f, 0.f,        0.f }, { 0.f,  1.f,  0.f } },
+        { { -0.866025f, -1.f, -0.5f }, {       0.f,   1.f }, { -0.866025f,  0.f, 0.5f }, { 0.5f, 0.f,  0.866025f }, { 0.f,  1.f,  0.f } },
+        { {        0.f, -1.f,   1.f }, {       1.f,   1.f }, { -0.866025f,  0.f, 0.5f }, { 0.5f, 0.f,  0.866025f }, { 0.f,  1.f,  0.f } },
+        { {        0.f, -1.f,   1.f }, {      0.5f,   1.f }, {        0.f, -1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f,  1.f } },
+        { {  0.866025f, -1.f, -0.5f }, { 0.933013f, 0.25f }, {        0.f, -1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f,  1.f } },
+        { { -0.866025f, -1.f, -0.5f }, { 0.066987f, 0.25f }, {        0.f, -1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f,  1.f } },
+        { {        0.f, -1.f,   0.f }, {      0.5f,  0.5f }, {        0.f, -1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f,  1.f } }
     };
 
     static const std::vector<unsigned int> expectedIndices = {
-        0, 1, 3,
-        1, 2, 3,
-        2, 0, 3,
-        4, 10, 5,
-        5, 10, 11,
-        6, 12, 7,
-        7, 12, 13,
-        8, 14, 9,
-        9, 14, 15,
+         0,  1,  3,
+         1,  2,  3,
+         2,  0,  3,
+         4, 10,  5,
+         5, 10, 11,
+         6, 12,  7,
+         7, 12, 13,
+         8, 14,  9,
+         9, 14, 15,
         17, 16, 19,
         18, 17, 19,
         16, 18, 19
     };
 
-    TestableCylinder* cylinder = new TestableCylinder(1u, 3u, CylinderShading::FLAT, ValuesRange::ONE_TO_ONE);
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
 
-    const auto& v = cylinder->getVertices();
-    const auto& i = cylinder->getIndices();
+    TestableCylinder cylinder(config, 1u, 3u, CylinderShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = cylinder.getVertices();
+    const auto& i = cylinder.getIndices();
 
     REQUIRE(v.size() == expectedVertices.size());
     REQUIRE(i.size() == expectedIndices.size());
@@ -77,58 +239,58 @@ TEST_CASE("ShapesGenerator.Cylinder.Generation(V3H1FLAT)") { // TODO: Fix format
     }
 }
 
-TEST_CASE("ShapesGenerator.Cylinder.Generation(V6H2SMOOTH)") {
+TEST_CASE("ShapesGenerator.Cylinder.Generation(V6H2.SMOOTH.TBP)") {
     static const std::vector<Vertex> expectedVertices = {
-        //POSITION						//TEX COORD		//NORMAL					//TANGENT					//BITANGENT
-        { { 0.f, 1.f, 1.f }, { 0.5f, 1.f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.866025f, 1.f, 0.5f }, { 0.933013f, 0.75f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, -0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.866025f, 1.f, -0.5f }, { 0.933013f, 0.25f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, -0.f }, { 0.f, 0.f, 1.f } },
-        { { -0.f, 1.f, -1.f }, { 0.5f, 0.f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -0.866025f, 1.f, -0.5f }, { 0.066987f, 0.25f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -0.866025f, 1.f, 0.5f }, { 0.066987f, 0.75f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.f, 1.f, 0.f }, { 0.5f, 0.5f }, { 0.f, 1.f, 0.f }, { 1.f, 0.f, -0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.f, 1.f, 1.f }, { 0.f, 0.f }, { 0.f, 0.f, 1.f }, { 0.866025f, 0.f, -0.5f }, { 0.f, -1.f, 0.f } },
-        { { 0.866025f, 1.f, 0.5f }, { 0.166667f, 0.f }, { 0.866025f, 0.f, 0.5f }, { 0.654654f, 0.f, -0.755929f }, { 0.f, -1.f, 0.f } },
-        { { 0.866025f, 1.f, -0.5f }, { 0.333333f, 0.f }, { 0.866025f, 0.f, -0.5f }, { -0.327327f, 0.f, -0.944911f }, { 0.f, -1.f, 0.f } },
-        { { -0.f, 1.f, -1.f }, { 0.5f, 0.f }, { -0.f, 0.f, -1.f }, { -0.98198f, 0.f, -0.188982f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, 1.f, -0.5f }, { 0.666667f, 0.f }, { -0.866025f, 0.f, -0.5f }, { -0.654654f, 0.f, 0.755929f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, 1.f, 0.5f }, { 0.833333f, 0.f }, { -0.866025f, 0.f, 0.5f }, { 0.327327f, 0.f, 0.944911f }, { 0.f, -1.f, 0.f } },
-        { { -0.f, 1.f, 1.f }, { 1.f, 0.f }, { -0.f, 0.f, 1.f }, { 0.866025f, 0.f, 0.5f }, { 0.f, -1.f, 0.f } },
-        { { 0.f, 0.f, 1.f }, { 0.f, 0.5f }, { 0.f, 0.f, 1.f }, { 0.866025f, 0.f, -0.5f }, { 0.f, -1.f, 0.f } },
-        { { 0.866025f, 0.f, 0.5f }, { 0.166667f, 0.5f }, { 0.866025f, 0.f, 0.5f }, { 0.5f, 0.f, -0.866025f }, { 0.f, -1.f, 0.f } },
-        { { 0.866025f, 0.f, -0.5f }, { 0.333333f, 0.5f }, { 0.866025f, 0.f, -0.5f }, { -0.5f, 0.f, -0.866025f }, { 0.f, -1.f, 0.f } },
-        { { -0.f, 0.f, -1.f }, { 0.5f, 0.5f }, { -0.f, 0.f, -1.f }, { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, 0.f, -0.5f }, { 0.666667f, 0.5f }, { -0.866025f, 0.f, -0.5f }, { -0.5f, 0.f, 0.866025f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, 0.f, 0.5f }, { 0.833333f, 0.5f }, { -0.866025f, 0.f, 0.5f }, { 0.5f, 0.f, 0.866025f }, { 0.f, -1.f, 0.f } },
-        { { -0.f, 0.f, 1.f }, { 1.f, 0.5f }, { -0.f, 0.f, 1.f }, { 0.866025f, 0.f, 0.5f }, { 0.f, -1.f, 0.f } },
-        { { 0.f, -1.f, 1.f }, { 0.f, 1.f }, { 0.f, 0.f, 1.f }, { 0.866025f, 0.f, -0.5f }, { 0.f, -1.f, 0.f } },
-        { { 0.866025f, -1.f, 0.5f }, { 0.166667f, 1.f }, { 0.866025f, 0.f, 0.5f }, { 0.327327f, 0.f, -0.944911f }, { 0.f, -1.f, 0.f } },
-        { { 0.866025f, -1.f, -0.5f }, { 0.333333f, 1.f }, { 0.866025f, 0.f, -0.5f }, { -0.654654f, 0.f, -0.755929f }, { 0.f, -1.f, 0.f } },
-        { { -0.f, -1.f, -1.f }, { 0.5f, 1.f }, { -0.f, 0.f, -1.f }, { -0.981981f, 0.f, 0.188982f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, -1.f, -0.5f }, { 0.666667f, 1.f }, { -0.866025f, 0.f, -0.5f }, { -0.327327f, 0.f, 0.944911f }, { 0.f, -1.f, 0.f } },
-        { { -0.866025f, -1.f, 0.5f }, { 0.833333f, 1.f }, { -0.866025f, 0.f, 0.5f }, { 0.654653f, 0.f, 0.755929f }, { 0.f, -1.f, 0.f } },
-        { { -0.f, -1.f, 1.f }, { 1.f, 1.f }, { -0.f, 0.f, 1.f }, { 0.866025f, 0.f, 0.5f }, { 0.f, -1.f, 0.f } },
-        { { 0.f, -1.f, 1.f }, { 0.5f, 1.f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, -0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.866025f, -1.f, 0.5f }, { 0.933013f, 0.75f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, -0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.866025f, -1.f, -0.5f }, { 0.933013f, 0.25f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -0.f, -1.f, -1.f }, { 0.5f, 0.f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -0.866025f, -1.f, -0.5f }, { 0.066987f, 0.25f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -0.866025f, -1.f, 0.5f }, { 0.066987f, 0.75f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { 0.f, -1.f, 0.f }, { 0.5f, 0.5f }, { 0.f, -1.f, 0.f }, { 1.f, 0.f, -0.f }, { 0.f, 0.f, 1.f } }
+        // POSITION                     // TEX COORD          // NORMAL                    // TANGENT                       // BITANGENT
+        { {        0.f,  1.f,   1.f }, {      0.5f,   1.f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
+        { {  0.866025f,  1.f,  0.5f }, { 0.933013f, 0.75f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
+        { {  0.866025f,  1.f, -0.5f }, { 0.933013f, 0.25f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
+        { {       -0.f,  1.f,  -1.f }, {      0.5f,   0.f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
+        { { -0.866025f,  1.f, -0.5f }, { 0.066987f, 0.25f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
+        { { -0.866025f,  1.f,  0.5f }, { 0.066987f, 0.75f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
+        { {        0.f,  1.f,   0.f }, {      0.5f,  0.5f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
+        { {        0.f,  1.f,   1.f }, {       0.f,   0.f }, {        0.f,  0.f,   1.f }, {  0.866025f, 0.f,      -0.5f }, { 0.f, 1.f,  0.f } },
+        { {  0.866025f,  1.f,  0.5f }, { 0.166667f,   0.f }, {  0.866025f,  0.f,  0.5f }, {  0.654654f, 0.f, -0.755929f }, { 0.f, 1.f,  0.f } },
+        { {  0.866025f,  1.f, -0.5f }, { 0.333333f,   0.f }, {  0.866025f,  0.f, -0.5f }, { -0.327327f, 0.f, -0.944911f }, { 0.f, 1.f,  0.f } },
+        { {       -0.f,  1.f,  -1.f }, {      0.5f,   0.f }, {       -0.f,  0.f,  -1.f }, {  -0.98198f, 0.f, -0.188982f }, { 0.f, 1.f,  0.f } },
+        { { -0.866025f,  1.f, -0.5f }, { 0.666667f,   0.f }, { -0.866025f,  0.f, -0.5f }, { -0.654654f, 0.f,  0.755929f }, { 0.f, 1.f,  0.f } },
+        { { -0.866025f,  1.f,  0.5f }, { 0.833333f,   0.f }, { -0.866025f,  0.f,  0.5f }, {  0.327327f, 0.f,  0.944911f }, { 0.f, 1.f,  0.f } },
+        { {       -0.f,  1.f,   1.f }, {       1.f,   0.f }, {       -0.f,  0.f,   1.f }, {  0.866025f, 0.f,       0.5f }, { 0.f, 1.f,  0.f } },
+        { {        0.f,  0.f,   1.f }, {       0.f,  0.5f }, {        0.f,  0.f,   1.f }, {  0.866025f, 0.f,      -0.5f }, { 0.f, 1.f,  0.f } },
+        { {  0.866025f,  0.f,  0.5f }, { 0.166667f,  0.5f }, {  0.866025f,  0.f,  0.5f }, {       0.5f, 0.f, -0.866025f }, { 0.f, 1.f,  0.f } },
+        { {  0.866025f,  0.f, -0.5f }, { 0.333333f,  0.5f }, {  0.866025f,  0.f, -0.5f }, {      -0.5f, 0.f, -0.866025f }, { 0.f, 1.f,  0.f } },
+        { {       -0.f,  0.f,  -1.f }, {      0.5f,  0.5f }, {       -0.f,  0.f,  -1.f }, {       -1.f, 0.f,        0.f }, { 0.f, 1.f,  0.f } },
+        { { -0.866025f,  0.f, -0.5f }, { 0.666667f,  0.5f }, { -0.866025f,  0.f, -0.5f }, {      -0.5f, 0.f,  0.866025f }, { 0.f, 1.f,  0.f } },
+        { { -0.866025f,  0.f,  0.5f }, { 0.833333f,  0.5f }, { -0.866025f,  0.f,  0.5f }, {       0.5f, 0.f,  0.866025f }, { 0.f, 1.f,  0.f } },
+        { {       -0.f,  0.f,   1.f }, {       1.f,  0.5f }, {       -0.f,  0.f,   1.f }, {  0.866025f, 0.f,       0.5f }, { 0.f, 1.f,  0.f } },
+        { {        0.f, -1.f,   1.f }, {       0.f,   1.f }, {        0.f,  0.f,   1.f }, {  0.866025f, 0.f,      -0.5f }, { 0.f, 1.f,  0.f } },
+        { {  0.866025f, -1.f,  0.5f }, { 0.166667f,   1.f }, {  0.866025f,  0.f,  0.5f }, {  0.327327f, 0.f, -0.944911f }, { 0.f, 1.f,  0.f } },
+        { {  0.866025f, -1.f, -0.5f }, { 0.333333f,   1.f }, {  0.866025f,  0.f, -0.5f }, { -0.654654f, 0.f, -0.755929f }, { 0.f, 1.f,  0.f } },
+        { {       -0.f, -1.f,  -1.f }, {      0.5f,   1.f }, {       -0.f,  0.f,  -1.f }, { -0.981981f, 0.f,  0.188982f }, { 0.f, 1.f,  0.f } },
+        { { -0.866025f, -1.f, -0.5f }, { 0.666667f,   1.f }, { -0.866025f,  0.f, -0.5f }, { -0.327327f, 0.f,  0.944911f }, { 0.f, 1.f,  0.f } },
+        { { -0.866025f, -1.f,  0.5f }, { 0.833333f,   1.f }, { -0.866025f,  0.f,  0.5f }, {  0.654653f, 0.f,  0.755929f }, { 0.f, 1.f,  0.f } },
+        { {       -0.f, -1.f,   1.f }, {       1.f,   1.f }, {       -0.f,  0.f,   1.f }, {  0.866025f, 0.f,       0.5f }, { 0.f, 1.f,  0.f } },
+        { {        0.f, -1.f,   1.f }, {      0.5f,   1.f }, {        0.f, -1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f,  1.f } },
+        { {  0.866025f, -1.f,  0.5f }, { 0.933013f, 0.75f }, {        0.f, -1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f,  1.f } },
+        { {  0.866025f, -1.f, -0.5f }, { 0.933013f, 0.25f }, {        0.f, -1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f,  1.f } },
+        { {       -0.f, -1.f,  -1.f }, {      0.5f,   0.f }, {        0.f, -1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f,  1.f } },
+        { { -0.866025f, -1.f, -0.5f }, { 0.066987f, 0.25f }, {        0.f, -1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f,  1.f } },
+        { { -0.866025f, -1.f,  0.5f }, { 0.066987f, 0.75f }, {        0.f, -1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f,  1.f } },
+        { {        0.f, -1.f,   0.f }, {      0.5f,  0.5f }, {        0.f, -1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f,  1.f } }
     };
 
     static const std::vector<unsigned int> expectedIndices = {
-        0, 1, 6,
-        1, 2, 6,
-        2, 3, 6,
-        3, 4, 6,
-        4, 5, 6,
-        5, 0, 6,
-        7, 14, 8,
-        8, 14, 15,
-        8, 15, 9,
-        9, 15, 16,
-        9, 16, 10,
+         0,  1,  6,
+         1,  2,  6,
+         2,  3,  6,
+         3,  4,  6,
+         4,  5,  6,
+         5,  0,  6,
+         7, 14,  8,
+         8, 14, 15,
+         8, 15,  9,
+         9, 15, 16,
+         9, 16, 10,
         10, 16, 17,
         10, 17, 11,
         11, 17, 18,
@@ -156,10 +318,15 @@ TEST_CASE("ShapesGenerator.Cylinder.Generation(V6H2SMOOTH)") {
         28, 33, 34
     };
 
-    TestableCylinder* cylinder = new TestableCylinder(2u, 6u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
 
-    const auto& v = cylinder->getVertices();
-    const auto& i = cylinder->getIndices();
+    TestableCylinder cylinder(config, 2u, 6u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = cylinder.getVertices();
+    const auto& i = cylinder.getIndices();
 
     REQUIRE(v.size() == expectedVertices.size());
     REQUIRE(i.size() == expectedIndices.size());

@@ -21,6 +21,8 @@ with open("mesh.json", "r") as f:
 handedness = data.get("positiveHandedness", True)
 vertices = data["vertices"]
 
+print(f"(Handedness: {handedness})")
+
 for i, v in enumerate(vertices):
     normal = v.get("normal")
     tangent = v.get("tangent")
@@ -44,6 +46,5 @@ for i, v in enumerate(vertices):
     print(
         f"[{i}] "
         f"bitangent = "
-        f"({bitangent[0]: .6f}, {bitangent[1]: .6f}, {bitangent[2]: .6f}) "
-        f"(Handedness: {handedness})"
+        f"({bitangent[0]: .6f}, {bitangent[1]: .6f}, {bitangent[2]: .6f})"
     )
