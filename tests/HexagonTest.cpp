@@ -129,6 +129,24 @@ TEST_CASE("ShapesGenerator.Hexagon.Normals.UnitLength") {
 	}
 }
 
+TEST_CASE("ShapesGenerator.Hexagon.Tangents.UnitLength") {
+	ShapeConfig config{};
+	TestableHexagon hexagon(config, 1u, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : hexagon.getVertices()) {
+		REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+	}
+}
+
+TEST_CASE("ShapesGenerator.Hexagon.Bitangents.UnitLength") {
+	ShapeConfig config{};
+	TestableHexagon hexagon(config, 1u, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : hexagon.getVertices()) {
+		REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+	}
+}
+
 TEST_CASE("ShapesGenerator.Hexagon.TexCoord.Range") {
 	ShapeConfig config{};
 	TestableHexagon hexagon(config, 1u, ValuesRange::ONE_TO_ONE);
@@ -148,10 +166,10 @@ TEST_CASE("ShapesGenerator.Hexagon.IndexCount") {
 	TestableHexagon hexagon(config, h, ValuesRange::ONE_TO_ONE);
 
 	// Hexagon:
-	// - top cap:    (6 - 2) triangles
-	// - bottom cap: (6 - 2) triangles
+	// - top cap:    6 triangles
+	// - bottom cap: 6 triangles
 	// - side:       h * 6 * 2 triangles
-	const unsigned expectedTriangles = 8 + h * 12;
+	const unsigned expectedTriangles = (h + 1) * 12;
 
 	REQUIRE(hexagon.getIndices().size() == expectedTriangles * 3);
 }

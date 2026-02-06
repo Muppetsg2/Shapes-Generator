@@ -128,6 +128,24 @@ TEST_CASE("ShapesGenerator.Plane.Normals.UnitLength") {
     }
 }
 
+TEST_CASE("ShapesGenerator.Plane.Tangents.UnitLength") {
+    ShapeConfig config{};
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.Bitangents.UnitLength") {
+    ShapeConfig config{};
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
 TEST_CASE("ShapesGenerator.Plane.TexCoord.Range") {
     ShapeConfig config{};
     TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);

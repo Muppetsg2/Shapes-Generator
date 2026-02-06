@@ -128,6 +128,24 @@ TEST_CASE("ShapesGenerator.Tetrahedron.Normals.UnitLength") {
     }
 }
 
+TEST_CASE("ShapesGenerator.Tetrahedron.Tangents.UnitLength") {
+    ShapeConfig config{};
+    TestableTetrahedron tetrahedron(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : tetrahedron.getVertices()) {
+        REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Tetrahedron.Bitangents.UnitLength") {
+    ShapeConfig config{};
+    TestableTetrahedron tetrahedron(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : tetrahedron.getVertices()) {
+        REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
 TEST_CASE("ShapesGenerator.Tetrahedron.TexCoord.Range") {
     ShapeConfig config{};
     TestableTetrahedron tetrahedron(config, ValuesRange::ONE_TO_ONE);

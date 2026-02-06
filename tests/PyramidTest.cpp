@@ -129,6 +129,24 @@ TEST_CASE("ShapesGenerator.Pyramid.Normals.UnitLength") {
 	}
 }
 
+TEST_CASE("ShapesGenerator.Pyramid.Tangents.UnitLength") {
+	ShapeConfig config{};
+	TestablePyramid pyramid(config, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : pyramid.getVertices()) {
+		REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+	}
+}
+
+TEST_CASE("ShapesGenerator.Pyramid.Bitangents.UnitLength") {
+	ShapeConfig config{};
+	TestablePyramid pyramid(config, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : pyramid.getVertices()) {
+		REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+	}
+}
+
 TEST_CASE("ShapesGenerator.Pyramid.TexCoord.Range") {
 	ShapeConfig config{};
 	TestablePyramid pyramid(config, ValuesRange::ONE_TO_ONE);

@@ -129,6 +129,24 @@ TEST_CASE("ShapesGenerator.Cube.Normals.UnitLength") {
     }
 }
 
+TEST_CASE("ShapesGenerator.Cube.Tangents.UnitLength") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.Bitangents.UnitLength") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
 TEST_CASE("ShapesGenerator.Cube.TexCoord.Range") {
     ShapeConfig config{};
     TestableCube cube(config, ValuesRange::ONE_TO_ONE);

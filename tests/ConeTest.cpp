@@ -128,6 +128,24 @@ TEST_CASE("ShapesGenerator.Cone.Normals.UnitLength") {
     }
 }
 
+TEST_CASE("ShapesGenerator.Cone.Tangents.UnitLength") {
+    ShapeConfig config{};
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cone.getVertices()) {
+        REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cone.Bitangents.UnitLength") {
+    ShapeConfig config{};
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cone.getVertices()) {
+        REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
 TEST_CASE("ShapesGenerator.Cone.TexCoord.Range") {
     ShapeConfig config{};
     TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
@@ -222,11 +240,11 @@ TEST_CASE("ShapesGenerator.Cone.Generation(S[4]H[0.745]R[1.0].SMOOTH.TBP)") {
         { {       -0.f, -0.707107f, -0.707107f }, {      0.5f,       0.f }, {        0.f,      -1.f,        0.f }, {        1.f,        0.f,       -0.f }, {        0.f,       0.f,        1.f } },
         { { -0.707107f, -0.707107f,        0.f }, {       0.f,      0.5f }, {        0.f,      -1.f,        0.f }, {        1.f,        0.f,       -0.f }, {        0.f,       0.f,        1.f } },
         { {        0.f, -0.707107f,        0.f }, {      0.5f,      0.5f }, {        0.f,      -1.f,        0.f }, {        1.f,        0.f,       -0.f }, {        0.f,       0.f,        1.f } },
-        { {        0.f, -0.707107f,  0.707107f }, {       0.f, 0.866025f }, {        0.f, 0.447214f,  0.894427f }, {   0.65631f,  0.439029f, -0.219514f }, { -0.598919f, 0.716266f, -0.358133f } },
-        { {  0.707107f, -0.707107f,       -0.f }, { 0.241181f, 0.965926f }, {  0.894427f, 0.447214f,       -0.f }, { -0.075367f,  0.150735f, -0.985017f }, { -0.440809f, 0.881617f,   0.16864f } },
+        { {        0.f, -0.707107f,  0.707107f }, {       0.f, 0.866025f }, {        0.f, 0.447214f,  0.894427f }, {  0.800809f,   0.53569f, -0.267845f }, { -0.598919f, 0.716266f, -0.358133f } },
+        { {  0.707107f, -0.707107f,       -0.f }, { 0.241181f, 0.965926f }, {  0.894427f, 0.447214f,       -0.f }, { -0.075418f,  0.150836f, -0.985678f }, { -0.440809f, 0.881617f,   0.16864f } },
         { {       -0.f, -0.707107f, -0.707107f }, {      0.5f,       1.f }, {       -0.f, 0.447214f, -0.894427f }, {       -1.f,        0.f,        0.f }, {        0.f, 0.894427f,  0.447214f } },
-        { { -0.707107f, -0.707107f,        0.f }, { 0.758819f, 0.965926f }, { -0.894427f, 0.447214f,        0.f }, { -0.075367f, -0.150735f,  0.985017f }, {  0.440809f, 0.881617f,   0.16864f } },
-        { {        0.f, -0.707107f,  0.707107f }, {       1.f, 0.866025f }, {        0.f, 0.447214f,  0.894427f }, {   0.65631f, -0.439029f,  0.219514f }, {  0.598919f, 0.716266f, -0.358133f } },
+        { { -0.707107f, -0.707107f,        0.f }, { 0.758819f, 0.965926f }, { -0.894427f, 0.447214f,        0.f }, { -0.075418f, -0.150836f,  0.985678f }, {  0.440809f, 0.881617f,   0.16864f } },
+        { {        0.f, -0.707107f,  0.707107f }, {       1.f, 0.866025f }, {        0.f, 0.447214f,  0.894427f }, {  0.800809f,  -0.53569f,  0.267845f }, {  0.598919f, 0.716266f, -0.358133f } },
         { {        0.f,        1.f,        0.f }, {      0.5f,       0.f }, {        0.f,       1.f,        0.f }, {       -1.f,        0.f,  0.000001f }, {  0.000001f,      -0.f,        1.f } }
     };
 
