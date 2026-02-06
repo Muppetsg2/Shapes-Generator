@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 class TestableSphere : public Sphere {
 public:
@@ -16,52 +17,192 @@ public:
     const std::vector<unsigned int>& getIndices() const { return _indices; }
 };
 
-TEST_CASE("ShapesGenerator.Sphere.Generation(H3V3FLAT)") {
-    static const std::vector<Vertex> expectedVertices = {
-        //POSITION						//TEX COORD		//NORMAL					//TANGENT					//BITANGENT
-		{ { 0.75f, 0.5f, -0.433013f }, { 0.333333f, 0.333333f }, { 0.344124f, 0.917663f, 0.19868f }, { 0.5f, -0.f, -0.866025f }, { 0.686243f, -0.304997f, -0.660338f } },
-		{ { 0.f, 1.f, 0.f }, { 0.5f, 0.f }, { 0.344124f, 0.917663f, 0.19868f }, { 0.5f, -0.f, -0.866025f }, { 0.686243f, -0.304997f, -0.660338f } },
-		{ { 0.f, 0.5f, 0.866025f }, { 0.f, 0.333333f }, { 0.344124f, 0.917663f, 0.19868f }, { 0.5f, -0.f, -0.866025f }, { 0.686243f, -0.304997f, -0.660338f } },
-		{ { 0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, { 0.344123f, -0.917663f, 0.19868f }, { 0.5f, -0.f, -0.866025f }, { -0.686244f, -0.304997f, 0.660338f } },
-		{ { 0.f, -0.5f, 0.866025f }, { 0.f, 0.666667f }, { 0.344123f, -0.917663f, 0.19868f }, { 0.5f, -0.f, -0.866025f }, { -0.686244f, -0.304997f, 0.660338f } },
-		{ { 0.f, -1.f, 0.f }, { 0.5f, 1.f }, { 0.344123f, -0.917663f, 0.19868f }, { 0.5f, -0.f, -0.866025f }, { -0.686244f, -0.304997f, 0.660338f } },
-		{ { -0.75f, 0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { -0.f, 0.917663f, -0.39736f }, { -1.f, -0.f, 0.f }, { -0.f, -0.755929f, -0.654654f } },
-		{ { 0.f, 1.f, 0.f }, { 0.5f, 0.f }, { -0.f, 0.917663f, -0.39736f }, { -1.f, -0.f, 0.f }, { -0.f, -0.755929f, -0.654654f } },
-		{ { 0.75f, 0.5f, -0.433013f }, { 0.333333f, 0.333333f }, { -0.f, 0.917663f, -0.39736f }, { -1.f, -0.f, 0.f }, { -0.f, -0.755929f, -0.654654f } },
-		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.f, -0.917663f, -0.39736f }, { -1.f, -0.f, 0.f }, { -0.f, -0.755929f, 0.654654f } },
-		{ { 0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, { -0.f, -0.917663f, -0.39736f }, { -1.f, -0.f, 0.f }, { -0.f, -0.755929f, 0.654654f } },
-		{ { 0.f, -1.f, 0.f }, { 0.5f, 1.f }, { -0.f, -0.917663f, -0.39736f }, { -1.f, -0.f, 0.f }, { -0.f, -0.755929f, 0.654654f } },
-		{ { 0.f, 0.5f, 0.866025f }, { 1.f, 0.333333f }, { -0.344124f, 0.917663f, 0.19868f }, { 0.5f, -0.f, 0.866025f }, { -0.686244f, -0.304997f, -0.660338f } },
-		{ { 0.f, 1.f, 0.f }, { 0.5f, 0.f }, { -0.344124f, 0.917663f, 0.19868f }, { 0.5f, -0.f, 0.866025f }, { -0.686244f, -0.304997f, -0.660338f } },
-		{ { -0.75f, 0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { -0.344124f, 0.917663f, 0.19868f }, { 0.5f, -0.f, 0.866025f }, { -0.686244f, -0.304997f, -0.660338f } },
-		{ { 0.f, -0.5f, 0.866025f }, { 1.f, 0.666667f }, { -0.344124f, -0.917663f, 0.19868f }, { 0.5f, -0.f, 0.866025f }, { 0.686244f, -0.304997f, 0.660338f } },
-		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.344124f, -0.917663f, 0.19868f }, { 0.5f, -0.f, 0.866025f }, { 0.686244f, -0.304997f, 0.660338f } },
-		{ { 0.f, -1.f, 0.f }, { 0.5f, 1.f }, { -0.344124f, -0.917663f, 0.19868f }, { 0.5f, -0.f, 0.866025f }, { 0.686244f, -0.304997f, 0.660338f } },
-		{ { 0.75f, 0.5f, -0.433013f }, { 0.333333f, 0.333333f }, { 0.474342f, 0.316228f, 0.821584f }, { 0.5f, -0.f, -0.866025f }, { -0.f, -1.f, -0.f } },
-		{ { 0.f, 0.5f, 0.866025f }, { 0.f, 0.333333f }, { 0.474342f, 0.316228f, 0.821584f }, { 0.5f, -0.f, -0.866025f }, { -0.f, -1.f, -0.f } },
-		{ { 0.f, -0.5f, 0.866025f }, { 0.f, 0.666667f }, { 0.474342f, 0.316228f, 0.821584f }, { 0.5f, -0.f, -0.866025f }, { -0.f, -1.f, -0.f } },
-		{ { 0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, { 0.948683f, -0.316228f, -0.f }, { 0.5f, -0.f, -0.866025f }, { -0.f, -1.f, 0.f } },
-		{ { 0.75f, 0.5f, -0.433013f }, { 0.333333f, 0.333333f }, { 0.948683f, -0.316228f, -0.f }, { 0.5f, -0.f, -0.866025f }, { -0.f, -1.f, 0.f } },
-		{ { 0.f, -0.5f, 0.866025f }, { 0.f, 0.666667f }, { 0.948683f, -0.316228f, -0.f }, { 0.5f, -0.f, -0.866025f }, { -0.f, -1.f, 0.f } },
-		{ { -0.75f, 0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { 0.474342f, 0.316228f, -0.821584f }, { -1.f, -0.f, 0.f }, { -0.f, -1.f, 0.f } },
-		{ { 0.75f, 0.5f, -0.433013f }, { 0.333333f, 0.333333f }, { 0.474342f, 0.316228f, -0.821584f }, { -1.f, -0.f, 0.f }, { -0.f, -1.f, 0.f } },
-		{ { 0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, { 0.474342f, 0.316228f, -0.821584f }, { -1.f, -0.f, 0.f }, { -0.f, -1.f, 0.f } },
-		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.474342f, -0.316228f, -0.821584f }, { -1.f, -0.f, 0.f }, { 0.f, -1.f, 0.f } },
-		{ { -0.75f, 0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { -0.474342f, -0.316228f, -0.821584f }, { -1.f, -0.f, 0.f }, { 0.f, -1.f, 0.f } },
-		{ { 0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, { -0.474342f, -0.316228f, -0.821584f }, { -1.f, -0.f, 0.f }, { 0.f, -1.f, 0.f } },
-		{ { 0.f, 0.5f, 0.866025f }, { 1.f, 0.333333f }, { -0.948683f, 0.316228f, 0.f }, { 0.5f, -0.f, 0.866025f }, { 0.f, -1.f, -0.f } },
-		{ { -0.75f, 0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { -0.948683f, 0.316228f, 0.f }, { 0.5f, -0.f, 0.866025f }, { 0.f, -1.f, -0.f } },
-		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.948683f, 0.316228f, 0.f }, { 0.5f, -0.f, 0.866025f }, { 0.f, -1.f, -0.f } },
-		{ { 0.f, -0.5f, 0.866025f }, { 1.f, 0.666667f }, { -0.474342f, -0.316228f, 0.821584f }, { 0.5f, -0.f, 0.866025f }, { -0.f, -1.f, -0.f } },
-		{ { 0.f, 0.5f, 0.866025f }, { 1.f, 0.333333f }, { -0.474342f, -0.316228f, 0.821584f }, { 0.5f, -0.f, 0.866025f }, { -0.f, -1.f, -0.f } },
-		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.474342f, -0.316228f, 0.821584f }, { 0.5f, -0.f, 0.866025f }, { -0.f, -1.f, -0.f } }
-    };
+TEST_CASE("ShapesGenerator.Sphere.Minimal.Valid") {
+	ShapeConfig config{};
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
 
-    static const std::vector<unsigned int> expectedIndices = {
-		0, 1, 2,
-		3, 4, 5,
-		6, 7, 8,
-		9, 10, 11,
+	const auto& v = sphere.getVertices();
+	const auto& i = sphere.getIndices();
+
+	REQUIRE_FALSE(v.empty());
+	REQUIRE_FALSE(i.empty());
+
+	for (unsigned idx : i) {
+		REQUIRE(idx < v.size());
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.NoTangents") {
+	ShapeConfig config{};
+	config.genTangents = false;
+
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : sphere.getVertices()) {
+		CHECK(v.Tangent == glm::vec3(0.f));
+		CHECK(v.Bitangent == glm::vec3(0.f));
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.NoBitangents") {
+	ShapeConfig config{};
+	config.genTangents = true;
+	config.calcBitangents = false;
+
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : sphere.getVertices()) {
+		CHECK(v.Tangent != glm::vec3(0.f));
+		CHECK(v.Bitangent == glm::vec3(0.f));
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.PositiveHandedness") {
+	ShapeConfig config{};
+	config.genTangents = true;
+	config.calcBitangents = true;
+	config.tangentHandednessPositive = true;
+
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : sphere.getVertices()) {
+		CHECK(v.Tangent != glm::vec3(0.f));
+		CHECK(v.Bitangent != glm::vec3(0.f));
+
+		glm::vec3 expected = glm::normalize(glm::cross(v.Normal, v.Tangent));
+		CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.NegativeHandedness") {
+	ShapeConfig config{};
+	config.genTangents = true;
+	config.calcBitangents = true;
+	config.tangentHandednessPositive = false;
+
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : sphere.getVertices()) {
+		CHECK(v.Tangent != glm::vec3(0.f));
+		CHECK(v.Bitangent != glm::vec3(0.f));
+
+		glm::vec3 expected = -glm::normalize(glm::cross(v.Normal, v.Tangent));
+		CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.Position.Range.OneToOne") {
+	ShapeConfig config{};
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : sphere.getVertices()) {
+		REQUIRE(v.Position.x >= -1.f);
+		REQUIRE(v.Position.x <= 1.f);
+		REQUIRE(v.Position.y >= -1.f);
+		REQUIRE(v.Position.y <= 1.f);
+		REQUIRE(v.Position.z >= -1.f);
+		REQUIRE(v.Position.z <= 1.f);
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.Position.Range.HalfToHalf") {
+	ShapeConfig config{};
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::HALF_TO_HALF);
+
+	for (const auto& v : sphere.getVertices()) {
+		REQUIRE(v.Position.x >= -0.5f);
+		REQUIRE(v.Position.x <= 0.5f);
+		REQUIRE(v.Position.y >= -0.5f);
+		REQUIRE(v.Position.y <= 0.5f);
+		REQUIRE(v.Position.z >= -0.5f);
+		REQUIRE(v.Position.z <= 0.5f);
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.Normals.UnitLength") {
+	ShapeConfig config{};
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : sphere.getVertices()) {
+		float len = glm::length(v.Normal);
+		REQUIRE(len == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.TexCoord.Range") {
+	ShapeConfig config{};
+	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	for (const auto& v : sphere.getVertices()) {
+		REQUIRE(v.TexCoord.x >= 0.f);
+		REQUIRE(v.TexCoord.x <= 1.f);
+		REQUIRE(v.TexCoord.y >= 0.f);
+		REQUIRE(v.TexCoord.y <= 1.f);
+	}
+}
+
+TEST_CASE("ShapesGenerator.Sphere.IndexCount") {
+	constexpr unsigned h = 3;
+	constexpr unsigned v = 3;
+
+	ShapeConfig config{};
+	TestableSphere sphere(config, h, v, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+	// Sphere:
+	// - top cap:    h triangles
+	// - bottom cap: h triangles
+	// - middle:     (v - 2) * h * 2 triangles
+	const unsigned expectedTriangles = h * 2 + (v - 2) * h * 2;
+
+	REQUIRE(sphere.getIndices().size() == expectedTriangles * 3);
+}
+
+TEST_CASE("ShapesGenerator.Sphere.Generation(H[3]V[3].FLAT.TBP)") {
+	static const std::vector<Vertex> expectedVertices = {
+		   // POSITION                    // TEX COORD              // NORMAL                               // TANGENT                      // BITANGENT
+		{ {  0.75f,  0.5f, -0.433013f }, { 0.333333f, 0.333333f }, {  0.344124f,  0.917663f,   0.19868f }, {    0.5f,   0.f, -0.866025f }, { -0.794719f,  0.39736f, -0.458831f } },
+		{ {    0.f,   1.f,        0.f }, {      0.5f,       0.f }, {  0.344124f,  0.917663f,   0.19868f }, {    0.5f,   0.f, -0.866025f }, { -0.794719f,  0.39736f, -0.458831f } },
+		{ {    0.f,  0.5f,  0.866025f }, {       0.f, 0.333333f }, {  0.344124f,  0.917663f,   0.19868f }, {    0.5f,   0.f, -0.866025f }, { -0.794719f,  0.39736f, -0.458831f } },
+		{ {  0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, {  0.344123f, -0.917663f,   0.19868f }, {    0.5f,   0.f, -0.866026f }, {   0.79472f,  0.39736f,  0.458831f } },
+		{ {    0.f, -0.5f,  0.866025f }, {       0.f, 0.666667f }, {  0.344123f, -0.917663f,   0.19868f }, {    0.5f,   0.f, -0.866026f }, {   0.79472f,  0.39736f,  0.458831f } },
+		{ {    0.f,  -1.f,        0.f }, {      0.5f,       1.f }, {  0.344123f, -0.917663f,   0.19868f }, {    0.5f,   0.f, -0.866026f }, {   0.79472f,  0.39736f,  0.458831f } },
+		{ { -0.75f,  0.5f, -0.433013f }, { 0.666667f, 0.333333f }, {       -0.f,  0.917663f,  -0.39736f }, {    -1.f,   0.f,        0.f }, {        0.f,  0.39736f,  0.917663f } },
+		{ {    0.f,   1.f,        0.f }, {      0.5f,       0.f }, {       -0.f,  0.917663f,  -0.39736f }, {    -1.f,   0.f,        0.f }, {        0.f,  0.39736f,  0.917663f } },
+		{ {  0.75f,  0.5f, -0.433013f }, { 0.333333f, 0.333333f }, {       -0.f,  0.917663f,  -0.39736f }, {    -1.f,   0.f,        0.f }, {        0.f,  0.39736f,  0.917663f } },
+		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, {       -0.f, -0.917663f,  -0.39736f }, {    -1.f,  -0.f,        0.f }, {       -0.f,  0.39736f, -0.917663f } },
+		{ {  0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, {       -0.f, -0.917663f,  -0.39736f }, {    -1.f,  -0.f,        0.f }, {       -0.f,  0.39736f, -0.917663f } },
+		{ {    0.f,  -1.f,        0.f }, {      0.5f,       1.f }, {       -0.f, -0.917663f,  -0.39736f }, {    -1.f,  -0.f,        0.f }, {       -0.f,  0.39736f, -0.917663f } },
+		{ {    0.f,  0.5f,  0.866025f }, {       1.f, 0.333333f }, { -0.344124f,  0.917663f,   0.19868f }, {    0.5f,  -0.f,  0.866025f }, {  0.794719f,  0.39736f, -0.458832f } },
+		{ {    0.f,   1.f,        0.f }, {      0.5f,       0.f }, { -0.344124f,  0.917663f,   0.19868f }, {    0.5f,  -0.f,  0.866025f }, {  0.794719f,  0.39736f, -0.458832f } },
+		{ { -0.75f,  0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { -0.344124f,  0.917663f,   0.19868f }, {    0.5f,  -0.f,  0.866025f }, {  0.794719f,  0.39736f, -0.458832f } },
+		{ {    0.f, -0.5f,  0.866025f }, {       1.f, 0.666667f }, { -0.344124f, -0.917663f,   0.19868f }, {    0.5f,   0.f,  0.866026f }, { -0.794719f,  0.39736f,  0.458832f } },
+		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.344124f, -0.917663f,   0.19868f }, {    0.5f,   0.f,  0.866026f }, { -0.794719f,  0.39736f,  0.458832f } },
+		{ {    0.f,  -1.f,        0.f }, {      0.5f,       1.f }, { -0.344124f, -0.917663f,   0.19868f }, {    0.5f,   0.f,  0.866026f }, { -0.794719f,  0.39736f,  0.458832f } },
+		{ {  0.75f,  0.5f, -0.433013f }, { 0.333333f, 0.333333f }, {  0.474342f,  0.316228f,  0.821584f }, {  0.725f, 0.15f, -0.476314f }, { -0.311085f, 0.933257f, -0.179605f } },
+		{ {    0.f,  0.5f,  0.866025f }, {       0.f, 0.333333f }, {  0.474342f,  0.316228f,  0.821584f }, {  0.725f, 0.15f, -0.476314f }, { -0.311085f, 0.933257f, -0.179605f } },
+		{ {    0.f, -0.5f,  0.866025f }, {       0.f, 0.666667f }, {  0.474342f,  0.316228f,  0.821584f }, {  0.725f, 0.15f, -0.476314f }, { -0.311085f, 0.933257f, -0.179605f } },
+		{ {  0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, {  0.948683f, -0.316228f,       -0.f }, {   0.05f, 0.15f, -0.866025f }, {  0.311086f, 0.933256f,  0.179605f } },
+		{ {  0.75f,  0.5f, -0.433013f }, { 0.333333f, 0.333333f }, {  0.948683f, -0.316228f,       -0.f }, {   0.05f, 0.15f, -0.866025f }, {  0.311086f, 0.933256f,  0.179605f } },
+		{ {    0.f, -0.5f,  0.866025f }, {       0.f, 0.666667f }, {  0.948683f, -0.316228f,       -0.f }, {   0.05f, 0.15f, -0.866025f }, {  0.311086f, 0.933256f,  0.179605f } },
+		{ { -0.75f,  0.5f, -0.433013f }, { 0.666667f, 0.333333f }, {  0.474342f,  0.316228f, -0.821584f }, { -0.775f, 0.15f, -0.389711f }, {        0.f, 0.933257f,  0.359211f } },
+		{ {  0.75f,  0.5f, -0.433013f }, { 0.333333f, 0.333333f }, {  0.474342f,  0.316228f, -0.821584f }, { -0.775f, 0.15f, -0.389711f }, {        0.f, 0.933257f,  0.359211f } },
+		{ {  0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, {  0.474342f,  0.316228f, -0.821584f }, { -0.775f, 0.15f, -0.389711f }, {        0.f, 0.933257f,  0.359211f } },
+		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.474342f, -0.316228f, -0.821584f }, { -0.775f, 0.15f,  0.389712f }, {       -0.f, 0.933256f, -0.359211f } },
+		{ { -0.75f,  0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { -0.474342f, -0.316228f, -0.821584f }, { -0.775f, 0.15f,  0.389712f }, {       -0.f, 0.933256f, -0.359211f } },
+		{ {  0.75f, -0.5f, -0.433013f }, { 0.333333f, 0.666667f }, { -0.474342f, -0.316228f, -0.821584f }, { -0.775f, 0.15f,  0.389712f }, {       -0.f, 0.933256f, -0.359211f } },
+		{ {    0.f,  0.5f,  0.866025f }, {       1.f, 0.333333f }, { -0.948683f,  0.316228f,        0.f }, {   0.05f, 0.15f,  0.866026f }, {  0.311085f, 0.933257f, -0.179605f } },
+		{ { -0.75f,  0.5f, -0.433013f }, { 0.666667f, 0.333333f }, { -0.948683f,  0.316228f,        0.f }, {   0.05f, 0.15f,  0.866026f }, {  0.311085f, 0.933257f, -0.179605f } },
+		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.948683f,  0.316228f,        0.f }, {   0.05f, 0.15f,  0.866026f }, {  0.311085f, 0.933257f, -0.179605f } },
+		{ {    0.f, -0.5f,  0.866025f }, {       1.f, 0.666667f }, { -0.474342f, -0.316228f,  0.821584f }, {  0.725f, 0.15f,  0.476314f }, { -0.311086f, 0.933256f,  0.179605f } },
+		{ {    0.f,  0.5f,  0.866025f }, {       1.f, 0.333333f }, { -0.474342f, -0.316228f,  0.821584f }, {  0.725f, 0.15f,  0.476314f }, { -0.311086f, 0.933256f,  0.179605f } },
+		{ { -0.75f, -0.5f, -0.433012f }, { 0.666667f, 0.666667f }, { -0.474342f, -0.316228f,  0.821584f }, {  0.725f, 0.15f,  0.476314f }, { -0.311086f, 0.933256f,  0.179605f } }
+	};
+
+	static const std::vector<unsigned int> expectedIndices = {
+		 0,  1,  2,
+		 3,  4,  5,
+		 6,  7,  8,
+		 9, 10, 11,
 		12, 13, 14,
 		15, 16, 17,
 		18, 19, 20,
@@ -70,12 +211,17 @@ TEST_CASE("ShapesGenerator.Sphere.Generation(H3V3FLAT)") {
 		27, 28, 29,
 		30, 31, 32,
 		33, 34, 35
-    };
+	};
 
-    TestableSphere* sphere = new TestableSphere(3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	ShapeConfig config{};
+	config.genTangents = true;
+	config.calcBitangents = true;
+	config.tangentHandednessPositive = true;
 
-    const auto& v = sphere->getVertices();
-    const auto& i = sphere->getIndices();
+    TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = sphere.getVertices();
+    const auto& i = sphere.getIndices();
 
     REQUIRE(v.size() == expectedVertices.size());
     REQUIRE(i.size() == expectedIndices.size());
@@ -93,59 +239,64 @@ TEST_CASE("ShapesGenerator.Sphere.Generation(H3V3FLAT)") {
     }
 }
 
-TEST_CASE("ShapesGenerator.Sphere.Generation(H4V4SMOOTH)") {
+TEST_CASE("ShapesGenerator.Sphere.Generation(H[4]V[4].SMOOTH.TBP)") {
 	static const std::vector<Vertex> expectedVertices = {
-		//POSITION						//TEX COORD		//NORMAL					//TANGENT					//BITANGENT
-		{ { 0.f, 1.f, 0.f }, { 0.5f, 0.f }, { 0.f, 1.f, 0.f }, { -0.f, 0.f, 0.f }, { -0.f, -0.382683f, -0.92388f } },
-		{ { 0.f, 0.707107f, 0.707107f }, { 0.f, 0.25f }, { 0.f, 0.707107f, 0.707107f }, { 0.707107f, 0.f, -0.707107f }, { 0.621876f, -0.782076f, -0.04034f } },
-		{ { 0.707107f, 0.707107f, -0.f }, { 0.25f, 0.25f }, { 0.707107f, 0.707107f, -0.f }, { 0.196116f, 0.f, -0.980581f }, { 0.427558f, -0.867282f, -0.254983f } },
-		{ { -0.f, 0.707107f, -0.707107f }, { 0.5f, 0.25f }, { -0.f, 0.707107f, -0.707107f }, { -0.980581f, 0.f, -0.196116f }, { 0.086693f, -0.801277f, -0.59198f } },
-		{ { -0.707107f, 0.707107f, 0.f }, { 0.75f, 0.25f }, { -0.707107f, 0.707107f, 0.f }, { -0.196116f, 0.f, 0.980581f }, { -0.400263f, -0.811914f, -0.424953f } },
-		{ { 0.f, 0.707107f, 0.707107f }, { 1.f, 0.25f }, { 0.f, 0.707107f, 0.707107f }, { 0.707107f, 0.f, 0.707107f }, { -0.52788f, -0.848984f, -0.02386f } },
-		{ { 0.f, -0.f, 1.f }, { 0.f, 0.5f }, { 0.f, -0.f, 1.f }, { 0.707107f, 0.f, -0.707107f }, { 0.136774f, -0.990602f, -0.f } },
-		{ { 1.f, -0.f, -0.f }, { 0.25f, 0.5f }, { 1.f, -0.f, -0.f }, { -0.f, 0.f, -1.f }, { -0.f, -0.990602f, -0.136774f } },
-		{ { -0.f, -0.f, -1.f }, { 0.5f, 0.5f }, { -0.f, -0.f, -1.f }, { -1.f, 0.f, 0.f }, { -0.136774f, -0.990602f, -0.f } },
-		{ { -1.f, -0.f, 0.f }, { 0.75f, 0.5f }, { -1.f, -0.f, 0.f }, { 0.f, 0.f, 1.f }, { 0.f, -0.990602f, 0.136774f } },
-		{ { 0.f, -0.f, 1.f }, { 1.f, 0.5f }, { 0.f, -0.f, 1.f }, { 0.707107f, 0.f, 0.707107f }, { 0.136774f, -0.990602f, -0.f } },
-		{ { 0.f, -0.707107f, 0.707107f }, { 0.f, 0.75f }, { 0.f, -0.707107f, 0.707107f }, { 0.707107f, 0.f, -0.707107f }, { -0.52788f, -0.848984f, 0.02386f } },
-		{ { 0.707107f, -0.707107f, -0.f }, { 0.25f, 0.75f }, { 0.707107f, -0.707107f, -0.f }, { -0.196116f, 0.f, -0.980581f }, { -0.400263f, -0.811914f, 0.424953f } },
-		{ { -0.f, -0.707107f, -0.707107f }, { 0.5f, 0.75f }, { -0.f, -0.707107f, -0.707107f }, { -0.980581f, 0.f, 0.196116f }, { 0.086693f, -0.801277f, 0.59198f } },
-		{ { -0.707107f, -0.707107f, 0.f }, { 0.75f, 0.75f }, { -0.707107f, -0.707107f, 0.f }, { 0.196116f, 0.f, 0.980581f }, { 0.427558f, -0.867282f, 0.254983f } },
-		{ { 0.f, -0.707107f, 0.707107f }, { 1.f, 0.75f }, { 0.f, -0.707107f, 0.707107f }, { 0.707107f, 0.f, 0.707107f }, { 0.621876f, -0.782076f, 0.04034f } },
-		{ { 0.f, -1.f, 0.f }, { 0.5f, 1.f }, { 0.f, -1.f, 0.f }, { -0.f, 0.f, 0.f }, { 0.f, -0.382683f, 0.92388f } }
+		   // POSITION                             // TEX COORD      // NORMAL                               // TANGENT                              // BITANGENT
+		{ {        0.f,        1.f,        0.f }, {  0.5f,   0.f }, {        0.f,        1.f,        0.f }, {       -0.f,        0.f,        0.f }, {  0.707107f,     -0.f,  0.707107f } },
+		{ {        0.f,  0.707107f,  0.707107f }, {   0.f, 0.25f }, {        0.f,  0.707107f,  0.707107f }, {  0.707107f,  0.353553f, -0.353553f }, {  -0.57735f, 0.57735f,  -0.57735f } },
+		{ {  0.707107f,  0.707107f,       -0.f }, { 0.25f, 0.25f }, {  0.707107f,  0.707107f,       -0.f }, {  0.098058f, -0.098058f, -0.980581f }, {  -0.70014f, 0.70014f, -0.140028f } },
+		{ {       -0.f,  0.707107f, -0.707107f }, {  0.5f, 0.25f }, {       -0.f,  0.707107f, -0.707107f }, { -0.980581f, -0.098058f, -0.098058f }, { -0.140028f, 0.70014f,   0.70014f } },
+		{ { -0.707107f,  0.707107f,        0.f }, { 0.75f, 0.25f }, { -0.707107f,  0.707107f,        0.f }, { -0.098058f, -0.098058f,  0.980581f }, {   0.70014f, 0.70014f,  0.140028f } },
+		{ {        0.f,  0.707107f,  0.707107f }, {   1.f, 0.25f }, {        0.f,  0.707107f,  0.707107f }, {  0.707107f, -0.353553f,  0.353553f }, {   0.57735f, 0.57735f,  -0.57735f } },
+		{ {        0.f,       -0.f,        1.f }, {   0.f,  0.5f }, {        0.f,       -0.f,        1.f }, {  0.707107f,       -0.f,       -0.f }, {        0.f,      1.f,        0.f } },
+		{ {        1.f,       -0.f,       -0.f }, { 0.25f,  0.5f }, {        1.f,       -0.f,       -0.f }, {       -0.f,        0.f,       -1.f }, {        0.f,      1.f,       -0.f } },
+		{ {       -0.f,       -0.f,       -1.f }, {  0.5f,  0.5f }, {       -0.f,       -0.f,       -1.f }, {       -1.f,       -0.f,        0.f }, {       -0.f,      1.f,       -0.f } },
+		{ {       -1.f,       -0.f,        0.f }, { 0.75f,  0.5f }, {       -1.f,       -0.f,        0.f }, {        0.f,        0.f,        1.f }, {       -0.f,      1.f,        0.f } },
+		{ {        0.f,       -0.f,        1.f }, {   1.f,  0.5f }, {        0.f,       -0.f,        1.f }, {  0.707107f,        0.f,        0.f }, {       -0.f,      1.f,        0.f } },
+		{ {        0.f, -0.707107f,  0.707107f }, {   0.f, 0.75f }, {        0.f, -0.707107f,  0.707107f }, {  0.707107f, -0.353553f, -0.353554f }, {   0.57735f, 0.57735f,   0.57735f } },
+		{ {  0.707107f, -0.707107f,       -0.f }, { 0.25f, 0.75f }, {  0.707107f, -0.707107f,       -0.f }, { -0.098058f, -0.098058f, -0.980581f }, {   0.70014f, 0.70014f, -0.140028f } },
+		{ {       -0.f, -0.707107f, -0.707107f }, {  0.5f, 0.75f }, {       -0.f, -0.707107f, -0.707107f }, { -0.980581f, -0.098058f,  0.098058f }, { -0.140028f, 0.70014f,  -0.70014f } },
+		{ { -0.707107f, -0.707107f,        0.f }, { 0.75f, 0.75f }, { -0.707107f, -0.707107f,        0.f }, {  0.098058f, -0.098058f,  0.980581f }, {  -0.70014f, 0.70014f,  0.140028f } },
+		{ {        0.f, -0.707107f,  0.707107f }, {   1.f, 0.75f }, {        0.f, -0.707107f,  0.707107f }, {  0.707107f,  0.353553f,  0.353553f }, {  -0.57735f, 0.57735f,   0.57735f } },
+		{ {        0.f,       -1.f,        0.f }, {  0.5f,   1.f }, {        0.f,       -1.f,        0.f }, {       -0.f,        0.f,        0.f }, { -0.707107f,     -0.f, -0.707107f } }
 	};
 
 	static const std::vector<unsigned int> expectedIndices = {
-		2, 0, 1,
+		 2,  0,  1,
 		12, 11, 16,
-		3, 0, 2,
+		 3,  0,  2,
 		13, 12, 16,
-		4, 0, 3,
+		 4,  0,  3,
 		14, 13, 16,
-		5, 0, 4,
+		 5,  0,  4,
 		15, 14, 16,
-		2, 1, 6,
-		7, 2, 6,
-		3, 2, 7,
-		8, 3, 7,
-		4, 3, 8,
-		9, 4, 8,
-		5, 4, 9,
-		10, 5, 9,
-		7, 6, 11,
-		12, 7, 11,
-		8, 7, 12,
-		13, 8, 12,
-		9, 8, 13,
-		14, 9, 13,
-		10, 9, 14,
+		 2,  1,  6,
+		 7,  2,  6,
+		 3,  2,  7,
+		 8,  3,  7,
+		 4,  3,  8,
+		 9,  4,  8,
+		 5,  4,  9,
+		10,  5,  9,
+		 7,  6, 11,
+		12,  7, 11,
+		 8,  7, 12,
+		13,  8, 12,
+		 9,  8, 13,
+		14,  9, 13,
+		10,  9, 14,
 		15, 10, 14
 	};
 
-	TestableSphere* sphere = new TestableSphere(4u, 4u, SphereShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	ShapeConfig config{};
+	config.genTangents = true;
+	config.calcBitangents = true;
+	config.tangentHandednessPositive = true;
 
-	const auto& v = sphere->getVertices();
-	const auto& i = sphere->getIndices();
+	TestableSphere sphere(config, 4u, 4u, SphereShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+
+	const auto& v = sphere.getVertices();
+	const auto& i = sphere.getIndices();
 
 	REQUIRE(v.size() == expectedVertices.size());
 	REQUIRE(i.size() == expectedIndices.size());

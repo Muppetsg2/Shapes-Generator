@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 class TestableTorus : public Torus {
 public:
@@ -308,7 +309,7 @@ TEST_CASE("ShapesGenerator.Torus.Generation(MS[5]IS[5]MR[1.2]IR[1.0].SMOOTH.TBP)
 		{ { -0.809017f,        0.f,  0.587785f }, { 0.4f,  1.f }, { -0.809017f,        0.f,  0.587785f }, { -0.571271f,        0.f, -0.786287f }, {       -0.f,       -1.f,        0.f } },
 		{ { -0.809017f,        0.f, -0.587785f }, { 0.6f,  1.f }, { -0.809017f,        0.f, -0.587785f }, {  0.571271f,        0.f, -0.786287f }, {       -0.f,       -1.f,       -0.f } },
 		{ {  0.309017f,        0.f, -0.951056f }, { 0.8f,  1.f }, {  0.309017f,        0.f, -0.951056f }, {  0.924336f,        0.f,  0.300335f }, {        0.f,       -1.f,       -0.f } },
-		{ {        1.f,        0.f,        0.f }, {  1.f,  1.f }, {        1.f,        0.f,        0.f }, {       -0.f,       -0.f,  0.809017f }, {        0.f,       -1.f,       -0.f } },
+		{ {        1.f,        0.f,        0.f }, {  1.f,  1.f }, {        1.f,        0.f,        0.f }, {       -0.f,       -0.f,  0.809017f }, {        0.f,       -1.f,       -0.f } }
 	};
 
 	static const std::vector<unsigned int> expectedIndices = {

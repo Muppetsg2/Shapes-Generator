@@ -1,11 +1,29 @@
 import json
 import math
 
+import json
+import math
+import sys
+
+class Logger:
+    """Helper class to print to both console and a file."""
+    def __init__(self, filename):
+        self.terminal = sys.stdout
+        self.log = open(filename, "w", encoding="utf-8")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        # Needed for Python 3 compatibility
+        self.terminal.flush()
+        self.log.flush()
+
 def normalize(v):
     """Returns the unit vector of the input vector v."""
     length = math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
-    if length == 0.0:
-        return [0.0, 0.0, 0.0]
+    if length == 0.0: return [0.0, 0.0, 0.0]
     return [v[0] / length, v[1] / length, v[2] / length]
 
 def cross(a, b):
@@ -18,13 +36,13 @@ def cross(a, b):
 
 def clean_float(value):
     """Formats float: 1.456000 -> 1.456f, 1.000000 -> 1.f, 0.0 -> 0.f"""
-    s = f"{value:.6f}"
-    s = s.rstrip('0')
-    if s.endswith('.'):
-        return s + "f"
+    s = f"{value:.6f}".rstrip('0')
     return s + "f"
 
-def format_cpp_output(json_path):
+def format_cpp_output(json_path, output_txt):
+    # Set up dual-output logging
+    sys.stdout = Logger(output_txt)
+
     # ---- Load JSON ----
     try:
         with open(json_path, "r") as f:
@@ -48,8 +66,7 @@ def format_cpp_output(json_path):
         # Calculate Bitangent
         raw_bitang = cross(v.get("normal", [0,0,0]), v.get("tangent", [0,0,0]))
         mult = 1.0 if handedness is True else -1.0
-        bitang_vec = normalize([x * mult for x in raw_bitang])
-        bitang = [clean_float(x) for x in bitang_vec]
+        bitang = [clean_float(x) for x in normalize([x * mult for x in raw_bitang])]
         
         processed_table.append([pos, texCoord, norm, tang, bitang])
 
@@ -57,47 +74,48 @@ def format_cpp_output(json_path):
     col_widths = []
     for block_idx in range(5): # 5 blocks: Pos, TexCoord, Norm, Tang, Bitang
         num_elements = len(processed_table[0][block_idx])
-        widths = [0] * num_elements
-        for row in processed_table:
-            for i, val in enumerate(row[block_idx]):
-                widths[i] = max(widths[i], len(val))
+        widths = [max(len(row[block_idx][i]) for row in processed_table) for i in range(num_elements)]
         col_widths.append(widths)
 
-    # ---- Generate Vertices String ----
-    vert_output = "    static const std::vector<Vertex> expectedVertices = {\n"
+    # --- GENERATING OUTPUT ---
+    print("    static const std::vector<Vertex> expectedVertices = {")
     
-    # Headers with dynamic spacing
+    # Header Calculation
     labels = ["POSITION", "TEX COORD", "NORMAL", "TANGENT", "BITANGENT"]
-    header_line = "        "
-    for b_idx, label in enumerate(labels):
-        # Create a dummy formatted block to calculate length
-        sample_vals = [" " * col_widths[b_idx][i] for i in range(len(col_widths[b_idx]))]
-        block_str = "{ " + ", ".join(sample_vals) + " }"
-        header_line += "// " + label.ljust(len(block_str) - 3) + "  "
+    # We start with 10 spaces to align with the first '{ { '
+    header_line = " " * 10 
     
-    vert_output += header_line.rstrip() + "\n"
+    for b_idx, label in enumerate(labels):
+        # Calculate width of this specific block: "{ " + values + " }"
+        block_width = sum(col_widths[b_idx]) + (len(col_widths[b_idx]) - 1) * 2 + 4
+        header_line += "// " + label.ljust(block_width - 3)
+        if b_idx < len(labels) - 1:
+            header_line += "  " # Space for the ", " between blocks
+
+    print(header_line.rstrip())
 
     for row in processed_table:
         line_parts = []
         for b_idx, block in enumerate(row):
             formatted_vals = [val.rjust(col_widths[b_idx][i]) for i, val in enumerate(block)]
             line_parts.append("{ " + ", ".join(formatted_vals) + " }")
-        vert_output += "        { " + ", ".join(line_parts) + " },\n"
-    vert_output += "    };\n"
+        print("        { " + ", ".join(line_parts) + " },")
+    
+    print("    };\n")
 
     # ---- Process Indices ----
-    indices_output = "\n    static const std::vector<unsigned int> expectedIndices = {\n"
+    print("    static const std::vector<unsigned int> expectedIndices = {")
     if indices_raw:
-        idx_strings = [str(i) for i in indices_raw]
-        max_idx_len = max(len(s) for s in idx_strings)
-        for i in range(0, len(idx_strings), 3):
-            chunk = idx_strings[i:i+3]
-            formatted_chunk = ", ".join(n.rjust(max_idx_len) for n in chunk)
-            comma = "," if i + 3 < len(idx_strings) else ""
-            indices_output += f"        {formatted_chunk}{comma}\n"
-    indices_output += "    };"
+        idx_s = [str(i) for i in indices_raw]
+        max_w = max(len(s) for s in idx_s)
+        for i in range(0, len(idx_s), 3):
+            chunk = ", ".join(n.rjust(max_w) for n in idx_s[i:i+3])
+            print(f"        {chunk}{',' if i+3 < len(idx_s) else ''}")
+    print("    };")
 
-    print(vert_output + indices_output)
+    # Restore standard stdout
+    sys.stdout.log.close()
+    sys.stdout = sys.stdout.terminal
 
 # Run the tool
-format_cpp_output("mesh.json")
+format_cpp_output("mesh.json", "output.txt")

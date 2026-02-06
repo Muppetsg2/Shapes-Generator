@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 class TestablePlane : public Plane {
 public:
@@ -211,7 +212,7 @@ TEST_CASE("ShapesGenerator.Plane.Generation(R[3]C[3].FRONT.TBP)") {
         { {  1.f,  0.f, 0.f }, {  1.f, 0.5f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
         { { -1.f,  1.f, 0.f }, {  0.f,  1.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
         { {  0.f,  1.f, 0.f }, { 0.5f,  1.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { {  1.f,  1.f, 0.f }, {  1.f,  1.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { {  1.f,  1.f, 0.f }, {  1.f,  1.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } }
     };
 
     static const std::vector<unsigned int> expectedIndices = {

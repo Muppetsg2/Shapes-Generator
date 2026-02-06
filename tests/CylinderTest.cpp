@@ -192,7 +192,7 @@ TEST_CASE("ShapesGenerator.Cylinder.IndexCount") {
         ValuesRange::ONE_TO_ONE
     );
 
-    // cylinder:
+    // Cylinder:
     // - top cap:    r triangles
     // - bottom cap: r triangles
     // - side:       h * r * 2 triangles

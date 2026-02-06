@@ -71,8 +71,8 @@ void Shape::_normalizeTangentAndGenerateBitangent(const unsigned int vertIdx, co
         vert.Tangent = glm::normalize(vert.Tangent);
 
         if (_shapeConfig.calcBitangents) {
-            vert.Bitangent = glm::cross(vert.Normal, vert.Tangent);
-            vert.Tangent = glm::cross(vert.Bitangent, vert.Normal);
+            vert.Bitangent = glm::normalize(glm::cross(vert.Normal, vert.Tangent));
+            vert.Tangent = glm::normalize(glm::cross(vert.Bitangent, vert.Normal));
 
             if (!_shapeConfig.tangentHandednessPositive) {
                 vert.Bitangent *= -1.0f;
