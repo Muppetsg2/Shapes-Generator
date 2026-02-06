@@ -50,7 +50,7 @@ glm::vec3 Shape::_calcTangent(const unsigned int t1, const unsigned int t2, cons
     // Calculate tangent
     glm::vec3 tangent{};
     if (fabsf(inv_r) >= EPSILON) {
-        const float r = (fabsf(inv_r) >= EPSILON) ? 1.0f / inv_r : 1.0f;
+        const float r = 1.0f / inv_r;
 
         tangent = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
     }
