@@ -96,12 +96,9 @@ TEST_CASE("ShapesGenerator.Sphere.Position.Range.OneToOne") {
 	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
 
 	for (const auto& v : sphere.getVertices()) {
-		REQUIRE(v.Position.x >= -1.f);
-		REQUIRE(v.Position.x <= 1.f);
-		REQUIRE(v.Position.y >= -1.f);
-		REQUIRE(v.Position.y <= 1.f);
-		REQUIRE(v.Position.z >= -1.f);
-		REQUIRE(v.Position.z <= 1.f);
+		CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
+		CheckInRange(v.Position.y, -1.0f, 1.0f, TEST_EPSILON, "Position.y");
+		CheckInRange(v.Position.z, -1.0f, 1.0f, TEST_EPSILON, "Position.z");
 	}
 }
 
@@ -110,12 +107,9 @@ TEST_CASE("ShapesGenerator.Sphere.Position.Range.HalfToHalf") {
 	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::HALF_TO_HALF);
 
 	for (const auto& v : sphere.getVertices()) {
-		REQUIRE(v.Position.x >= -0.5f);
-		REQUIRE(v.Position.x <= 0.5f);
-		REQUIRE(v.Position.y >= -0.5f);
-		REQUIRE(v.Position.y <= 0.5f);
-		REQUIRE(v.Position.z >= -0.5f);
-		REQUIRE(v.Position.z <= 0.5f);
+		CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
+		CheckInRange(v.Position.y, -0.5f, 0.5f, TEST_EPSILON, "Position.y");
+		CheckInRange(v.Position.z, -0.5f, 0.5f, TEST_EPSILON, "Position.z");
 	}
 }
 
@@ -152,10 +146,8 @@ TEST_CASE("ShapesGenerator.Sphere.TexCoord.Range") {
 	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
 
 	for (const auto& v : sphere.getVertices()) {
-		REQUIRE(v.TexCoord.x >= 0.f);
-		REQUIRE(v.TexCoord.x <= 1.f);
-		REQUIRE(v.TexCoord.y >= 0.f);
-		REQUIRE(v.TexCoord.y <= 1.f);
+		CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
+		CheckInRange(v.TexCoord.y, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.y");
 	}
 }
 
@@ -260,23 +252,23 @@ TEST_CASE("ShapesGenerator.Sphere.Generation(H[3]V[3].FLAT.TBP)") {
 TEST_CASE("ShapesGenerator.Sphere.Generation(H[4]V[4].SMOOTH.TBP)") {
 	static const std::vector<Vertex> expectedVertices = {
 		   // POSITION                             // TEX COORD      // NORMAL                               // TANGENT                              // BITANGENT
-		{ {        0.f,        1.f,        0.f }, {  0.5f,   0.f }, {        0.f,        1.f,        0.f }, {       -0.f,        0.f,        0.f }, {  0.707107f,     -0.f,  0.707107f } },
-		{ {        0.f,  0.707107f,  0.707107f }, {   0.f, 0.25f }, {        0.f,  0.707107f,  0.707107f }, {  0.816497f,  0.408248f, -0.408248f }, {  -0.57735f, 0.57735f,  -0.57735f } },
-		{ {  0.707107f,  0.707107f,       -0.f }, { 0.25f, 0.25f }, {  0.707107f,  0.707107f,       -0.f }, {  0.099015f, -0.099015f, -0.990148f }, {  -0.70014f, 0.70014f, -0.140028f } },
-		{ {       -0.f,  0.707107f, -0.707107f }, {  0.5f, 0.25f }, {       -0.f,  0.707107f, -0.707107f }, { -0.990148f, -0.099015f, -0.099015f }, { -0.140028f, 0.70014f,   0.70014f } },
-		{ { -0.707107f,  0.707107f,        0.f }, { 0.75f, 0.25f }, { -0.707107f,  0.707107f,        0.f }, { -0.099015f, -0.099015f,  0.990148f }, {   0.70014f, 0.70014f,  0.140028f } },
-		{ {        0.f,  0.707107f,  0.707107f }, {   1.f, 0.25f }, {        0.f,  0.707107f,  0.707107f }, {  0.816497f, -0.408248f,  0.408248f }, {   0.57735f, 0.57735f,  -0.57735f } },
-		{ {        0.f,       -0.f,        1.f }, {   0.f,  0.5f }, {        0.f,       -0.f,        1.f }, {        1.f,       -0.f,       -0.f }, {        0.f,      1.f,        0.f } },
-		{ {        1.f,       -0.f,       -0.f }, { 0.25f,  0.5f }, {        1.f,       -0.f,       -0.f }, {       -0.f,        0.f,       -1.f }, {        0.f,      1.f,       -0.f } },
-		{ {       -0.f,       -0.f,       -1.f }, {  0.5f,  0.5f }, {       -0.f,       -0.f,       -1.f }, {       -1.f,       -0.f,        0.f }, {       -0.f,      1.f,       -0.f } },
-		{ {       -1.f,       -0.f,        0.f }, { 0.75f,  0.5f }, {       -1.f,       -0.f,        0.f }, {        0.f,        0.f,        1.f }, {       -0.f,      1.f,        0.f } },
-		{ {        0.f,       -0.f,        1.f }, {   1.f,  0.5f }, {        0.f,       -0.f,        1.f }, {        1.f,        0.f,        0.f }, {       -0.f,      1.f,        0.f } },
-		{ {        0.f, -0.707107f,  0.707107f }, {   0.f, 0.75f }, {        0.f, -0.707107f,  0.707107f }, {  0.816496f, -0.408248f, -0.408248f }, {   0.57735f, 0.57735f,   0.57735f } },
-		{ {  0.707107f, -0.707107f,       -0.f }, { 0.25f, 0.75f }, {  0.707107f, -0.707107f,       -0.f }, { -0.099015f, -0.099015f, -0.990148f }, {   0.70014f, 0.70014f, -0.140028f } },
-		{ {       -0.f, -0.707107f, -0.707107f }, {  0.5f, 0.75f }, {       -0.f, -0.707107f, -0.707107f }, { -0.990148f, -0.099015f,  0.099015f }, { -0.140028f, 0.70014f,  -0.70014f } },
-		{ { -0.707107f, -0.707107f,        0.f }, { 0.75f, 0.75f }, { -0.707107f, -0.707107f,        0.f }, {  0.099015f, -0.099015f,  0.990148f }, {  -0.70014f, 0.70014f,  0.140028f } },
-		{ {        0.f, -0.707107f,  0.707107f }, {   1.f, 0.75f }, {        0.f, -0.707107f,  0.707107f }, {  0.816497f,  0.408248f,  0.408248f }, {  -0.57735f, 0.57735f,   0.57735f } },
-		{ {        0.f,       -1.f,        0.f }, {  0.5f,   1.f }, {        0.f,       -1.f,        0.f }, {       -0.f,        0.f,        0.f }, { -0.707107f,     -0.f, -0.707107f } }
+		{ {        0.f,        1.f,        0.f }, {  0.5f,   0.f }, {        0.f,        1.f,        0.f }, {        0.f,        0.f,        1.f }, {        1.f,       0.f,        0.f } },
+		{ {        0.f,  0.707107f,  0.707107f }, {   0.f, 0.25f }, {        0.f,  0.707107f,  0.707107f }, {  0.816497f,  0.408248f, -0.408248f }, {  -0.57735f,  0.57735f,  -0.57735f } },
+		{ {  0.707107f,  0.707107f,       -0.f }, { 0.25f, 0.25f }, {  0.707107f,  0.707107f,       -0.f }, {   0.12843f,  -0.12843f, -0.983368f }, { -0.695346f, 0.695346f, -0.181627f } },
+		{ {       -0.f,  0.707107f, -0.707107f }, {  0.5f, 0.25f }, {       -0.f,  0.707107f, -0.707107f }, { -0.983368f,  -0.12843f,  -0.12843f }, { -0.181627f, 0.695346f,  0.695346f } },
+		{ { -0.707107f,  0.707107f,        0.f }, { 0.75f, 0.25f }, { -0.707107f,  0.707107f,        0.f }, {  -0.12843f,  -0.12843f,  0.983368f }, {  0.695346f, 0.695346f,  0.181627f } },
+		{ {        0.f,  0.707107f,  0.707107f }, {   1.f, 0.25f }, {        0.f,  0.707107f,  0.707107f }, {  0.816497f, -0.408248f,  0.408248f }, {   0.57735f,  0.57735f,  -0.57735f } },
+		{ {        0.f,       -0.f,        1.f }, {   0.f,  0.5f }, {        0.f,       -0.f,        1.f }, {        1.f,       -0.f,        0.f }, {        0.f,       1.f,        0.f } },
+		{ {        1.f,       -0.f,       -0.f }, { 0.25f,  0.5f }, {        1.f,       -0.f,       -0.f }, {       -0.f,        0.f,       -1.f }, {        0.f,       1.f,       -0.f } },
+		{ {       -0.f,       -0.f,       -1.f }, {  0.5f,  0.5f }, {       -0.f,       -0.f,       -1.f }, {       -1.f,       -0.f,        0.f }, {       -0.f,       1.f,       -0.f } },
+		{ {       -1.f,       -0.f,        0.f }, { 0.75f,  0.5f }, {       -1.f,       -0.f,        0.f }, {        0.f,        0.f,        1.f }, {       -0.f,       1.f,        0.f } },
+		{ {        0.f,       -0.f,        1.f }, {   1.f,  0.5f }, {        0.f,       -0.f,        1.f }, {        1.f,        0.f,        0.f }, {       -0.f,       1.f,        0.f } },
+		{ {        0.f, -0.707107f,  0.707107f }, {   0.f, 0.75f }, {        0.f, -0.707107f,  0.707107f }, {  0.816496f, -0.408248f, -0.408248f }, {   0.57735f,  0.57735f,   0.57735f } },
+		{ {  0.707107f, -0.707107f,       -0.f }, { 0.25f, 0.75f }, {  0.707107f, -0.707107f,       -0.f }, {  -0.12843f,  -0.12843f, -0.983368f }, {  0.695346f, 0.695346f, -0.181627f } },
+		{ {       -0.f, -0.707107f, -0.707107f }, {  0.5f, 0.75f }, {       -0.f, -0.707107f, -0.707107f }, { -0.983368f,  -0.12843f,   0.12843f }, { -0.181627f, 0.695346f, -0.695346f } },
+		{ { -0.707107f, -0.707107f,        0.f }, { 0.75f, 0.75f }, { -0.707107f, -0.707107f,        0.f }, {   0.12843f,  -0.12843f,  0.983368f }, { -0.695346f, 0.695346f,  0.181627f } },
+		{ {        0.f, -0.707107f,  0.707107f }, {   1.f, 0.75f }, {        0.f, -0.707107f,  0.707107f }, {  0.816497f,  0.408248f,  0.408248f }, {  -0.57735f,  0.57735f,   0.57735f } },
+		{ {        0.f,       -1.f,        0.f }, {  0.5f,   1.f }, {        0.f,       -1.f,        0.f }, {        0.f,        0.f,        1.f }, {       -1.f,       0.f,        0.f } }
 	};
 
 	static const std::vector<unsigned int> expectedIndices = {

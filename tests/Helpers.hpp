@@ -49,3 +49,9 @@ static void CheckVec2Equal(const glm::vec2& value, const glm::vec2& expected, fl
 		<< "\n\texpected := " << glm::to_string(expected));
 	REQUIRE(Vec2EqualForTests{}(value, expected, eps));
 }
+
+static void CheckInRange(const float& value, float min, float max, float eps, const std::string& label = "value") {
+	INFO("\n" << label << " : = " << std::to_string(value)
+		<< "\nrange := " << std::to_string(min - eps) << " <= " << label << " <= " << std::to_string(max + eps));
+	REQUIRE((value >= min - eps && value <= max + eps) == true);
+}

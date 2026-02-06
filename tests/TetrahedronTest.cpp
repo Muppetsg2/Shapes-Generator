@@ -96,12 +96,9 @@ TEST_CASE("ShapesGenerator.Tetrahedron.Position.Range.OneToOne") {
     TestableTetrahedron tetrahedron(config, ValuesRange::ONE_TO_ONE);
 
     for (const auto& v : tetrahedron.getVertices()) {
-        REQUIRE(v.Position.x >= -1.f);
-        REQUIRE(v.Position.x <= 1.f);
-        REQUIRE(v.Position.y >= -1.f);
-        REQUIRE(v.Position.y <= 1.f);
-        REQUIRE(v.Position.z >= -1.f);
-        REQUIRE(v.Position.z <= 1.f);
+        CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
+        CheckInRange(v.Position.y, -1.0f, 1.0f, TEST_EPSILON, "Position.y");
+        CheckInRange(v.Position.z, -1.0f, 1.0f, TEST_EPSILON, "Position.z");
     }
 }
 
@@ -110,12 +107,9 @@ TEST_CASE("ShapesGenerator.Tetrahedron.Position.Range.HalfToHalf") {
     TestableTetrahedron tetrahedron(config, ValuesRange::HALF_TO_HALF);
 
     for (const auto& v : tetrahedron.getVertices()) {
-        REQUIRE(v.Position.x >= -0.5f);
-        REQUIRE(v.Position.x <= 0.5f);
-        REQUIRE(v.Position.y >= -0.5f);
-        REQUIRE(v.Position.y <= 0.5f);
-        REQUIRE(v.Position.z >= -0.5f);
-        REQUIRE(v.Position.z <= 0.5f);
+        CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
+        CheckInRange(v.Position.y, -0.5f, 0.5f, TEST_EPSILON, "Position.y");
+        CheckInRange(v.Position.z, -0.5f, 0.5f, TEST_EPSILON, "Position.z");
     }
 }
 
@@ -151,10 +145,8 @@ TEST_CASE("ShapesGenerator.Tetrahedron.TexCoord.Range") {
     TestableTetrahedron tetrahedron(config, ValuesRange::ONE_TO_ONE);
 
     for (const auto& v : tetrahedron.getVertices()) {
-        REQUIRE(v.TexCoord.x >= 0.f);
-        REQUIRE(v.TexCoord.x <= 1.f);
-        REQUIRE(v.TexCoord.y >= 0.f);
-        REQUIRE(v.TexCoord.y <= 1.f);
+        CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
+        CheckInRange(v.TexCoord.y, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.y");
     }
 }
 

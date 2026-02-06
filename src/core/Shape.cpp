@@ -46,14 +46,35 @@ glm::vec3 Shape::_calcTangent(const unsigned int t1, const unsigned int t2, cons
     const glm::vec2 delta_uv2 = uv2 - uv0;
 
     const float inv_r = delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x;
-    const float r = (fabsf(inv_r) >= EPSILON) ? 1.0f / inv_r : 1.0f;
 
-    // Save the results
-    glm::vec3 tangent = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
+    // Calculate tangent
+    glm::vec3 tangent{};
+    if (fabsf(inv_r) >= EPSILON) {
+        const float r = (fabsf(inv_r) >= EPSILON) ? 1.0f / inv_r : 1.0f;
 
-    if (fabsf(glm::length(tangent)) >= EPSILON) {
-        tangent = glm::normalize(tangent);
+        tangent = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
     }
+    else
+    {
+        const glm::vec3 norm0 = v0.Normal;
+        const glm::vec3 norm1 = v1.Normal;
+        const glm::vec3 norm2 = v2.Normal;
+
+        // Calculate average normal for triangle
+        glm::vec3 avg_normal = glm::normalize(norm0 + norm1 + norm2);
+
+        // Geometric fallback
+        glm::vec3 up = (fabsf(avg_normal.y) < 0.999f)
+            ? glm::vec3(0, 1, 0)
+            : glm::vec3(1, 0, 0);
+
+        tangent = glm::cross(up, avg_normal);
+    }
+
+    // Is it needed?
+    //if (fabsf(glm::length(tangent)) >= EPSILON) {
+    //    tangent = glm::normalize(tangent);
+    //}
 
     return tangent;
 }
@@ -67,16 +88,17 @@ void Shape::_normalizeTangentAndGenerateBitangent(const unsigned int vertIdx, co
     float inv_trisNum = trisNum < 2 ? 1.0f : 1.0f / (float)trisNum;
     vert.Tangent *= inv_trisNum;
 
-    if (fabsf(glm::length(vert.Tangent)) >= EPSILON) {
-        vert.Tangent = glm::normalize(vert.Tangent);
+    // Gram-Schmidt
+    vert.Tangent = glm::normalize(vert.Tangent - vert.Normal * glm::dot(vert.Tangent, vert.Normal));
 
-        if (_shapeConfig.calcBitangents) {
-            vert.Bitangent = glm::normalize(glm::cross(vert.Normal, vert.Tangent));
-            vert.Tangent = glm::normalize(glm::cross(vert.Bitangent, vert.Normal));
+    if (_shapeConfig.calcBitangents) {
+        vert.Bitangent = glm::normalize(glm::cross(vert.Normal, vert.Tangent));
 
-            if (!_shapeConfig.tangentHandednessPositive) {
-                vert.Bitangent *= -1.0f;
-            }
+        // Is it needed?
+        // vert.Tangent = glm::normalize(glm::cross(vert.Bitangent, vert.Normal));
+
+        if (!_shapeConfig.tangentHandednessPositive) {
+            vert.Bitangent *= -1.0f;
         }
     }
 }

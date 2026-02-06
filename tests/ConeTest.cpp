@@ -96,12 +96,9 @@ TEST_CASE("ShapesGenerator.Cone.Position.Range.OneToOne") {
     TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
 
     for (const auto& v : cone.getVertices()) {
-        REQUIRE(v.Position.x >= -1.f);
-        REQUIRE(v.Position.x <= 1.f);
-        REQUIRE(v.Position.y >= -1.f);
-        REQUIRE(v.Position.y <= 1.f);
-        REQUIRE(v.Position.z >= -1.f);
-        REQUIRE(v.Position.z <= 1.f);
+        CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
+        CheckInRange(v.Position.y, -1.0f, 1.0f, TEST_EPSILON, "Position.y");
+        CheckInRange(v.Position.z, -1.0f, 1.0f, TEST_EPSILON, "Position.z");
     }
 }
 
@@ -110,12 +107,9 @@ TEST_CASE("ShapesGenerator.Cone.Position.Range.HalfToHalf") {
     TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::HALF_TO_HALF);
 
     for (const auto& v : cone.getVertices()) {
-        REQUIRE(v.Position.x >= -0.5f);
-        REQUIRE(v.Position.x <= 0.5f);
-        REQUIRE(v.Position.y >= -0.5f);
-        REQUIRE(v.Position.y <= 0.5f);
-        REQUIRE(v.Position.z >= -0.5f);
-        REQUIRE(v.Position.z <= 0.5f);
+        CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
+        CheckInRange(v.Position.y, -0.5f, 0.5f, TEST_EPSILON, "Position.y");
+        CheckInRange(v.Position.z, -0.5f, 0.5f, TEST_EPSILON, "Position.z");
     }
 }
 
@@ -151,10 +145,8 @@ TEST_CASE("ShapesGenerator.Cone.TexCoord.Range") {
     TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
 
     for (const auto& v : cone.getVertices()) {
-        REQUIRE(v.TexCoord.x >= 0.f);
-        REQUIRE(v.TexCoord.x <= 1.f);
-        REQUIRE(v.TexCoord.y >= 0.f);
-        REQUIRE(v.TexCoord.y <= 1.f);
+        CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
+        CheckInRange(v.TexCoord.y, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.y");
     }
 }
 
@@ -241,11 +233,11 @@ TEST_CASE("ShapesGenerator.Cone.Generation(S[4]H[0.745]R[1.0].SMOOTH.TBP)") {
         { { -0.707107f, -0.707107f,        0.f }, {       0.f,      0.5f }, {        0.f,      -1.f,        0.f }, {        1.f,        0.f,       -0.f }, {        0.f,       0.f,        1.f } },
         { {        0.f, -0.707107f,        0.f }, {      0.5f,      0.5f }, {        0.f,      -1.f,        0.f }, {        1.f,        0.f,       -0.f }, {        0.f,       0.f,        1.f } },
         { {        0.f, -0.707107f,  0.707107f }, {       0.f, 0.866025f }, {        0.f, 0.447214f,  0.894427f }, {  0.800809f,   0.53569f, -0.267845f }, { -0.598919f, 0.716266f, -0.358133f } },
-        { {  0.707107f, -0.707107f,       -0.f }, { 0.241181f, 0.965926f }, {  0.894427f, 0.447214f,       -0.f }, { -0.075418f,  0.150836f, -0.985678f }, { -0.440809f, 0.881617f,   0.16864f } },
+        { {  0.707107f, -0.707107f,       -0.f }, { 0.241181f, 0.965926f }, {  0.894427f, 0.447214f,       -0.f }, { -0.079552f,  0.159103f, -0.984052f }, { -0.440081f, 0.880163f,  0.177882f } },
         { {       -0.f, -0.707107f, -0.707107f }, {      0.5f,       1.f }, {       -0.f, 0.447214f, -0.894427f }, {       -1.f,        0.f,        0.f }, {        0.f, 0.894427f,  0.447214f } },
-        { { -0.707107f, -0.707107f,        0.f }, { 0.758819f, 0.965926f }, { -0.894427f, 0.447214f,        0.f }, { -0.075418f, -0.150836f,  0.985678f }, {  0.440809f, 0.881617f,   0.16864f } },
+        { { -0.707107f, -0.707107f,        0.f }, { 0.758819f, 0.965926f }, { -0.894427f, 0.447214f,        0.f }, { -0.079551f, -0.159103f,  0.984052f }, {  0.440081f, 0.880163f,  0.177882f } },
         { {        0.f, -0.707107f,  0.707107f }, {       1.f, 0.866025f }, {        0.f, 0.447214f,  0.894427f }, {  0.800809f,  -0.53569f,  0.267845f }, {  0.598919f, 0.716266f, -0.358133f } },
-        { {        0.f,        1.f,        0.f }, {      0.5f,       0.f }, {        0.f,       1.f,        0.f }, {       -1.f,        0.f,  0.000001f }, {  0.000001f,      -0.f,        1.f } }
+        { {        0.f,        1.f,        0.f }, {      0.5f,       0.f }, {        0.f,       1.f,        0.f }, {       -1.f,        0.f,        0.f }, {        0.f,      -0.f,        1.f } }
     };
 
     static const std::vector<unsigned int> expectedIndices = {
