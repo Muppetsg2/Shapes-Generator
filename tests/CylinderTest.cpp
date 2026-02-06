@@ -93,8 +93,8 @@ TEST_CASE("ShapesGenerator.Cylinder.PositiveHandedness") {
         CHECK(v.Tangent != glm::vec3(0.f));
         CHECK(v.Bitangent != glm::vec3(0.f));
 
-        glm::vec3 bitangent = glm::normalize(glm::cross(v.Normal, v.Tangent));
-        CheckVec3Equal(v.Bitangent, bitangent, TEST_EPSILON, "Bitangent");
+        glm::vec3 expected = glm::normalize(glm::cross(v.Normal, v.Tangent));
+        CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
     }
 }
 
@@ -116,8 +116,36 @@ TEST_CASE("ShapesGenerator.Cylinder.NegativeHandedness") {
         CHECK(v.Tangent != glm::vec3(0.f));
         CHECK(v.Bitangent != glm::vec3(0.f));
 
-        glm::vec3 bitangent = glm::normalize(glm::cross(v.Normal, v.Tangent)) * -1.0f;
-        CheckVec3Equal(v.Bitangent, bitangent, TEST_EPSILON, "Bitangent");
+        glm::vec3 expected = -glm::normalize(glm::cross(v.Normal, v.Tangent));
+        CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.Position.Range.OneToOne") {
+    ShapeConfig config{};
+    TestableCylinder cylinder(config, 5u, 16u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cylinder.getVertices()) {
+        REQUIRE(v.Position.x >= -1.f);
+        REQUIRE(v.Position.x <= 1.f);
+        REQUIRE(v.Position.y >= -1.f);
+        REQUIRE(v.Position.y <= 1.f);
+        REQUIRE(v.Position.z >= -1.f);
+        REQUIRE(v.Position.z <= 1.f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cylinder.Position.Range.HalfToHalf") {
+    ShapeConfig config{};
+    TestableCylinder cylinder(config, 5u, 16u, CylinderShading::SMOOTH, ValuesRange::HALF_TO_HALF);
+
+    for (const auto& v : cylinder.getVertices()) {
+        REQUIRE(v.Position.x >= -0.5f);
+        REQUIRE(v.Position.x <= 0.5f);
+        REQUIRE(v.Position.y >= -0.5f);
+        REQUIRE(v.Position.y <= 0.5f);
+        REQUIRE(v.Position.z >= -0.5f);
+        REQUIRE(v.Position.z <= 0.5f);
     }
 }
 
@@ -139,11 +167,11 @@ TEST_CASE("ShapesGenerator.Cylinder.Normals.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Cylinder.TexCoord.Range") {
     ShapeConfig config{};
-    TestableCylinder cylinder01(config,
+    TestableCylinder cylinder(config,
         1u, 8u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE
     );
 
-    for (const auto& v : cylinder01.getVertices()) {
+    for (const auto& v : cylinder.getVertices()) {
         REQUIRE(v.TexCoord.x >= 0.f);
         REQUIRE(v.TexCoord.x <= 1.f);
         REQUIRE(v.TexCoord.y >= 0.f);
@@ -173,9 +201,9 @@ TEST_CASE("ShapesGenerator.Cylinder.IndexCount") {
     REQUIRE(cylinder.getIndices().size() == expectedTriangles * 3);
 }
 
-TEST_CASE("ShapesGenerator.Cylinder.Generation(V3H1.FLAT.TBP)") {
+TEST_CASE("ShapesGenerator.Cylinder.Generation(V[3]H[1].FLAT.TBP)") {
     static const std::vector<Vertex> expectedVertices = {
-        // POSITION                     // TEX COORD          // NORMAL                   // TANGENT                 // BITANGENT
+           // POSITION                  // TEX COORD          // NORMAL                   // TANGENT                 // BITANGENT
         { {        0.f,  1.f,   1.f }, {      0.5f,   1.f }, {        0.f,  1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f, -1.f } },
         { {  0.866025f,  1.f, -0.5f }, { 0.933013f, 0.25f }, {        0.f,  1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f, -1.f } },
         { { -0.866025f,  1.f, -0.5f }, { 0.066987f, 0.25f }, {        0.f,  1.f,  0.f }, {  1.f, 0.f,        0.f }, { 0.f,  0.f, -1.f } },
@@ -239,9 +267,9 @@ TEST_CASE("ShapesGenerator.Cylinder.Generation(V3H1.FLAT.TBP)") {
     }
 }
 
-TEST_CASE("ShapesGenerator.Cylinder.Generation(V6H2.SMOOTH.TBP)") {
+TEST_CASE("ShapesGenerator.Cylinder.Generation(V[6]H[2].SMOOTH.TBP)") {
     static const std::vector<Vertex> expectedVertices = {
-        // POSITION                     // TEX COORD          // NORMAL                    // TANGENT                       // BITANGENT
+           // POSITION                  // TEX COORD          // NORMAL                    // TANGENT                       // BITANGENT
         { {        0.f,  1.f,   1.f }, {      0.5f,   1.f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
         { {  0.866025f,  1.f,  0.5f }, { 0.933013f, 0.75f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },
         { {  0.866025f,  1.f, -0.5f }, { 0.933013f, 0.25f }, {        0.f,  1.f,   0.f }, {        1.f, 0.f,        0.f }, { 0.f, 0.f, -1.f } },

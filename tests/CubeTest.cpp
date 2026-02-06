@@ -17,54 +17,191 @@ public:
     const std::vector<unsigned int>& getIndices() const { return _indices; }
 };
 
-TEST_CASE("ShapesGenerator.Cube.Generation") {
+TEST_CASE("ShapesGenerator.Cube.Minimal.Valid") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = cube.getVertices();
+    const auto& i = cube.getIndices();
+
+    REQUIRE_FALSE(v.empty());
+    REQUIRE_FALSE(i.empty());
+
+    for (unsigned idx : i) {
+        REQUIRE(idx < v.size());
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.NoTangents") {
+    ShapeConfig config{};
+    config.genTangents = false;
+
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        CHECK(v.Tangent == glm::vec3(0.f));
+        CHECK(v.Bitangent == glm::vec3(0.f));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.NoBitangents") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = false;
+
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent == glm::vec3(0.f));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.PositiveHandedness") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
+
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent != glm::vec3(0.f));
+
+        glm::vec3 expected = glm::normalize(glm::cross(v.Normal, v.Tangent));
+        CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.NegativeHandedness") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = false;
+
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent != glm::vec3(0.f));
+
+        glm::vec3 expected = -glm::normalize(glm::cross(v.Normal, v.Tangent));
+        CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.Position.Range.OneToOne") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        REQUIRE(v.Position.x >= -1.f);
+        REQUIRE(v.Position.x <= 1.f);
+        REQUIRE(v.Position.y >= -1.f);
+        REQUIRE(v.Position.y <= 1.f);
+        REQUIRE(v.Position.z >= -1.f);
+        REQUIRE(v.Position.z <= 1.f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.Position.Range.HalfToHalf") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::HALF_TO_HALF);
+
+    for (const auto& v : cube.getVertices()) {
+        REQUIRE(v.Position.x >= -0.5f);
+        REQUIRE(v.Position.x <= 0.5f);
+        REQUIRE(v.Position.y >= -0.5f);
+        REQUIRE(v.Position.y <= 0.5f);
+        REQUIRE(v.Position.z >= -0.5f);
+        REQUIRE(v.Position.z <= 0.5f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.Normals.UnitLength") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        REQUIRE(glm::length(v.Normal) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.TexCoord.Range") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : cube.getVertices()) {
+        REQUIRE(v.TexCoord.x >= 0.f);
+        REQUIRE(v.TexCoord.x <= 1.f);
+        REQUIRE(v.TexCoord.y >= 0.f);
+        REQUIRE(v.TexCoord.y <= 1.f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Cube.IndexCount") {
+    ShapeConfig config{};
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    // Cube:
+    // 6 faces * 2 triangles * 3 indices
+    REQUIRE(cube.getIndices().size() == 36);
+}
+
+TEST_CASE("ShapesGenerator.Cube.Generation(TBP)") {
     static const std::vector<Vertex> expectedVertices = {
-        //POSITION						//TEX COORD		//NORMAL					//TANGENT					//BITANGENT
-        { { -1.f, 1.f, 1.f },           { 0.f, 0.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, 1.f, 1.f },            { 1.f, 0.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, 1.f, -1.f },           { 0.f, 0.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, 1.f, -1.f },          { 1.f, 0.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, -1.f, 1.f },          { 0.f, 1.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, -1.f, 1.f },           { 1.f, 1.f },   { 0.f, 0.f, 1.f },          { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, -1.f, -1.f },          { 0.f, 1.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, -1.f, -1.f },         { 1.f, 1.f },   { 0.f, 0.f, -1.f },         { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, 1.f, 1.f },           { 1.f, 0.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, 1.f, 1.f },            { 0.f, 0.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, 1.f, -1.f },           { 1.f, 0.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, 1.f, -1.f },          { 0.f, 0.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, -1.f, 1.f },          { 1.f, 1.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, -1.f, 1.f },           { 0.f, 1.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
-        { { 1.f, -1.f, -1.f },          { 1.f, 1.f },   { 1.f, 0.f, 0.f },          { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, -1.f, -1.f },         { 0.f, 1.f },   { -1.f, 0.f, 0.f },         { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
-        { { -1.f, 1.f, 1.f },           { 0.f, 1.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { 1.f, 1.f, 1.f },            { 1.f, 1.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { 1.f, 1.f, -1.f },           { 1.f, 0.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -1.f, 1.f, -1.f },          { 0.f, 0.f },   { 0.f, 1.f, 0.f },          { 1.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-        { { -1.f, -1.f, 1.f },          { 0.f, 0.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
-        { { 1.f, -1.f, 1.f },           { 1.f, 0.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
-        { { 1.f, -1.f, -1.f },          { 1.f, 1.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } },
-        { { -1.f, -1.f, -1.f },         { 0.f, 1.f },   { 0.f, -1.f, 0.f },         { 1.f, 0.f, 0.f }, { 0.f, 0.f, -1.f } }
+           // POSITION           // TEX COORD  // NORMAL             // TANGENT           // BITANGENT
+        { { -1.f,  1.f,  1.f }, { 0.f, 0.f }, {  0.f,  0.f,  1.f }, {  1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f,  1.f,  1.f }, { 1.f, 0.f }, {  0.f,  0.f,  1.f }, {  1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f,  1.f, -1.f }, { 0.f, 0.f }, {  0.f,  0.f, -1.f }, { -1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f,  1.f, -1.f }, { 1.f, 0.f }, {  0.f,  0.f, -1.f }, { -1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f, -1.f,  1.f }, { 0.f, 1.f }, {  0.f,  0.f,  1.f }, {  1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f, -1.f,  1.f }, { 1.f, 1.f }, {  0.f,  0.f,  1.f }, {  1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f, -1.f, -1.f }, { 0.f, 1.f }, {  0.f,  0.f, -1.f }, { -1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f, -1.f, -1.f }, { 1.f, 1.f }, {  0.f,  0.f, -1.f }, { -1.f, 0.f,  0.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f,  1.f,  1.f }, { 1.f, 0.f }, { -1.f,  0.f,  0.f }, {  0.f, 0.f,  1.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f,  1.f,  1.f }, { 0.f, 0.f }, {  1.f,  0.f,  0.f }, {  0.f, 0.f, -1.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f,  1.f, -1.f }, { 1.f, 0.f }, {  1.f,  0.f,  0.f }, {  0.f, 0.f, -1.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f,  1.f, -1.f }, { 0.f, 0.f }, { -1.f,  0.f,  0.f }, {  0.f, 0.f,  1.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f, -1.f,  1.f }, { 1.f, 1.f }, { -1.f,  0.f,  0.f }, {  0.f, 0.f,  1.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f, -1.f,  1.f }, { 0.f, 1.f }, {  1.f,  0.f,  0.f }, {  0.f, 0.f, -1.f }, { 0.f, 1.f,  0.f } },
+        { {  1.f, -1.f, -1.f }, { 1.f, 1.f }, {  1.f,  0.f,  0.f }, {  0.f, 0.f, -1.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f, -1.f, -1.f }, { 0.f, 1.f }, { -1.f,  0.f,  0.f }, {  0.f, 0.f,  1.f }, { 0.f, 1.f,  0.f } },
+        { { -1.f,  1.f,  1.f }, { 0.f, 1.f }, {  0.f,  1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f, -1.f } },
+        { {  1.f,  1.f,  1.f }, { 1.f, 1.f }, {  0.f,  1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f, -1.f } },
+        { {  1.f,  1.f, -1.f }, { 1.f, 0.f }, {  0.f,  1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f, -1.f } },
+        { { -1.f,  1.f, -1.f }, { 0.f, 0.f }, {  0.f,  1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f, -1.f } },
+        { { -1.f, -1.f,  1.f }, { 0.f, 0.f }, {  0.f, -1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f,  1.f } },
+        { {  1.f, -1.f,  1.f }, { 1.f, 0.f }, {  0.f, -1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f,  1.f } },
+        { {  1.f, -1.f, -1.f }, { 1.f, 1.f }, {  0.f, -1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f,  1.f } },
+        { { -1.f, -1.f, -1.f }, { 0.f, 1.f }, {  0.f, -1.f,  0.f }, {  1.f, 0.f,  0.f }, { 0.f, 0.f,  1.f } }
     };
 
     static const std::vector<unsigned int> expectedIndices = {
-        0, 4, 5,
-        0, 5, 1,
-        2, 6, 7,
-        2, 7, 3,
-        9, 13, 14,
-        9, 14, 10,
+         0,  4,  5,
+         0,  5,  1,
+         2,  6,  7,
+         2,  7,  3,
+         9, 13, 14,
+         9, 14, 10,
         11, 15, 12,
-        11, 12, 8,
+        11, 12,  8,
         19, 16, 17,
         19, 17, 18,
         20, 23, 22,
         20, 22, 21
     };
 
-    TestableCube* cube = new TestableCube(ValuesRange::ONE_TO_ONE);
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
 
-    const auto& v = cube->getVertices();
-    const auto& i = cube->getIndices();
+    TestableCube cube(config, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = cube.getVertices();
+    const auto& i = cube.getIndices();
 
     REQUIRE(v.size() == expectedVertices.size());
     REQUIRE(i.size() == expectedIndices.size());
@@ -82,7 +219,7 @@ TEST_CASE("ShapesGenerator.Cube.Generation") {
     }
 }
 
-TEST_CASE("ShapesGenerator.Cube.Calculations") {
+TEST_CASE("Calculations.Cube") {
 
     int xs[] = { -1, 1, 1, -1, -1, 1, 1, -1 };
     int ys[] = { 1, 1, 1, 1, -1, -1, -1, -1 };

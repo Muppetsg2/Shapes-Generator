@@ -16,13 +16,157 @@ public:
     const std::vector<unsigned int>& getIndices() const { return _indices; }
 };
 
-TEST_CASE("ShapesGenerator.Plane.Generation(2u2uUP)") {
+TEST_CASE("ShapesGenerator.Plane.Minimal.Valid") {
+    ShapeConfig config{};
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = plane.getVertices();
+    const auto& i = plane.getIndices();
+
+    REQUIRE_FALSE(v.empty());
+    REQUIRE_FALSE(i.empty());
+
+    for (unsigned idx : i) {
+        REQUIRE(idx < v.size());
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.NoTangents") {
+    ShapeConfig config{};
+    config.genTangents = false;
+
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        CHECK(v.Tangent == glm::vec3(0.f));
+        CHECK(v.Bitangent == glm::vec3(0.f));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.NoBitangents") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = false;
+
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent == glm::vec3(0.f));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.PositiveHandedness") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
+
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent != glm::vec3(0.f));
+
+        glm::vec3 expected = glm::normalize(glm::cross(v.Normal, v.Tangent));
+        CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.NegativeHandedness") {
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = false;
+
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        CHECK(v.Tangent != glm::vec3(0.f));
+        CHECK(v.Bitangent != glm::vec3(0.f));
+
+        glm::vec3 expected = -glm::normalize(glm::cross(v.Normal, v.Tangent));
+        CheckVec3Equal(v.Bitangent, expected, TEST_EPSILON, "Bitangent");
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.Position.Range.OneToOne") {
+    ShapeConfig config{};
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        REQUIRE(v.Position.x >= -1.f);
+        REQUIRE(v.Position.x <= 1.f);
+        REQUIRE(v.Position.y >= -1.f);
+        REQUIRE(v.Position.y <= 1.f);
+        REQUIRE(v.Position.z >= -1.f);
+        REQUIRE(v.Position.z <= 1.f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.Position.Range.HalfToHalf") {
+    ShapeConfig config{};
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::HALF_TO_HALF);
+
+    for (const auto& v : plane.getVertices()) {
+        REQUIRE(v.Position.x >= -0.5f);
+        REQUIRE(v.Position.x <= 0.5f);
+        REQUIRE(v.Position.y >= -0.5f);
+        REQUIRE(v.Position.y <= 0.5f);
+        REQUIRE(v.Position.z >= -0.5f);
+        REQUIRE(v.Position.z <= 0.5f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.Normals.UnitLength") {
+    ShapeConfig config{};
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        REQUIRE(glm::length(v.Normal) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.TexCoord.Range") {
+    ShapeConfig config{};
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    for (const auto& v : plane.getVertices()) {
+        REQUIRE(v.TexCoord.x >= 0.f);
+        REQUIRE(v.TexCoord.x <= 1.f);
+        REQUIRE(v.TexCoord.y >= 0.f);
+        REQUIRE(v.TexCoord.y <= 1.f);
+    }
+}
+
+TEST_CASE("ShapesGenerator.Plane.IndexCount") {
+    constexpr unsigned r = 4;
+    constexpr unsigned c = 6;
+
+    ShapeConfig config{};
+    TestablePlane plane(
+        config,
+        r,
+        c,
+        PlaneNormalDir::UP,
+        ValuesRange::ONE_TO_ONE
+    );
+
+    // Plane (grid):
+    // - (r - 1) * (c - 1) quads
+    // - each quad -> 2 triangles
+    const unsigned expectedTriangles = (r - 1) * (c - 1) * 2;
+
+    REQUIRE(plane.getIndices().size() == expectedTriangles * 3);
+}
+
+TEST_CASE("ShapesGenerator.Plane.Generation(R[2]C[2].UP.TBP)") {
     static const std::vector<Vertex> expectedVertices = {
-        //POSITION				//TEX COORD	    //NORMAL		    //TANGENT			//BITANGENT
-        { { -1.f, 0.f, -1.f },  { 0.f, 0.f },   { 0.f, 1.f, 0.f },  { 1.f, 0.f, 0.f },  { 0.f, 0.f, 1.f } },
-        { { 1.f, 0.f, -1.f },   { 1.f, 0.f },   { 0.f, 1.f, 0.f },  { 1.f, 0.f, 0.f },  { 0.f, 0.f, 1.f } },
-        { { -1.f, 0.f, 1.f },   { 0.f, 1.f },   { 0.f, 1.f, 0.f },  { 1.f, 0.f, 0.f },  { 0.f, 0.f, 1.f } },
-        { { 1.f, 0.f, 1.f },    { 1.f, 1.f },   { 0.f, 1.f, 0.f },  { 1.f, 0.f, 0.f },  { 0.f, 0.f, 1.f } }
+           // POSITION          // TEX COORD  // NORMAL          // TANGENT          // BITANGENT
+        { { -1.f, 0.f, -1.f }, { 0.f, 0.f }, { 0.f, 1.f, 0.f }, { 1.f, -0.f, 0.f }, { 0.f, 0.f, -1.f } },
+        { {  1.f, 0.f, -1.f }, { 1.f, 0.f }, { 0.f, 1.f, 0.f }, { 1.f, -0.f, 0.f }, { 0.f, 0.f, -1.f } },
+        { { -1.f, 0.f,  1.f }, { 0.f, 1.f }, { 0.f, 1.f, 0.f }, { 1.f, -0.f, 0.f }, { 0.f, 0.f, -1.f } },
+        { {  1.f, 0.f,  1.f }, { 1.f, 1.f }, { 0.f, 1.f, 0.f }, { 1.f, -0.f, 0.f }, { 0.f, 0.f, -1.f } },
     };
 
     static const std::vector<unsigned int> expectedIndices = {
@@ -30,10 +174,15 @@ TEST_CASE("ShapesGenerator.Plane.Generation(2u2uUP)") {
         2, 3, 1
     };
 
-    TestablePlane* plane = new TestablePlane(2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
 
-    const auto& v = plane->getVertices();
-    const auto& i = plane->getIndices();
+    TestablePlane plane(config, 2u, 2u, PlaneNormalDir::UP, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = plane.getVertices();
+    const auto& i = plane.getIndices();
 
     REQUIRE(v.size() == expectedVertices.size());
     REQUIRE(i.size() == expectedIndices.size());
@@ -51,18 +200,18 @@ TEST_CASE("ShapesGenerator.Plane.Generation(2u2uUP)") {
     }
 }
 
-TEST_CASE("ShapesGenerator.Plane.Generation(3u3uFRONT)") {
+TEST_CASE("ShapesGenerator.Plane.Generation(R[3]C[3].FRONT.TBP)") {
     static const std::vector<Vertex> expectedVertices = {
-        //POSITION				//TEX COORD	    //NORMAL		    //TANGENT			//BITANGENT
-        { { -1.f, -1.f, 0.f },  { 0.f, 0.f },   { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { 0.f, -1.f, 0.f },   { 0.5f, 0.f },  { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { 1.f, -1.f, 0.f },   { 1.f, 0.f },   { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { -1.f, 0.f, 0.f },   { 0.f, 0.5f },  { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { 0.f, 0.f, 0.f },    { 0.5f, 0.5f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { 1.f, 0.f, 0.f },    { 1.f, 0.5f },  { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { -1.f, 1.f, 0.f },   { 0.f, 1.f },   { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { 0.f, 1.f, 0.f },    { 0.5f, 1.f },  { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-        { { 1.f, 1.f, 0.f },    { 1.f, 1.f },   { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } }
+           // POSITION          // TEX COORD    // NORMAL           // TANGENT         // BITANGENT
+        { { -1.f, -1.f, 0.f }, {  0.f,  0.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { {  0.f, -1.f, 0.f }, { 0.5f,  0.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { {  1.f, -1.f, 0.f }, {  1.f,  0.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f,  0.f, 0.f }, {  0.f, 0.5f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { {  0.f,  0.f, 0.f }, { 0.5f, 0.5f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { {  1.f,  0.f, 0.f }, {  1.f, 0.5f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { { -1.f,  1.f, 0.f }, {  0.f,  1.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { {  0.f,  1.f, 0.f }, { 0.5f,  1.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+        { {  1.f,  1.f, 0.f }, {  1.f,  1.f }, { 0.f, 0.f, -1.f }, { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
     };
 
     static const std::vector<unsigned int> expectedIndices = {
@@ -76,10 +225,15 @@ TEST_CASE("ShapesGenerator.Plane.Generation(3u3uFRONT)") {
         7, 8, 5
     };
 
-    TestablePlane* plane = new TestablePlane(3u, 3u, PlaneNormalDir::FRONT, ValuesRange::ONE_TO_ONE);
+    ShapeConfig config{};
+    config.genTangents = true;
+    config.calcBitangents = true;
+    config.tangentHandednessPositive = true;
 
-    const auto& v = plane->getVertices();
-    const auto& i = plane->getIndices();
+    TestablePlane plane(config, 3u, 3u, PlaneNormalDir::FRONT, ValuesRange::ONE_TO_ONE);
+
+    const auto& v = plane.getVertices();
+    const auto& i = plane.getIndices();
 
     REQUIRE(v.size() == expectedVertices.size());
     REQUIRE(i.size() == expectedIndices.size());
