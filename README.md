@@ -39,7 +39,7 @@ The program dynamically generates the shape based on user input and exports the 
    - [🍏 MacOS](#-macos)
 - [▶️ Usage](#%EF%B8%8F-usage)
    - [🖥️ TUI Mode (Default)](#%EF%B8%8F-tui-mode-default)
-   - [💻 CLI Mode](#%EF%B8%8F-cli-mode)
+   - [💻 CLI Mode](#-cli-mode)
 - [🧾 Configuration](#-configuration)
 - [🛠 Troubleshooting](#-troubleshooting)
 - [👨‍💻 Authors](#-authors)
@@ -161,7 +161,7 @@ The application supports two modes:
 When launched without any flags, the program starts in **TUI mode** powered by [**FTXUI**](https://github.com/ArthurSonzogni/FTXUI).
 
 <div align='center'>
-   <img alt="TUI gif" height="250" align="center" src="git_images/tui.gif"/>
+   <img alt="TUI gif" height="450" align="center" src="git_images/tui.gif"/>
 </div>
 
 **How to use:**
@@ -196,7 +196,7 @@ or
 CLI mode provides a classic step-by-step console interaction.
 
 <div align='center'>
-   <img alt="CLI gif" height="250" align="center" src="git_images/cli.gif"/>
+   <img alt="CLI gif" height="450" align="center" src="git_images/cli.gif"/>
 </div>
 
 **How to use:**
