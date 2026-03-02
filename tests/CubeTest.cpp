@@ -1,15 +1,26 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "BitMathOperators.hpp"
-#include "Vertex.hpp"
-#include "Shape.hpp"
-#include "Cube.hpp"
+#pragma endregion
 
-#include "Helpers.hpp"
-
+#pragma region STD_LIBS
 #include <vector>
+#pragma endregion
 
-#include <catch2/catch_test_macros.hpp>
+#pragma region CATCH2_LIB
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <BitMathOperators.hpp>
+#include <Cube.hpp>
+#include <Shape.hpp>
+#include <Vertex.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Helpers.hpp"
+#pragma endregion
 
 class TestableCube : public Cube {
 public:

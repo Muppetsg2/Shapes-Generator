@@ -1,15 +1,25 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Cone.hpp"
-#include "Shape.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <algorithm>
+#include <cstdint>
 #include <cmath>
 #include <string>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Cone.hpp"
+#include "Shape.hpp"
+#pragma endregion
 
 void Cone::_generate(const unsigned int segments, const float height, const float radius, const ValuesRange range, const bool useFlatShading)
 {
@@ -160,12 +170,12 @@ void Cone::_generate(const unsigned int segments, const float height, const floa
 	trisNum.clear();
 }
 
-Cone::Cone(const ShapeConfig& config, const unsigned int segments, const float height, const float radius, const ConeShading shading, const ValuesRange range)
+Cone::Cone(const ShapeConfig& config, const unsigned int segments, const float height, const float radius, const ValuesRange range, const Shading shading)
 {
 	_shapeConfig = config;
 	_vertices.clear();
 	_indices.clear();
-	_generate(std::max(3u, segments), std::max(EPSILON, height), std::max(EPSILON, radius), range, shading == ConeShading::FLAT);
+	_generate(std::max(3u, segments), std::max(EPSILON, height), std::max(EPSILON, radius), range, shading == Shading::FLAT);
 }
 
 Cone::~Cone() {}

@@ -1,6 +1,12 @@
 #pragma once
-#include "Shape.hpp"
+
+#pragma region STD_LIBS
 #include <string>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Shape.hpp"
+#pragma endregion
 
 class Tetrahedron : public Shape {
 private:

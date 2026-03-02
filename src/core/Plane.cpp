@@ -1,13 +1,23 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Plane.hpp"
-#include "Shape.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <algorithm>
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Plane.hpp"
+#include "Shape.hpp"
+#pragma endregion
 
 void Plane::_generate(const unsigned int rows, const unsigned int columns, const PlaneNormalDir dir, const ValuesRange range)
 {

@@ -1,6 +1,8 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Config.hpp"
+#pragma endregion
 
+#pragma region STD_LIB
 #include <algorithm>
 #include <chrono>
 #include <ctime>
@@ -9,21 +11,30 @@
 #include <istream>
 #include <sstream>
 #include <string>
+#pragma endregion
 
+#pragma region FMT_LIB
 #include <fmt/base.h>
 #include <fmt/color.h>
+#pragma endregion
 
-config::Config& config::get_config(const std::string& exeDirPath)
+#pragma region MY_FILES
+#include "Config.hpp"
+#include "StringHelpers.hpp"
+#pragma endregion
+
+utils::Config& utils::get_config(const std::string& exeDirPath)
 {
     static bool init = false;
-    static config::Config config;
+    static utils::Config config;
 
     if (init) {
         return config;
     }
 
-    const std::string configFilePath = exeDirPath + DIRSEP + "shapes.config";
+    const std::string configFilePath = utils::internal::get_config_path(exeDirPath);
     std::ifstream inFile(configFilePath);
+
     config.genTangents = true;
     config.calcBitangents = true;
     config.tangentHandednessPositive = true;
@@ -40,14 +51,6 @@ config::Config& config::get_config(const std::string& exeDirPath)
     bool hasFileName = false;
     bool hasOpenDirOnSave = false;
 
-    auto parseBool = [](const std::string& str) -> bool {
-        std::string value = str;
-        std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
-            return std::tolower(c);
-        });
-        return (value == "true" || value == "1");
-    };
-
     if (inFile.is_open()) {
         std::string line;
         while (std::getline(inFile, line)) {
@@ -60,15 +63,15 @@ config::Config& config::get_config(const std::string& exeDirPath)
             value.erase(value.find_last_not_of(" \t\r\n") + 1);
 
             if (key == "generateTangents") {
-                config.genTangents = parseBool(value);
+                config.genTangents = utils::parse_bool(value);
                 hasGenTangents = true;
             }
             else if (key == "calculateBitangents") {
-                config.calcBitangents = parseBool(value);
+                config.calcBitangents = utils::parse_bool(value);
                 hasCalcBitangents = true;
             }
             else if (key == "tangentHandednessPositive") {
-                config.tangentHandednessPositive = parseBool(value);
+                config.tangentHandednessPositive = utils::parse_bool(value);
                 hasTangentHandedness = true;
             }
             else if (key == "saveDir") {
@@ -80,7 +83,7 @@ config::Config& config::get_config(const std::string& exeDirPath)
                 hasFileName = true;
             }
             else if (key == "openDirOnSave") {
-                config.openDirOnSave = parseBool(value);
+                config.openDirOnSave = utils::parse_bool(value);
                 hasOpenDirOnSave = true;
             }
         }
@@ -110,55 +113,65 @@ config::Config& config::get_config(const std::string& exeDirPath)
         }
     }
     else {
-        std::ofstream outFile(configFilePath);
-        if (outFile.is_open()) {
-            outFile << "generateTangents: " << (config.genTangents ? "true" : "false") << "\n";
-            outFile << "calculateBitangents: " << (config.calcBitangents ? "true" : "false") << "\n";
-            outFile << "tangentHandednessPositive: " << (config.tangentHandednessPositive ? "true" : "false") << "\n";
-            outFile << "saveDir: " << config.saveDir << "\n";
-            outFile << "fileName: " << config.fileName << "\n";
-            outFile << "openDirOnSave: " << (config.openDirOnSave ? "true" : "false") << "\n";
-            outFile.close();
-        }
-        else {
-            fmt::print("[{}] Warning: Could not create shapes.config. Using defaults.\n",
-                fmt::styled("WARN", fmt::fg(fmt::color::yellow)));
-        }
+        utils::internal::save_config_file(config, configFilePath);
     }
 
     return config;
 }
 
-std::string config::get_resolved_file_name(const config::Config& cfg, const std::string& typeName) {
+std::string utils::get_resolved_file_name(const utils::Config& cfg, const std::string& typeName) {
     std::string result = cfg.fileName;
 
     static const std::string typePlaceholder = "${TYPE}";
     static const std::string typeToken = "___TYPE_TOKEN___";
 
-    auto replace_all = [](std::string& str, const std::string& from, const std::string& to) {
-        size_t pos = 0;
-            while ((pos = str.find(from, pos)) != std::string::npos) {
-                str.replace(pos, from.length(), to);
-                pos += to.length();
-            }
-        };
-
-    replace_all(result, typePlaceholder, typeToken);
+    utils::replace_all(result, typePlaceholder, typeToken);
 
     // Actual Time
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
 
-    ::std::ostringstream oss;
+    std::ostringstream oss;
     if (!result.empty()) {
-        oss << ::std::put_time(::std::localtime(&t), result.c_str());
+        oss << std::put_time(::std::localtime(&t), result.c_str());
     }
     else {
-        oss << ::std::put_time(::std::localtime(&t), "___TYPE_TOKEN___-%H-%M-%S");
+        oss << std::put_time(::std::localtime(&t), "___TYPE_TOKEN___-%H-%M-%S");
     }
     result = oss.str();
 
-    replace_all(result, typeToken, typeName);
+    utils::replace_all(result, typeToken, typeName);
 
     return result;
+}
+
+utils::Config& utils::update_config(utils::Config& cfg, utils::Config newData, const std::string& exeDirPath)
+{
+    cfg = newData;
+    const std::string configFilePath = utils::internal::get_config_path(exeDirPath);
+    utils::internal::save_config_file(cfg, configFilePath);
+    return cfg;
+}
+
+void utils::internal::save_config_file(utils::Config& cfg, const std::string& configFilePath)
+{
+    std::ofstream outFile(configFilePath, std::ios::trunc);
+    if (outFile.is_open()) {
+        outFile << "generateTangents: " << (cfg.genTangents ? "true" : "false") << "\n";
+        outFile << "calculateBitangents: " << (cfg.calcBitangents ? "true" : "false") << "\n";
+        outFile << "tangentHandednessPositive: " << (cfg.tangentHandednessPositive ? "true" : "false") << "\n";
+        outFile << "saveDir: " << cfg.saveDir << "\n";
+        outFile << "fileName: " << cfg.fileName << "\n";
+        outFile << "openDirOnSave: " << (cfg.openDirOnSave ? "true" : "false") << "\n";
+        outFile.close();
+    }
+    else {
+        fmt::print("[{}] Warning: Could not create shapes.config. Using defaults.\n",
+            fmt::styled("WARN", fmt::fg(fmt::color::yellow)));
+    }
+}
+
+std::string utils::internal::get_config_path(const std::string& exeDirPath)
+{
+    return exeDirPath + DIRSEP + "shapes.config";
 }

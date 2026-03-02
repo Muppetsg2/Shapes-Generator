@@ -1,12 +1,19 @@
+# ---- Utils lib's files ----
+add_subdirectory(utils)
+
 # ---- Core lib's files ----
 add_subdirectory(core)
+
+# ---- Tui lib's files ----
+add_subdirectory(tui)
 
 # Precompiled header
 set(PCH_FILE ${CMAKE_CURRENT_SOURCE_DIR}/pch.hpp)
 
 set(SUBPROJECT_NAME ${PROJECT_NAME})
-set(SOURCE_FILES main.cpp Config.cpp)
-set(HEADER_FILES Config.hpp ConsoleTemplates.hpp)
+
+set(SOURCE_FILES main.cpp CliApp.cpp TuiApp.cpp)
+set(HEADER_FILES CliApp.hpp ConsoleTemplates.hpp TuiApp.hpp)
 
 source_group("Source Files" FILES ${SOURCE_FILES})
 source_group("Header Files" FILES ${HEADER_FILES})
@@ -83,10 +90,14 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib fmt::fmt-header-only)
+target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib ${PROJECT_NAME}TuiLib ${PROJECT_NAME}UtilsLib fmt::fmt-header-only ftxui::component ftxui::dom ftxui::screen)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")
+endif()
+
+if(UNIX)
+	target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-lxcb -lXau -lXdmcp -lpthread")
 endif()
 
 if(WIN32)

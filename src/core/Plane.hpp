@@ -1,8 +1,15 @@
 #pragma once
-#include "Shape.hpp"
-#include <string>
 
-enum class PlaneNormalDir {
+#pragma region STD_LIBS
+#include <cstdint>
+#include <string>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Shape.hpp"
+#pragma endregion
+
+enum class PlaneNormalDir : uint8_t {
 	UP = 0,
 	FRONT = 1
 };

@@ -1,14 +1,18 @@
 #pragma once
-#include "Shape.hpp"
+
+#pragma region STD_LIBS
 #include <cstdint>
 #include <string>
 #include <unordered_map>
-#include <glm/fwd.hpp>
+#pragma endregion
 
-enum class IcoSphereShading {
-    FLAT = 0,
-    SMOOTH = 1
-};
+#pragma region GLM_LIB
+#include <glm/fwd.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Shape.hpp"
+#pragma endregion
 
 class IcoSphere : public Shape {
 private:
@@ -25,7 +29,7 @@ private:
     std::unordered_map<uint64_t, unsigned int> _middlePointCache;
 
 public:
-    IcoSphere(const ShapeConfig& config, const unsigned int subdivisions = 0u, const IcoSphereShading shading = IcoSphereShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
+    IcoSphere(const ShapeConfig& config, const unsigned int subdivisions = 0u, const ValuesRange range = ValuesRange::HALF_TO_HALF, const Shading shading = Shading::FLAT);
     virtual ~IcoSphere();
 
     static std::string getClassName();

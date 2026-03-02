@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(global_settings)
@@ -7,7 +7,7 @@ include(utils)
 get_version()
 
 project(Shapes-Generator VERSION ${APP_VERSION} LANGUAGES CXX)
-message(STATUS "Build ${PROJECT_NAME}: ${APP_VERSION}")
+message(STATUS "${PROJECT_NAME}: Version ${APP_VERSION}")
 
 # ---- Dependencies ----
 add_subdirectory(external)

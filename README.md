@@ -1,10 +1,10 @@
 <div align='center'>
-   <img src="git_images/icon.png" alt="Logo" width="150" align="center"/>
+   <img alt="Logo" width="150" align="center" src="git_images/icon.png"/>
    
   <div id="toc">
     <ul style="list-style: none;">
       <summary>
-        <h1>Shapes Generator 1.4.0</h1>
+        <h1>Shapes Generator 2.0.0</h1>
       </summary>
     </ul>
   </div>
@@ -12,9 +12,9 @@
 
 ## 📌 Description
 
-This project is a console-based **Shape Generator** written in **C++**. It allows users to create and save various **3D shapes** such as:
+This project is a console-based (CLI and TUI) 3D **shape generator** written in **C++**. It allows users to create and save a variety of **3D shapes** such as:
 
-🔴 Sphere | 🔷 IcoSphere | ▭ Plane | 🧊 Cube | 🛢 Cylinder | ⬢ Hexagon | 🍦 Cone | 🔼 Tetrahedron | 🔺 Pyramid | 🍩 Torus
+▭ Plane | 🧊 Cube | 🔼 Tetrahedron | 🔺 Pyramid | 🛢 Cylinder | 🍦 Cone | 🔴 Sphere | 🔷 IcoSphere | 🍩 Torus | ⬢ Hexagon
 
 The program dynamically generates the shape based on user input and exports the shape data to a file.
 > 🧭 Note: All shapes use the counterclockwise order for listing vertices, which ensures consistency and simplifies rendering in most 3D engines.
@@ -25,6 +25,9 @@ The program dynamically generates the shape based on user input and exports the 
 - [**GLM**](https://github.com/g-truc/glm) (OpenGL Mathematics) for vector operations
 - [**FMT**](https://github.com/fmtlib/fmt) for formatted output
 - [**JSON**](https://github.com/nlohmann/json) for exporting in json format
+- [**Catch2**](https://github.com/catchorg/Catch2) for unit tests
+- [**FTXUI**](https://github.com/ArthurSonzogni/FTXUI) for terminal user interface
+- [**Clip**](https://github.com/dacap/clip) for copying path to clipboard
 
 ## 📋 Table of Contents
 
@@ -35,8 +38,9 @@ The program dynamically generates the shape based on user input and exports the 
    - [🐧 Linux](#-linux)
    - [🍏 MacOS](#-macos)
 - [▶️ Usage](#%EF%B8%8F-usage)
+   - [🖥️ TUI Mode (Default)](#%EF%B8%8F-tui-mode-default)
+   - [💻 CLI Mode](#%EF%B8%8F-cli-mode)
 - [🧾 Configuration](#-configuration)
-- [📜 Example Output](#-example-output)
 - [🛠 Troubleshooting](#-troubleshooting)
 - [👨‍💻 Authors](#-authors)
 - [📜 License](#-license)
@@ -46,16 +50,16 @@ The program dynamically generates the shape based on user input and exports the 
 ✅ **Interactive User Input**
    - Configure shapes through console input.
    - Choose from **ten** different shapes:
-     1.  🔴 Sphere
-     2.  🔷 IcoSphere
-     3.  ▭ Plane
-     4.  🧊 Cube
+     1.  ▭ Plane
+     2.  🧊 Cube
+     3.  🔼 Tetrahedron
+     4.  🔺 Pyramid
      5.  🛢 Cylinder
-     6.  ⬢ Hexagon
-     7.  🍦 Cone
-     8.  🔼 Tetrahedron
-     9.  🔺 Pyramid
-     10. 🍩 Torus
+     6.  🍦 Cone
+     7.  🔴 Sphere
+     8.  🔷 IcoSphere
+     9.  🍩 Torus
+     10. ⬢ Hexagon
 
 ✅ **ESC Key Support**: Press **ESC** anytime to exit the program.
 <br/>
@@ -66,10 +70,13 @@ The program dynamically generates the shape based on user input and exports the 
 ## 📦 Dependencies
 
 - **C++20** or later
-- **CMake 3.26** or later
+- **CMake 3.30** or later
 - [**GLM**](https://github.com/g-truc/glm) Library (OpenGL Mathematics)
 - [**FMT**](https://github.com/fmtlib/fmt) Library (Formatted console output)
 - [**JSON**](https://github.com/nlohmann/json) Library (Exporting in JSON format)
+- [**Catch2**](https://github.com/catchorg/Catch2) Library (Unit tests)
+- [**FTXUI**](https://github.com/ArthurSonzogni/FTXUI) Library (Terminal user interface)
+- [**Clip**](https://github.com/dacap/clip) Library (Copying to clipboard)
 
 ## ⚙️ How to Build
 
@@ -95,10 +102,10 @@ The program dynamically generates the shape based on user input and exports the 
    > cd Shapes-Generator
    ```
 
-2. **Install CMake and a compiler** (if not installed):
+2. **Install CMake, compiler and libx11 dependency** (if not installed):
 
    ```bash
-   > sudo apt install cmake g++ ninja-build
+   > sudo apt install cmake g++ ninja-build libx11-dev
    ```
 
 3. **Build the project**:
@@ -144,14 +151,67 @@ The program dynamically generates the shape based on user input and exports the 
 
 ## ▶️ Usage
 
-1. **Launch the program** - ASCII art and a menu will appear.
+The application supports two modes:
+- **TUI (Terminal User Interface)** – default mode
+- **CLI (Command Line Interface)** – text-based sequential mode
+
+> 🖥️ Note: By default, the program starts in **TUI mode**.
+
+### 🖥️ TUI Mode (Default)
+When launched without any flags, the program starts in **TUI mode** powered by [**FTXUI**](https://github.com/ArthurSonzogni/FTXUI).
+
+<div align='center'>
+   <img alt="TUI gif" height="250" align="center" src="git_images/tui.gif"/>
+</div>
+
+**How to use:**
+1. **Launch the program** – A banner and an interactive menu with available shapes will appear.
+2. *(Optional)* **Edit the configuration file** before generating a shape.
+3. **Select a shape** by clicking on it or navigating with the keyboard.
+4. **Enter the required shape parameters**, if applicable.
+5. **Press the Generate button** to start the generation process.
+6. **The shape will be generated**.
+7. **Select the file format** for saving the shape.
+8. **The file path** will be displayed in the console and copied to the clipboard.
+9. *(Optional)* The **file explorer** may open at the saved file location.
+10. **Exit at any time** by pressing the **ESC** key or generate another shape.
+
+**Features of TUI mode:**
+- Interactive navigation
+- Structured menu layout
+- Keyboard and mouse support
+- Ability to change the selected object at any time
+
+### 💻 CLI Mode
+
+To launch the application in **CLI mode**, use one of the following flags:
+```mathematica
+-c
+```
+or
+```mathematica
+--cli
+```
+
+CLI mode provides a classic step-by-step console interaction.
+
+<div align='center'>
+   <img alt="CLI gif" height="250" align="center" src="git_images/cli.gif"/>
+</div>
+
+**How to use:**
+1. **Launch the program with `-c` or `--cli`** - ASCII art and a menu will appear.
 2. **Select a shape** by entering a number (1-10).
 3. **Enter the required shape parameters**, if applicable.
 4. **The shape is generated**.
 5. **Select the file format** for saving.
 6. **The file path** will be displayed in the console.
-7. *(Optionaly)* **File explorer** will pop up with file location.
+7. *(Optional)* **File explorer** will pop up with file location.
 8. **Exit anytime** by pressing the **ESC** key.
+
+**Features of CLI mode:**
+- Lightweight sequential input
+- Clear text prompts
 
 ## 🧾 Configuration
 
@@ -172,7 +232,7 @@ The application allows you to configure the default output path and filename usi
 If `calculateBitangents` is enabled, bitangent vectors will also be generated for each vertex.
 - **calculateBitangents**: Determines whether bitangent vectors should be calculated and included in the saved file.
 - **tangentHandednessPositive**: Defines which handedness convention should be used when calculating bitangents or when saving tangents to the file.
-- **saveDir**: Sets the directory where shape files will be saved.
+- **saveDir**: Sets the directory where shape files will be saved. Can be absolute or relative to application directory.
 - **fileName**: Defines the pattern for the output file name. You can use **standard time format markers**
 compatible with the C++ function **strftime**, as well as a custom placeholder `${TYPE}`, 
 which will be replaced with the name of the generated 3D object (e.g., `"Cube"`, `"Cone"`, `"Sphere"`).
@@ -187,40 +247,6 @@ which will be replaced with the name of the generated 3D object (e.g., `"Cube"`,
 > 💡 If the config file is missing or malformed, defaults will be used.\
 :information_source: The path will be different depending on your operating system. Here is an example of the path for Windows \
 ⏱️ List of all supported time marks you can find [here](https://cplusplus.com/reference/ctime/strftime/)
-
-## 📜 Example Output
-
-When generating a **Sphere**, the output will look like this:
-```mathematica
-[OK] Start Generating Sphere...
-[OK] Sphere Generated Successfully!
-
-[INFO] Shape successfully generated in 4.51e-05s!
-
-──────────────────────────────────────────────────
-[FILE] Select the save format:
- 1) std::vector — Vertices & Indices (struct)
- 2) C array     — Vertices & Indices (struct)
- 3) std::vector — Vertices only (struct)
- 4) C array     — Vertices only (struct)
- 5) std::vector — Vertices & Indices (float)
- 6) C array     — Vertices & Indices (float)
- 7) std::vector — Vertices only (float)
- 8) C array     — Vertices only (float)
- 9) Export — JSON — Vertices & Indices
- 10) Export — JSON — Vertices only
- 11) Export — OBJ
- ──────────────────────────────────────────────────
-Enter your choice (1 - 11): 1
-
-[OK] Start Saving Sphere to file...
-[SAVED] Shape saved successfully in 0.0013585s!
-[PATH] File path: C:\my\custom\output\my_shape.txt
-
-Press Enter to exit...
-```
-
-> :information_source: This example is shown on a Windows system. It may vary on other systems.
 
 ## 🛠 Troubleshooting
 

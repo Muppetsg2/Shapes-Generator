@@ -1,8 +1,9 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Shape.hpp"
-#include "Vertex.hpp"
-#include "Constants.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
+#include <cstdint>
 #include <cmath>
 #include <iomanip>
 #include <ios>
@@ -11,14 +12,27 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#pragma endregion
 
+#pragma region FMT_LIB
 #include <fmt/base.h>
 #include <fmt/args.h>
+#pragma endregion
 
+#pragma region JSON_LIB
 #include <nlohmann/json.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Constants.hpp"
+#include "Shape.hpp"
+#include "Vertex.hpp"
+#pragma endregion
 
 float Shape::_map(const float input, const float currStart, const float currEnd, const float expectedStart, const float expectedEnd) const
 {
@@ -242,10 +256,11 @@ std::string Shape::_formatVertex(const Vertex& v, bool useFloat) const
 std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFloat) const
 {
     std::string result;
-    std::string type = useFloat ? "float" : "Vertex";
+    std::string typeStr = useFloat ? "float" : "Vertex";
+    std::string countStr = std::to_string((onlyVertices ? _indices.size() : _vertices.size()) * (useFloat ? 14ull : 1ull));
     std::string header = useArray
-        ? type + " vertices[" + std::to_string((onlyVertices ? _indices.size() : _vertices.size()) * (useFloat ? 14ull : 1ull)) + "] = {\n"
-        : "std::vector<" + type + "> vertices = {\n";
+        ? typeStr + " vertices[" + countStr + "] = {\n"
+        : "std::array<" + typeStr + ", " + countStr + "> vertices = {\n";
 
     result += header;
 
@@ -270,9 +285,10 @@ std::string Shape::_formatVertices(bool onlyVertices, bool useArray, bool useFlo
 std::string Shape::_formatIndices(bool useArray) const
 {
     std::string result;
+    std::string countStr = std::to_string(_indices.size());
     std::string header = useArray
-        ? "unsigned int indices[" + std::to_string(_indices.size()) + "] = {\n"
-        : "std::vector<unsigned int> indices = {\n";
+        ? "unsigned int indices[" + countStr + "] = {\n"
+        : "std::array<unsigned int, " + countStr + "> indices = {\n";
 
     result += header;
 
@@ -414,47 +430,47 @@ Shape::~Shape()
 std::string Shape::toString(FormatType type) const
 {
     switch (type) {
-        case FormatType::VECTOR_INDICES_STRUCT : {
+        case FormatType::CPP_ARRAY_INDICES_STRUCT : {
             return _getGeneratedHeader("//") +
-                   "#include <vector>\n\n" +
+                   "#include <array>\n\n" +
                    _getStructDefinition(false) +
                    _formatVertices(false, false, false) + "\n\n" +
                    _formatIndices(false);
         }
-        case FormatType::ARRAY_INDICES_STRUCT : {
+        case FormatType::C_ARRAY_INDICES_STRUCT : {
             return _getGeneratedHeader("//") +
                    _getStructDefinition(true) +
                    _formatVertices(false, true, false) + "\n\n" +
                    _formatIndices(true);
         }
-        case FormatType::VECTOR_VERTICES_STRUCT: {
+        case FormatType::CPP_ARRAY_VERTICES_STRUCT: {
             return _getGeneratedHeader("//") +
-                   "#include <vector>\n\n" +
+                   "#include <array>\n\n" +
                    _getStructDefinition(false)  +
                    _formatVertices(true, false, false);
         }
-        case FormatType::ARRAY_VERTICES_STRUCT: {
+        case FormatType::C_ARRAY_VERTICES_STRUCT: {
             return _getGeneratedHeader("//") +
                    _getStructDefinition(true) +
                    _formatVertices(true, true, false);
         }
-        case FormatType::VECTOR_INDICES_FLOAT: {
+        case FormatType::CPP_ARRAY_INDICES_FLOAT: {
             return _getGeneratedHeader("//") +
-                   "#include <vector>\n\n" +
+                   "#include <array>\n\n" +
                    _formatVertices(false, false, true) + "\n\n" +
                    _formatIndices(false);
         }
-        case FormatType::ARRAY_INDICES_FLOAT: {
+        case FormatType::C_ARRAY_INDICES_FLOAT: {
             return _getGeneratedHeader("//") +
                    _formatVertices(false, true, true) + "\n\n" +
                    _formatIndices(true);
         }
-        case FormatType::VECTOR_VERTICES_FLOAT: {
+        case FormatType::CPP_ARRAY_VERTICES_FLOAT: {
             return _getGeneratedHeader("//") +
-                   "#include <vector>\n\n" +
+                   "#include <array>\n\n" +
                    _formatVertices(true, false, true);
         }
-        case FormatType::ARRAY_VERTICES_FLOAT: {
+        case FormatType::C_ARRAY_VERTICES_FLOAT: {
             return _getGeneratedHeader("//") +
                    _formatVertices(true, true, true);
         }
@@ -475,6 +491,26 @@ std::string Shape::toString(FormatType type) const
 std::string Shape::getClassName()
 {
     return "Shape";
+}
+
+std::string Shape::getFormatFileExtension(const FormatType& format)
+{
+    switch (format)
+    {
+        case FormatType::OBJ:
+        {
+            return ".obj";
+        }
+        case FormatType::JSON_INDICES:
+        case FormatType::JSON_VERTICES:
+        {
+            return ".json";
+        }
+        default:
+        {
+            return ".txt";
+        }
+    }
 }
 
 std::string Shape::getObjectClassName() const

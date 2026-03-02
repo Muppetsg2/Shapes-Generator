@@ -1,27 +1,47 @@
 #pragma once
-#include "Vertex.hpp"
+
+#pragma region STD_LIBS
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
-#include <glm/fwd.hpp>
+#pragma endregion
 
-enum class FormatType {
-	VECTOR_INDICES_STRUCT = 0,
-	ARRAY_INDICES_STRUCT = 1,
-	VECTOR_VERTICES_STRUCT = 2,
-	ARRAY_VERTICES_STRUCT = 3,
-	VECTOR_INDICES_FLOAT = 4,
-	ARRAY_INDICES_FLOAT = 5,
-	VECTOR_VERTICES_FLOAT = 6,
-	ARRAY_VERTICES_FLOAT = 7,
-	JSON_INDICES = 8,
-	JSON_VERTICES = 9,
-	OBJ = 10
+#pragma region GLM_LIB
+#include <glm/fwd.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Vertex.hpp"
+#pragma endregion
+
+enum class FormatType : uint8_t {
+	// Struct
+	CPP_ARRAY_INDICES_STRUCT  = 0,
+	C_ARRAY_INDICES_STRUCT    = 1,
+	CPP_ARRAY_VERTICES_STRUCT = 2,
+	C_ARRAY_VERTICES_STRUCT   = 3,
+
+	// Float
+	CPP_ARRAY_INDICES_FLOAT   = 4,
+	C_ARRAY_INDICES_FLOAT     = 5,
+	CPP_ARRAY_VERTICES_FLOAT  = 6,
+	C_ARRAY_VERTICES_FLOAT    = 7,
+
+	// Dedicated Files
+	JSON_INDICES			  = 8,
+	JSON_VERTICES		      = 9,
+	OBJ					      = 10
 };
 
-enum class ValuesRange {
+enum class ValuesRange : uint8_t {
 	HALF_TO_HALF = 0,
-	ONE_TO_ONE = 1
+	ONE_TO_ONE	 = 1
+};
+
+enum class Shading : uint8_t {
+	FLAT   = 0,
+	SMOOTH = 1
 };
 
 template<typename T>
@@ -64,9 +84,10 @@ public:
 	Shape() = default;
 	virtual ~Shape();
 
-	std::string toString(FormatType type = FormatType::VECTOR_INDICES_STRUCT) const;
+	std::string toString(FormatType type = FormatType::CPP_ARRAY_INDICES_STRUCT) const;
 
 	static std::string getClassName();
+	static std::string getFormatFileExtension(const FormatType& format);
 	virtual std::string getObjectClassName() const;
 	size_t getVerticesCount() const;
 	size_t getIndicesCount() const;

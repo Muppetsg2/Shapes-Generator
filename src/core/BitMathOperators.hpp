@@ -2,11 +2,11 @@
 
 #if __cplusplus > 201703L
 #include <concepts>
-#define BIT_TEMPLATE template<::std::unsigned_integral T>
+#define BIT_TEMPLATE template<std::unsigned_integral T>
 #else
 #include <type_traits>
 #if __cplusplus > 201402L
-#define BIT_TEMPLATE template<class T, typename = ::std::enable_if_t<std::is_integral_v<T> && ::std::is_unsigned_v<T>>>
+#define BIT_TEMPLATE template<class T, typename = std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>>
 #else
 #define BIT_TEMPLATE template<class T>
 #endif
@@ -20,7 +20,7 @@
 
 #if __cplusplus < 201402L
 #define STATIC_ASSERT_UNSIGNED(T) \
-    static_assert((::std::is_integral<T>::value && ::std::is_unsigned<T>::value), \
+    static_assert((std::is_integral<T>::value && std::is_unsigned<T>::value), \
     "Type must be an unsigned integral type");
 #else
 #define STATIC_ASSERT_UNSIGNED(T)

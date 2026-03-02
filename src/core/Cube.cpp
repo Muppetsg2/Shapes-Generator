@@ -1,13 +1,22 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Cube.hpp"
-#include "Shape.hpp"
-#include "BitMathOperators.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <string>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "BitMathOperators.hpp"
+#include "Cube.hpp"
+#include "Shape.hpp"
+#pragma endregion
 
 void Cube::_generate(const ValuesRange range)
 {

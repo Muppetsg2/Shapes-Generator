@@ -1,14 +1,25 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Vertex.hpp"
-#include "Shape.hpp"
-#include "Tetrahedron.hpp"
+#pragma endregion
 
-#include "Helpers.hpp"
-
+#pragma region STD_LIBS
 #include <vector>
+#pragma endregion
 
-#include <catch2/catch_test_macros.hpp>
+#pragma region CATCH2_LIB
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <Shape.hpp>
+#include <Tetrahedron.hpp>
+#include <Vertex.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Helpers.hpp"
+#pragma endregion
 
 class TestableTetrahedron : public Tetrahedron {
 public:

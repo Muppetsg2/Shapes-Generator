@@ -1,12 +1,16 @@
 #pragma once
-#include "Shape.hpp"
-#include <string>
-#include <glm/fwd.hpp>
 
-enum class SphereShading {
-	FLAT = 0,
-	SMOOTH = 1
-};
+#pragma region STD_LIBS
+#include <string>
+#pragma endregion
+
+#pragma region GLM_LIB
+#include <glm/fwd.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Shape.hpp"
+#pragma endregion
 
 class Sphere : public Shape {
 private:
@@ -14,7 +18,7 @@ private:
 	void _generate(const unsigned int h, const unsigned int v, const ValuesRange range, const bool useFlatShading);
 
 public:
-	Sphere(const ShapeConfig& config, const unsigned int h = 2u, const unsigned int v = 3u, const SphereShading shading = SphereShading::SMOOTH, const ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Sphere(const ShapeConfig& config, const unsigned int h = 2u, const unsigned int v = 3u, const ValuesRange range = ValuesRange::HALF_TO_HALF, const Shading shading = Shading::SMOOTH);
 	virtual ~Sphere();
 
 	static std::string getClassName();

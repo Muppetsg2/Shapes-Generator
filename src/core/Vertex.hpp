@@ -1,14 +1,25 @@
 #pragma once
-#include "Constants.hpp"
 
+#pragma region STD_LIBS
 #include <cmath>
+#include <cstdint>
 #include <functional>
+#include <type_traits>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
-#include <glm/vector_relational.hpp>
 #include <glm/gtc/epsilon.hpp>
+#include <glm/vector_relational.hpp>
+#pragma endregion
 
+#pragma region JSON_LIB
 #include <nlohmann/json.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Constants.hpp"
+#pragma endregion
 
 struct Vertex
 {

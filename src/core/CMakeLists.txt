@@ -12,6 +12,8 @@ source_group("Header Files" FILES ${HEADER_FILES})
 
 set(SUBPROJECT_NAME ${PROJECT_NAME}CoreLib)
 
+list(FILTER HEADER_FILES EXCLUDE REGEX ".*/pch\\.hpp$")
+
 # Define the library
 add_library(${SUBPROJECT_NAME} STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
@@ -81,7 +83,7 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm fmt::fmt-header-only nlohmann_json)
+target_link_libraries(${SUBPROJECT_NAME} PUBLIC glm::glm-header-only fmt::fmt-header-only nlohmann_json)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")

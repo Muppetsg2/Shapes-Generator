@@ -1,14 +1,25 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Vertex.hpp"
-#include "Shape.hpp"
-#include "Sphere.hpp"
+#pragma endregion
 
-#include "Helpers.hpp"
-
+#pragma region STD_LIBS
 #include <vector>
+#pragma endregion
 
-#include <catch2/catch_test_macros.hpp>
+#pragma region CATCH2_LIB
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <Shape.hpp>
+#include <Sphere.hpp>
+#include <Vertex.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Helpers.hpp"
+#pragma endregion
 
 class TestableSphere : public Sphere {
 public:
@@ -19,7 +30,7 @@ public:
 
 TEST_CASE("ShapesGenerator.Sphere.Minimal.Valid") {
 	ShapeConfig config{};
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	const auto& v = sphere.getVertices();
 	const auto& i = sphere.getIndices();
@@ -36,7 +47,7 @@ TEST_CASE("ShapesGenerator.Sphere.NoTangents") {
 	ShapeConfig config{};
 	config.genTangents = false;
 
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		CHECK(v.Tangent == glm::vec3(0.f));
@@ -49,7 +60,7 @@ TEST_CASE("ShapesGenerator.Sphere.NoBitangents") {
 	config.genTangents = true;
 	config.calcBitangents = false;
 
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -63,7 +74,7 @@ TEST_CASE("ShapesGenerator.Sphere.PositiveHandedness") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -80,7 +91,7 @@ TEST_CASE("ShapesGenerator.Sphere.NegativeHandedness") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = false;
 
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -93,7 +104,7 @@ TEST_CASE("ShapesGenerator.Sphere.NegativeHandedness") {
 
 TEST_CASE("ShapesGenerator.Sphere.Position.Range.OneToOne") {
 	ShapeConfig config{};
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
@@ -104,7 +115,7 @@ TEST_CASE("ShapesGenerator.Sphere.Position.Range.OneToOne") {
 
 TEST_CASE("ShapesGenerator.Sphere.Position.Range.HalfToHalf") {
 	ShapeConfig config{};
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::HALF_TO_HALF);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::HALF_TO_HALF, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
@@ -115,7 +126,7 @@ TEST_CASE("ShapesGenerator.Sphere.Position.Range.HalfToHalf") {
 
 TEST_CASE("ShapesGenerator.Sphere.Normals.UnitLength") {
 	ShapeConfig config{};
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		float len = glm::length(v.Normal);
@@ -125,7 +136,7 @@ TEST_CASE("ShapesGenerator.Sphere.Normals.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Sphere.Tangents.UnitLength") {
 	ShapeConfig config{};
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -134,7 +145,7 @@ TEST_CASE("ShapesGenerator.Sphere.Tangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Sphere.Bitangents.UnitLength") {
 	ShapeConfig config{};
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -143,7 +154,7 @@ TEST_CASE("ShapesGenerator.Sphere.Bitangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Sphere.TexCoord.Range") {
 	ShapeConfig config{};
-	TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : sphere.getVertices()) {
 		CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
@@ -156,7 +167,7 @@ TEST_CASE("ShapesGenerator.Sphere.IndexCount") {
 	constexpr unsigned v = 3;
 
 	ShapeConfig config{};
-	TestableSphere sphere(config, h, v, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, h, v, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	// Sphere:
 	// - top cap:    h triangles
@@ -228,7 +239,7 @@ TEST_CASE("ShapesGenerator.Sphere.Generation(H[3]V[3].FLAT.TBP)") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-    TestableSphere sphere(config, 3u, 3u, SphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+    TestableSphere sphere(config, 3u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
     const auto& v = sphere.getVertices();
     const auto& i = sphere.getIndices();
@@ -303,7 +314,7 @@ TEST_CASE("ShapesGenerator.Sphere.Generation(H[4]V[4].SMOOTH.TBP)") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-	TestableSphere sphere(config, 4u, 4u, SphereShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableSphere sphere(config, 4u, 4u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	const auto& v = sphere.getVertices();
 	const auto& i = sphere.getIndices();

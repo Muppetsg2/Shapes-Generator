@@ -1,14 +1,25 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Vertex.hpp"
-#include "Shape.hpp"
-#include "Cylinder.hpp"
+#pragma endregion
 
-#include "Helpers.hpp"
-
+#pragma region STD_LIBS
 #include <vector>
+#pragma endregion
 
-#include <catch2/catch_test_macros.hpp>
+#pragma region CATCH2_LIB
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <Cylinder.hpp>
+#include <Shape.hpp>
+#include <Vertex.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Helpers.hpp"
+#pragma endregion
 
 class TestableCylinder : public Cylinder {
 public:
@@ -23,8 +34,8 @@ TEST_CASE("ShapesGenerator.Cylinder.Minimal.Valid") {
         config,
         1u,  // height segments
         3u,  // radial segments (minimum)
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
+        ValuesRange::ONE_TO_ONE,
+        Shading::SMOOTH
     );
 
     const auto& v = cylinder.getVertices();
@@ -42,13 +53,7 @@ TEST_CASE("ShapesGenerator.Cylinder.NoTangents") {
     ShapeConfig config{};
     config.genTangents = false;
 
-    TestableCylinder cylinder(
-        config,
-        2u,
-        8u,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 2u, 8u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         CHECK(v.Tangent == glm::vec3(0.f));
@@ -61,13 +66,7 @@ TEST_CASE("ShapesGenerator.Cylinder.NoBitangents") {
     config.genTangents = true;
     config.calcBitangents = false;
 
-    TestableCylinder cylinder(
-        config,
-        2u,
-        8u,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 2u, 8u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         CHECK(v.Tangent != glm::vec3(0.f));
@@ -81,13 +80,7 @@ TEST_CASE("ShapesGenerator.Cylinder.PositiveHandedness") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = true;
 
-    TestableCylinder cylinder(
-        config,
-        2u,
-        8u,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 2u, 8u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         CHECK(v.Tangent != glm::vec3(0.f));
@@ -104,13 +97,7 @@ TEST_CASE("ShapesGenerator.Cylinder.NegativeHandedness") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = false;
 
-    TestableCylinder cylinder(
-        config,
-        2u,
-        8u,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 2u, 8u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         CHECK(v.Tangent != glm::vec3(0.f));
@@ -123,7 +110,7 @@ TEST_CASE("ShapesGenerator.Cylinder.NegativeHandedness") {
 
 TEST_CASE("ShapesGenerator.Cylinder.Position.Range.OneToOne") {
     ShapeConfig config{};
-    TestableCylinder cylinder(config, 5u, 16u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCylinder cylinder(config, 5u, 16u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
@@ -134,7 +121,7 @@ TEST_CASE("ShapesGenerator.Cylinder.Position.Range.OneToOne") {
 
 TEST_CASE("ShapesGenerator.Cylinder.Position.Range.HalfToHalf") {
     ShapeConfig config{};
-    TestableCylinder cylinder(config, 5u, 16u, CylinderShading::SMOOTH, ValuesRange::HALF_TO_HALF);
+    TestableCylinder cylinder(config, 5u, 16u, ValuesRange::HALF_TO_HALF, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
@@ -145,13 +132,7 @@ TEST_CASE("ShapesGenerator.Cylinder.Position.Range.HalfToHalf") {
 
 TEST_CASE("ShapesGenerator.Cylinder.Normals.UnitLength") {
     ShapeConfig config{};
-    TestableCylinder cylinder(
-        config,
-        3u,
-        16u,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 3u, 16u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -160,13 +141,7 @@ TEST_CASE("ShapesGenerator.Cylinder.Normals.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Cylinder.Tangents.UnitLength") {
     ShapeConfig config{};
-    TestableCylinder cylinder(
-        config,
-        3u,
-        16u,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 3u, 16u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -175,13 +150,7 @@ TEST_CASE("ShapesGenerator.Cylinder.Tangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Cylinder.Bitangents.UnitLength") {
     ShapeConfig config{};
-    TestableCylinder cylinder(
-        config,
-        3u,
-        16u,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 3u, 16u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -190,9 +159,7 @@ TEST_CASE("ShapesGenerator.Cylinder.Bitangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Cylinder.TexCoord.Range") {
     ShapeConfig config{};
-    TestableCylinder cylinder(config,
-        1u, 8u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, 1u, 8u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cylinder.getVertices()) {
         CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
@@ -205,13 +172,7 @@ TEST_CASE("ShapesGenerator.Cylinder.IndexCount") {
     constexpr unsigned r = 12;
 
     ShapeConfig config{};
-    TestableCylinder cylinder(
-        config,
-        h,
-        r,
-        CylinderShading::SMOOTH,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCylinder cylinder(config, h, r, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     // Cylinder:
     // - top cap:    r triangles
@@ -267,7 +228,7 @@ TEST_CASE("ShapesGenerator.Cylinder.Generation(V[3]H[1].FLAT.TBP)") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = true;
 
-    TestableCylinder cylinder(config, 1u, 3u, CylinderShading::FLAT, ValuesRange::ONE_TO_ONE);
+    TestableCylinder cylinder(config, 1u, 3u, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
     const auto& v = cylinder.getVertices();
     const auto& i = cylinder.getIndices();
@@ -372,7 +333,7 @@ TEST_CASE("ShapesGenerator.Cylinder.Generation(V[6]H[2].SMOOTH.TBP)") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = true;
 
-    TestableCylinder cylinder(config, 2u, 6u, CylinderShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCylinder cylinder(config, 2u, 6u, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     const auto& v = cylinder.getVertices();
     const auto& i = cylinder.getIndices();

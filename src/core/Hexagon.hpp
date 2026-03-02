@@ -1,7 +1,13 @@
 #pragma once
+
+#pragma region STD_LIBS
+#include <string>
+#pragma endregion
+
+#pragma region MY_FILES
 #include "Cylinder.hpp"
 #include "Shape.hpp"
-#include <string>
+#pragma endregion
 
 class Hexagon : public Cylinder {
 public:

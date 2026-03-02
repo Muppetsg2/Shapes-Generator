@@ -14,6 +14,8 @@ set(SUBPROJECT_NAME ${PROJECT_NAME}Tests)
 
 enable_testing()
 
+list(FILTER HEADER_FILES EXCLUDE REGEX ".*/pch\\.hpp$")
+
 # Define the executable
 if(APPLE)
 	add_executable(${SUBPROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
@@ -87,7 +89,7 @@ target_link_options(${SUBPROJECT_NAME} PUBLIC
     >
 )
 
-target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib Catch2::Catch2WithMain glm::glm)
+target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib Catch2::Catch2WithMain glm::glm-header-only)
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")

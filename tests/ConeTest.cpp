@@ -1,14 +1,25 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Vertex.hpp"
-#include "Shape.hpp"
-#include "Cone.hpp"
+#pragma endregion
 
-#include "Helpers.hpp"
-
+#pragma region STD_LIBS
 #include <vector>
+#pragma endregion
 
-#include <catch2/catch_test_macros.hpp>
+#pragma region CATCH2_LIB
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <Cone.hpp>
+#include <Shape.hpp>
+#include <Vertex.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Helpers.hpp"
+#pragma endregion
 
 class TestableCone : public Cone {
 public:
@@ -19,7 +30,7 @@ public:
 
 TEST_CASE("ShapesGenerator.Cone.Minimal.Valid") {
     ShapeConfig config{};
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     const auto& v = cone.getVertices();
     const auto& i = cone.getIndices();
@@ -36,7 +47,7 @@ TEST_CASE("ShapesGenerator.Cone.NoTangents") {
     ShapeConfig config{};
     config.genTangents = false;
 
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         CHECK(v.Tangent == glm::vec3(0.f));
@@ -49,7 +60,7 @@ TEST_CASE("ShapesGenerator.Cone.NoBitangents") {
     config.genTangents = true;
     config.calcBitangents = false;
 
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         CHECK(v.Tangent != glm::vec3(0.f));
@@ -63,7 +74,7 @@ TEST_CASE("ShapesGenerator.Cone.PositiveHandedness") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = true;
 
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         CHECK(v.Tangent != glm::vec3(0.f));
@@ -80,7 +91,7 @@ TEST_CASE("ShapesGenerator.Cone.NegativeHandedness") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = false;
 
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         CHECK(v.Tangent != glm::vec3(0.f));
@@ -93,7 +104,7 @@ TEST_CASE("ShapesGenerator.Cone.NegativeHandedness") {
 
 TEST_CASE("ShapesGenerator.Cone.Position.Range.OneToOne") {
     ShapeConfig config{};
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
@@ -104,7 +115,7 @@ TEST_CASE("ShapesGenerator.Cone.Position.Range.OneToOne") {
 
 TEST_CASE("ShapesGenerator.Cone.Position.Range.HalfToHalf") {
     ShapeConfig config{};
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::HALF_TO_HALF);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::HALF_TO_HALF, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
@@ -115,7 +126,7 @@ TEST_CASE("ShapesGenerator.Cone.Position.Range.HalfToHalf") {
 
 TEST_CASE("ShapesGenerator.Cone.Normals.UnitLength") {
     ShapeConfig config{};
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         REQUIRE(glm::length(v.Normal) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -124,7 +135,7 @@ TEST_CASE("ShapesGenerator.Cone.Normals.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Cone.Tangents.UnitLength") {
     ShapeConfig config{};
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -133,7 +144,7 @@ TEST_CASE("ShapesGenerator.Cone.Tangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Cone.Bitangents.UnitLength") {
     ShapeConfig config{};
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -142,7 +153,7 @@ TEST_CASE("ShapesGenerator.Cone.Bitangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Cone.TexCoord.Range") {
     ShapeConfig config{};
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     for (const auto& v : cone.getVertices()) {
         CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
@@ -154,14 +165,7 @@ TEST_CASE("ShapesGenerator.Cone.IndexCount") {
     constexpr unsigned w = 4;
 
     ShapeConfig config{};
-    TestableCone cone(
-        config,
-        w,
-        0.745f,
-        1.0f,
-        ConeShading::FLAT,
-        ValuesRange::ONE_TO_ONE
-    );
+    TestableCone cone(config, w, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
     // Cone (flat shading):
     // - side surface:  w triangles
@@ -203,7 +207,7 @@ TEST_CASE("ShapesGenerator.Cone.Generation(S[3]H[1.0]R[0.5].FLAT.TBP)") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = true;
 
-    TestableCone cone(config, 3u, 1.0f, 0.5f, ConeShading::FLAT, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 3u, 1.0f, 0.5f, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
     const auto& v = cone.getVertices();
     const auto& i = cone.getIndices();
@@ -256,7 +260,7 @@ TEST_CASE("ShapesGenerator.Cone.Generation(S[4]H[0.745]R[1.0].SMOOTH.TBP)") {
     config.calcBitangents = true;
     config.tangentHandednessPositive = true;
 
-    TestableCone cone(config, 4u, 0.745f, 1.0f, ConeShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableCone cone(config, 4u, 0.745f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     const auto& v = cone.getVertices();
     const auto& i = cone.getIndices();

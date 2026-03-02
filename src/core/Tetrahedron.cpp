@@ -1,14 +1,25 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Tetrahedron.hpp"
-#include "Shape.hpp"
-#include "Constants.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
+#include <cmath>
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Constants.hpp"
+#include "Shape.hpp"
+#include "Tetrahedron.hpp"
+#pragma endregion
 
 void Tetrahedron::_generate(const ValuesRange range)
 {

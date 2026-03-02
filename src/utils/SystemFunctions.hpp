@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace system_functions {
+namespace utils {
 	bool check_directory(const char* path);
 
 	bool create_directory(const char* path);

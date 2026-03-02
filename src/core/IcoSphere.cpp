@@ -1,18 +1,27 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "IcoSphere.hpp"
-#include "BitMathOperators.hpp"
-#include "Constants.hpp"
-#include "Vertex.hpp"
-#include "Shape.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <algorithm>
 #include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "BitMathOperators.hpp"
+#include "Constants.hpp"
+#include "IcoSphere.hpp"
+#include "Shape.hpp"
+#include "Vertex.hpp"
+#pragma endregion
 
 void IcoSphere::_generateIcoSahedron(const float mult, const bool useFlatShading, const bool hasSubdivisions)
 {
@@ -257,13 +266,13 @@ void IcoSphere::_defineTangentBitangentFlatShading(const glm::vec3 tangent, cons
     _normalizeTangentAndGenerateBitangent(index);
 }
 
-IcoSphere::IcoSphere(const ShapeConfig& config, const unsigned int subdivisions, const IcoSphereShading shading, const ValuesRange range)
+IcoSphere::IcoSphere(const ShapeConfig& config, const unsigned int subdivisions, const ValuesRange range, const Shading shading)
 {
     _shapeConfig = config;
     _vertices.clear();
     _indices.clear();
     _middlePointCache.clear();
-    _generate(subdivisions, range, shading == IcoSphereShading::FLAT);
+    _generate(subdivisions, range, shading == Shading::FLAT);
 }
 
 IcoSphere::~IcoSphere() {}

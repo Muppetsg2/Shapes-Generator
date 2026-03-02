@@ -1,17 +1,18 @@
 #pragma once
 
 // STANDARD LIBS
-#include <algorithm>
 #include <chrono>
 #include <cstdlib>
-#include <ctime>
+#include <ctype.h>
+#include <filesystem>
 #include <fstream>
 #include <functional>
-#include <iomanip>
 #include <iostream>
-#include <istream>
-#include <sstream>
+#include <memory>
+#include <ratio>
 #include <string>
+#include <thread>
+#include <type_traits>
 #include <vector>
 
 // PLATFORM DEPENDANT
@@ -33,10 +34,15 @@
 #endif
 
 // FROM CPM
-#define FMT_HEADER_ONLY
 #include <fmt/base.h>
 #include <fmt/color.h>
 #include <fmt/format.h>
+
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/loop.hpp>
+#include <ftxui/component/screen_interactive.hpp>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/color.hpp>
 
 // CORE_LIB
 #include <Cone.hpp>
@@ -48,6 +54,19 @@
 #include <Pyramid.hpp>
 #include <Shape.hpp>
 #include <Sphere.hpp>
-#include <SystemFunctions.hpp>
 #include <Tetrahedron.hpp>
 #include <Torus.hpp>
+
+// TUI_LIB
+#include <EditConfigView.hpp>
+#include <GenerateView.hpp>
+#include <SaveFormatView.hpp>
+#include <SaveResultView.hpp>
+#include <SaveView.hpp>
+#include <ShapeSelectView.hpp>
+#include <ShapesParametersViews.hpp>
+
+// UTILS_LIB
+#include <Config.hpp>
+#include <StringHelpers.hpp>
+#include <SystemFunctions.hpp>

@@ -1,6 +1,8 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "SystemFunctions.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -8,7 +10,9 @@
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
+#pragma endregion
 
+#pragma region PLATFORM_LIBS
 #if defined(_WIN32)
 #define NOGDI
 #define NOATOM
@@ -24,16 +28,21 @@
 #endif
 #include <unistd.h>
 #endif
+#pragma endregion
+
+#pragma region MY_FILES
+#include "SystemFunctions.hpp"
+#pragma endregion
 
 namespace fs = std::filesystem;
 
-bool system_functions::check_directory(const char* path)
+bool utils::check_directory(const char* path)
 {
 	struct stat info;
 	return stat(path, &info) == 0 && (info.st_mode & S_IFDIR);
 }
 
-bool system_functions::create_directory(const char* path)
+bool utils::create_directory(const char* path)
 {
 	if (!path || *path == '\0') return false;
 
@@ -56,7 +65,7 @@ bool system_functions::create_directory(const char* path)
 	return MKDIR(dir.c_str()) == 0; // Try again after creating parent
 }
 
-std::string system_functions::get_executable_path()
+std::string utils::get_executable_path()
 {
     char buffer[4096] = {};
     uint32_t size = sizeof(buffer);
@@ -95,7 +104,7 @@ static bool command_linux_exists(const std::string& cmd)
 }
 #endif
 
-bool system_functions::open_in_file_explorer(const char* path)
+bool utils::open_in_file_explorer(const char* path)
 {
     fs::path absPath = fs::absolute(path);
 

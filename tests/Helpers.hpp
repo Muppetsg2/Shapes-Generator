@@ -1,14 +1,21 @@
 #pragma once
-#include <cmath>
 
+#pragma region STD_LIBS
+#include <cmath>
+#pragma endregion
+
+#pragma region CATCH2_LIB
 #include <catch2/catch_message.hpp>
 #include <catch2/catch_test_macros.hpp>
+#pragma endregion
 
+#pragma region GLM_LIB
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/fwd.hpp>
 #include <glm/gtc/epsilon.hpp>
-#include <glm/vector_relational.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+#include <glm/vector_relational.hpp>
+#pragma endregion
 
 static inline bool epsilon_equal(float a, float b, float eps) { return fabsf(a - b) < eps; }
 

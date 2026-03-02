@@ -1,15 +1,26 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Cylinder.hpp"
-#include "BitMathOperators.hpp"
-#include "Shape.hpp"
-#include "Constants.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "BitMathOperators.hpp"
+#include "Constants.hpp"
+#include "Cylinder.hpp"
+#include "Shape.hpp"
+#pragma endregion
 
 void Cylinder::_generateCircle(const unsigned int segments, const float y, const CylinderCullFace cullFace, const ValuesRange range)
 {
@@ -174,12 +185,12 @@ void Cylinder::_generate(const unsigned int horizontalSegments, const unsigned i
     _generateCircle(verticalSegments, -h * 0.5f, CylinderCullFace::BACK, range);
 }
 
-Cylinder::Cylinder(const ShapeConfig& config, const unsigned int horizontalSegments, const unsigned int verticalSegments, const CylinderShading shading, const ValuesRange range)
+Cylinder::Cylinder(const ShapeConfig& config, const unsigned int horizontalSegments, const unsigned int verticalSegments, const ValuesRange range, const Shading shading)
 {
     _shapeConfig = config;
     _vertices.clear();
     _indices.clear();
-    _generate(std::max(1u, horizontalSegments), std::max(3u, verticalSegments), range, shading == CylinderShading::FLAT);
+    _generate(std::max(1u, horizontalSegments), std::max(3u, verticalSegments), range, shading == Shading::FLAT);
 }
 
 Cylinder::~Cylinder() {}

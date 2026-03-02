@@ -1,15 +1,17 @@
 #pragma once
-#include "Shape.hpp"
-#include <string>
 
-enum class CylinderShading {
-	FLAT = 0,
-	SMOOTH = 1
-};
+#pragma region STD_LIBS
+#include <cstdint>
+#include <string>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Shape.hpp"
+#pragma endregion
 
 class Cylinder : public Shape {
 private:
-	enum class CylinderCullFace {
+	enum class CylinderCullFace : uint8_t {
 		FRONT = 0,
 		BACK = 1
 	};
@@ -21,7 +23,7 @@ protected:
 
 public:
 	Cylinder() = default;
-	Cylinder(const ShapeConfig& config, const unsigned int horizontalSegments = 1u, const unsigned int verticalSegments = 3u, const CylinderShading shading = CylinderShading::FLAT, const ValuesRange range = ValuesRange::HALF_TO_HALF);
+	Cylinder(const ShapeConfig& config, const unsigned int horizontalSegments = 1u, const unsigned int verticalSegments = 3u, const ValuesRange range = ValuesRange::HALF_TO_HALF, const Shading shading = Shading::FLAT);
 	virtual ~Cylinder();
 
 	static std::string getClassName();

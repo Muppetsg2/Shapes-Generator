@@ -1,16 +1,27 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Torus.hpp"
-#include "Shape.hpp"
-#include "Constants.hpp"
-#include "Vertex.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Constants.hpp"
+#include "Shape.hpp"
+#include "Torus.hpp"
+#include "Vertex.hpp"
+#pragma endregion
 
 glm::vec3 Torus::_getAverageNormal(const glm::vec3 n1, const glm::vec3 n2, const glm::vec3 n3) const
 {
@@ -168,12 +179,12 @@ void Torus::_generate(const unsigned int segments, const unsigned int cs_segment
     }
 }
 
-Torus::Torus(const ShapeConfig& config, const unsigned int segments, const unsigned int cs_segments, const float radius, const float cs_radius, const TorusShading shading, const ValuesRange range)
+Torus::Torus(const ShapeConfig& config, const unsigned int segments, const unsigned int cs_segments, const float radius, const float cs_radius, const ValuesRange range, const Shading shading)
 {
     _shapeConfig = config;
 	_vertices.clear();
 	_indices.clear();
-    _generate(std::max(3u, segments), std::max(3u, cs_segments), std::max(EPSILON, radius), std::max(EPSILON, cs_radius), range, shading == TorusShading::FLAT);
+    _generate(std::max(3u, segments), std::max(3u, cs_segments), std::max(EPSILON, radius), std::max(EPSILON, cs_radius), range, shading == Shading::FLAT);
 }
 
 Torus::~Torus() {}

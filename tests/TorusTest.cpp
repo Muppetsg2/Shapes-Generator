@@ -1,14 +1,25 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Vertex.hpp"
-#include "Shape.hpp"
-#include "Torus.hpp"
+#pragma endregion
 
-#include "Helpers.hpp"
-
+#pragma region STD_LIBS
 #include <vector>
+#pragma endregion
 
-#include <catch2/catch_test_macros.hpp>
+#pragma region CATCH2_LIB
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <Shape.hpp>
+#include <Torus.hpp>
+#include <Vertex.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Helpers.hpp"
+#pragma endregion
 
 class TestableTorus : public Torus {
 public:
@@ -19,7 +30,7 @@ public:
 
 TEST_CASE("ShapesGenerator.Torus.Minimal.Valid") {
 	ShapeConfig config{};
-	TestableTorus torus(config, 5u, 5u, 1.0f, 0.2f, TorusShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 5u, 1.0f, 0.2f, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	const auto& v = torus.getVertices();
 	const auto& i = torus.getIndices();
@@ -36,7 +47,7 @@ TEST_CASE("ShapesGenerator.Torus.NoTangents") {
 	ShapeConfig config{};
 	config.genTangents = false;
 
-	TestableTorus torus(config, 5u, 10u, 0.9f, 0.2f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 10u, 0.9f, 0.2f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		CHECK(v.Tangent == glm::vec3(0.f));
@@ -49,7 +60,7 @@ TEST_CASE("ShapesGenerator.Torus.NoBitangents") {
 	config.genTangents = true;
 	config.calcBitangents = false;
 
-	TestableTorus torus(config, 5u, 10u, 0.9f, 0.2f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 10u, 0.9f, 0.2f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -63,7 +74,7 @@ TEST_CASE("ShapesGenerator.Torus.PositiveHandedness") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-	TestableTorus torus(config, 3u, 8u, 0.9f, 0.2f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 3u, 8u, 0.9f, 0.2f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -80,7 +91,7 @@ TEST_CASE("ShapesGenerator.Torus.NegativeHandedness") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = false;
 
-	TestableTorus torus(config, 3u, 8u, 0.9f, 0.2f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 3u, 8u, 0.9f, 0.2f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -93,7 +104,7 @@ TEST_CASE("ShapesGenerator.Torus.NegativeHandedness") {
 
 TEST_CASE("ShapesGenerator.Torus.Position.Range.OneToOne") {
 	ShapeConfig config{};
-	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
@@ -104,7 +115,7 @@ TEST_CASE("ShapesGenerator.Torus.Position.Range.OneToOne") {
 
 TEST_CASE("ShapesGenerator.Torus.Position.Range.HalfToHalf") {
 	ShapeConfig config{};
-	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, TorusShading::SMOOTH, ValuesRange::HALF_TO_HALF);
+	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, ValuesRange::HALF_TO_HALF, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
@@ -115,7 +126,7 @@ TEST_CASE("ShapesGenerator.Torus.Position.Range.HalfToHalf") {
 
 TEST_CASE("ShapesGenerator.Torus.Normals.UnitLength") {
 	ShapeConfig config{};
-	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		float len = glm::length(v.Normal);
@@ -125,7 +136,7 @@ TEST_CASE("ShapesGenerator.Torus.Normals.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Torus.Tangents.UnitLength") {
 	ShapeConfig config{};
-	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -134,7 +145,7 @@ TEST_CASE("ShapesGenerator.Torus.Tangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Torus.Bitangents.UnitLength") {
 	ShapeConfig config{};
-	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 16u, 1.2f, 0.6f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -143,7 +154,7 @@ TEST_CASE("ShapesGenerator.Torus.Bitangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.Torus.TexCoord.Range") {
 	ShapeConfig config{};
-	TestableTorus torus(config, 8u, 8u, 1.2f, 0.6f, TorusShading::SMOOTH, ValuesRange::HALF_TO_HALF);
+	TestableTorus torus(config, 8u, 8u, 1.2f, 0.6f, ValuesRange::HALF_TO_HALF, Shading::SMOOTH);
 
 	for (const auto& v : torus.getVertices()) {
 		CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
@@ -156,15 +167,7 @@ TEST_CASE("ShapesGenerator.Torus.IndexCount") {
 	constexpr unsigned r = 12;
 
 	ShapeConfig config{};
-	TestableTorus torus(
-		config,
-		h,
-		r,
-		1.2f,
-		0.6f,
-		TorusShading::SMOOTH,
-		ValuesRange::HALF_TO_HALF
-	);
+	TestableTorus torus(config, h, r, 1.2f, 0.6f, ValuesRange::HALF_TO_HALF, Shading::SMOOTH);
 
 	// torus:
 	// - surface only (no caps)
@@ -260,7 +263,7 @@ TEST_CASE("ShapesGenerator.Torus.Generation(MS[3]IS[3]MR[1.0]IR[0.2].FLAT.TBP)")
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-    TestableTorus torus(config, 3u, 3u, 1.0f, 0.2f, TorusShading::FLAT, ValuesRange::ONE_TO_ONE);
+    TestableTorus torus(config, 3u, 3u, 1.0f, 0.2f, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
     const auto& v = torus.getVertices();
     const auto& i = torus.getIndices();
@@ -380,7 +383,7 @@ TEST_CASE("ShapesGenerator.Torus.Generation(MS[5]IS[5]MR[1.2]IR[1.0].SMOOTH.TBP)
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-	TestableTorus torus(config, 5u, 5u, 1.2f, 1.0f, TorusShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+	TestableTorus torus(config, 5u, 5u, 1.2f, 1.0f, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
 	const auto& v = torus.getVertices();
 	const auto& i = torus.getIndices();

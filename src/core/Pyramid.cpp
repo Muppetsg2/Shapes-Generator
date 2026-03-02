@@ -1,15 +1,26 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "Pyramid.hpp"
-#include "Shape.hpp"
-#include "BitMathOperators.hpp"
-#include "Constants.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
+#include <cmath>
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
+#pragma endregion
 
+#pragma region GLM_LIB
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "BitMathOperators.hpp"
+#include "Constants.hpp"
+#include "Pyramid.hpp"
+#include "Shape.hpp"
+#pragma endregion
 
 void Pyramid::_generate(const ValuesRange range)
 {

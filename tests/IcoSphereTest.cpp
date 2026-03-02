@@ -1,13 +1,26 @@
+#pragma region PCH
 #include "pch.hpp"
-#include "BitMathOperators.hpp"
-#include "Shape.hpp"
-#include "IcoSphere.hpp"
-#include "Helpers.hpp"
+#pragma endregion
 
+#pragma region STD_LIBS
 #include <vector>
+#pragma endregion
 
-#include <catch2/catch_test_macros.hpp>
+#pragma region CATCH2_LIB
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#pragma endregion
+
+#pragma region MY_FILES_CORE_LIB
+#include <BitMathOperators.hpp>
+#include <IcoSphere.hpp>
+#include <Shape.hpp>
+#include <Vertex.hpp>
+#pragma endregion
+
+#pragma region MY_FILES
+#include "Helpers.hpp"
+#pragma endregion
 
 class TestableIcoSphere : public IcoSphere {
 public:
@@ -18,7 +31,7 @@ public:
 
 TEST_CASE("ShapesGenerator.IcoSphere.Minimal.Valid") {
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	const auto& v = ico.getVertices();
 	const auto& i = ico.getIndices();
@@ -35,7 +48,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.NoTangents") {
 	ShapeConfig config{};
 	config.genTangents = false;
 
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		CHECK(v.Tangent == glm::vec3(0.f));
@@ -48,7 +61,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.NoBitangents") {
 	config.genTangents = true;
 	config.calcBitangents = false;
 
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -62,7 +75,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.PositiveHandedness") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -79,7 +92,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.NegativeHandedness") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = false;
 
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		CHECK(v.Tangent != glm::vec3(0.f));
@@ -92,7 +105,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.NegativeHandedness") {
 
 TEST_CASE("ShapesGenerator.IcoSphere.Position.Range.OneToOne") {
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		CheckInRange(v.Position.x, -1.0f, 1.0f, TEST_EPSILON, "Position.x");
@@ -103,7 +116,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.Position.Range.OneToOne") {
 
 TEST_CASE("ShapesGenerator.IcoSphere.Position.Range.HalfToHalf") {
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::HALF_TO_HALF);
+	TestableIcoSphere ico(config, 2, ValuesRange::HALF_TO_HALF, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		CheckInRange(v.Position.x, -0.5f, 0.5f, TEST_EPSILON, "Position.x");
@@ -114,7 +127,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.Position.Range.HalfToHalf") {
 
 TEST_CASE("ShapesGenerator.IcoSphere.Normals.UnitLength") {
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		float len = glm::length(v.Normal);
@@ -124,7 +137,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.Normals.UnitLength") {
 
 TEST_CASE("ShapesGenerator.IcoSphere.Tangents.UnitLength") {
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		REQUIRE(glm::length(v.Tangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -133,7 +146,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.Tangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.IcoSphere.Bitangents.UnitLength") {
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		REQUIRE(glm::length(v.Bitangent) == Catch::Approx(1.f).epsilon(TEST_EPSILON));
@@ -142,7 +155,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.Bitangents.UnitLength") {
 
 TEST_CASE("ShapesGenerator.IcoSphere.TexCoord.Range") {
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	for (const auto& v : ico.getVertices()) {
 		CheckInRange(v.TexCoord.x, 0.0f, 1.0f, TEST_EPSILON, "TexCoord.x");
@@ -154,7 +167,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.IndexCount") {
 	constexpr unsigned subdivision = 2;
 
 	ShapeConfig config{};
-	TestableIcoSphere ico(config, subdivision, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, subdivision, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	// IcoSphere:
 	// - base icosahedron: 20 triangles
@@ -857,7 +870,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.Generation(S[2].FLAT.TBP)") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-	TestableIcoSphere ico(config, 2, IcoSphereShading::FLAT, ValuesRange::ONE_TO_ONE);
+	TestableIcoSphere ico(config, 2, ValuesRange::ONE_TO_ONE, Shading::FLAT);
 
 	const auto& v = ico.getVertices();
 	const auto& i = ico.getIndices();
@@ -2813,7 +2826,7 @@ TEST_CASE("ShapesGenerator.IcoSphere.Generation(S[3].SMOOTH.TBP)") {
 	config.calcBitangents = true;
 	config.tangentHandednessPositive = true;
 
-    TestableIcoSphere ico(config, 3, IcoSphereShading::SMOOTH, ValuesRange::ONE_TO_ONE);
+    TestableIcoSphere ico(config, 3, ValuesRange::ONE_TO_ONE, Shading::SMOOTH);
 
     const auto& v = ico.getVertices();
     const auto& i = ico.getIndices();
