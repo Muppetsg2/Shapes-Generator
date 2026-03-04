@@ -29,17 +29,14 @@ endif()
 
 # clip https://github.com/dacap/clip
 CPMAddPackage(
-	URI "gh:dacap/clip@1.14"
+	URI "gh:dacap/clip@1.15"
 	OPTIONS "CLIP_INSTALL OFF"
 			"CLIP_ENABLE_IMAGE OFF"
 			"CLIP_EXAMPLES OFF"
 			"CLIP_TESTS OFF"
 )
-if(clip_ADDED)
-	target_include_directories(clip PUBLIC ${clip_SOURCE_DIR})
-	if(MSVC)
-		set_property(TARGET clip PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-	endif()
+if(MSVC AND clip_ADDED)
+	set_property(TARGET clip PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 # glm https://github.com/g-truc/glm
