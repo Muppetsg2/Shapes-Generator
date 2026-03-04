@@ -38,7 +38,7 @@ if(WIN32)
     target_compile_definitions(${SUBPROJECT_NAME} PRIVATE _WIN32)
 elseif(APPLE)
     target_compile_definitions(${SUBPROJECT_NAME} PRIVATE __APPLE__)
-elseif(UNIX)
+elseif(LINUX)
     target_compile_definitions(${SUBPROJECT_NAME} PRIVATE __linux__)
 endif()    
 
@@ -87,4 +87,6 @@ target_link_libraries(${SUBPROJECT_NAME} PUBLIC ${PROJECT_NAME}UtilsLib ftxui::c
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")
+elseif(LINUX)
+	target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-lxcb -lXau -lXdmcp -lpthread")
 endif()

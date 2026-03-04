@@ -45,7 +45,7 @@ if(WIN32)
     target_compile_definitions(${SUBPROJECT_NAME} PRIVATE _WIN32)
 elseif(APPLE)
     target_compile_definitions(${SUBPROJECT_NAME} PRIVATE __APPLE__)
-elseif(UNIX)
+elseif(LINUX)
     target_compile_definitions(${SUBPROJECT_NAME} PRIVATE __linux__)
 endif()    
 
@@ -94,9 +94,7 @@ target_link_libraries(${SUBPROJECT_NAME} PRIVATE ${PROJECT_NAME}CoreLib ${PROJEC
 
 if(APPLE)
     target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-framework CoreFoundation")
-endif()
-
-if(UNIX)
+elseif(LINUX)
 	target_link_libraries(${SUBPROJECT_NAME} PUBLIC "-lxcb -lXau -lXdmcp -lpthread")
 endif()
 
